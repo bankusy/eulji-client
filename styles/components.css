@@ -1,0 +1,35 @@
+/* Slide Bar */
+.bar {
+    width:100%;
+    overflow:hidden;
+    background-color: var(--background);
+    padding: 16px 0;
+}
+
+.track {
+    display: inline-flex;
+    align-items: center;
+    gap: 40px;
+    animation: slide 50s linear infinite;
+}
+
+.track img {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
+}
+
+.bar:hover .track {
+    animation-play-state: paused;
+}
+
+@keyframes slide {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(var(--slide-distance, -50%));
+    }
+
+}

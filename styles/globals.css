@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@font-face {
+    font-family: "Pretendard";
+    font-weight: 45 920;
+    font-style: normal;
+    font-display: swap;
+    src: url("/fonts/PretendardVariable.ttf") format("truetype");
+}
+
+body {
+    font-family: "Pretendard", Arial, Helvetica, sans-serif;
+}
+
+
+* {
+    box-sizing: border-box;
+}

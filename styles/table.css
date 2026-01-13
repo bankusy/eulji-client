@@ -1,0 +1,100 @@
+.table {
+    z-index: 100;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    font-size: 0.75rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    height: 100%;
+    background-color: var(--table-background);
+}
+
+/* 주의할 점: sticky를 쓰는 순간 스태킹의 중심이 되므로 조심해야 됨 => z-index를 입력하지 않으면 auto(0)로 동작하기 떄문*/
+.table-header {
+    position: sticky;
+    top: 0;
+    left: 0;
+    display: flex;
+    width: 100%;
+    min-width: max-content;
+    z-index: 100;
+    background-color: var(--table-header-background);
+}
+
+.table-cell {
+    position: sticky;
+    top: 0;
+}
+
+.table-header .table-cell {
+    z-index: 40;
+}
+
+.table-header .table-cell.table-cell-sticky {
+    z-index: 60;
+    position: sticky;
+}
+
+.table-body .table-cell {
+    z-index: 10;
+}
+
+.table-body .table-cell.table-cell-sticky {
+    z-index: 40;
+    position: sticky;
+}
+
+.table-body {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    position: relative;
+}
+
+.table-row {
+    display: flex;
+    width: 100%;
+    min-width: max-content;
+    height: 36px;
+    border-bottom: 1px solid var(--table-border);
+    flex-grow: 1;
+}
+
+.table-cell {
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    border-right: 1px solid var(--table-border);
+    /* background-color: var(--background); */
+    box-sizing: border-box;
+    flex-shrink: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    user-select: none;
+    overflow: hidden;
+}
+
+.table-header .table-cell {
+    font-weight: normal;
+    height: 100%;
+    background-color: var(--table-header-background);
+    overflow: visible;
+}
+
+/* cell 중 첫 번째 자식 */
+.table-row .table-cell:first-child {
+    width: 48px;
+    justify-content: center;
+    position: sticky;
+    left: 0;
+}
+
+.table-row .table-cell:last-child {
+    flex-grow: 1;
+}
+
+.table-cell-last-sticky {
+    border-right: 2px solid var(--table-border) !important;
+}

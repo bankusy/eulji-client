@@ -1,0 +1,42 @@
+:root {
+    --background: #fdfbfb;
+    /* 배경 */
+    --foreground: #171717;
+    --foreground-muted: #b9b9b9;
+
+    --border: #cdc4c4;
+    --header-height: 72px;
+
+    --navigation-background: var(--background);
+    --navigation-foreground: var(--foreground);
+    --navigation-hover-background: #e1d8d8;
+    --navigation-submenu-border: var(--border);
+    --navigation-submenu-background: #f8f4f4;
+    --navigation-submenu-description-foreground: #cbc1c1;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background: #0a0a0a;
+        --foreground: #ededed;
+        --foreground-muted: #515151;
+        --border: #1a1a1a;
+
+        --navigation-background: var(--background);
+        --navigation-foreground: var(--foreground);
+        --navigation-hover-background: #0f0f0f;
+        --navigation-submenu-border: #302c2c;
+        --navigation-submenu-background: #0d0c0c;
+        --navigation-submenu-description-foreground: #3f3a3a;
+    }
+}
+
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    background-color: var(--background);
+}
