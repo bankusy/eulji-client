@@ -1,0 +1,422 @@
+[
+  {
+    "id": "DATA-000001",
+    "name": "이재영",
+    "phone": "01012345678",
+    "stage": "SUCCESS",
+    "property": "MALL",
+    "email": "lee.jaeyoung@example.com",
+    "transaction": "SALE",
+    "budget": {
+      "priceMax": 20000,
+      "priceMin": 10000,
+      "depositMin": 0,
+      "depositMax": 0
+    },
+    "message": "상가 매매 문의드립니다.",
+    "memo": "전화드리기로 함",
+    "source": "블로그",
+    "assignee": "김민수",
+    "createdAt": "2026-01-02T15:04:05.000Z",
+    "updatedAt": "2026-01-02T15:04:05.000Z"
+  },
+  {
+    "id": "DATA-000002",
+    "name": "김민수",
+    "phone": "010-2345-6789",
+    "stage": "NEW",
+    "property": "OFFICETEL",
+    "email": "kim.minsu@example.com",
+    "transaction": "WOLSE",
+    "budget": {
+      "priceMax": 0,
+      "priceMin": 0,
+      "depositMin": 3000,
+      "depositMax": 5000
+    },
+    "message": "성수동 오피스 임대 찾고 있습니다.",
+    "memo": "오후 2시 이후 통화 가능",
+    "source": "직방",
+    "assignee": "홍길동",
+    "createdAt": "2026-01-03T09:30:00.000Z",
+    "updatedAt": "2026-01-03T09:30:00.000Z"
+  },
+  {
+    "id": "DATA-000003",
+    "name": "박지은",
+    "phone": "01034567890",
+    "stage": "TRYING",
+    "property": "APART",
+    "email": "park.jieun@example.com",
+    "transaction": "SALE",
+    "budget": {
+      "priceMax": 80000,
+      "priceMin": 60000,
+      "depositMin": 0,
+      "depositMax": 0
+    },
+    "message": "아파트 매매 상담 원합니다.",
+    "memo": "",
+    "source": "지인추천",
+    "assignee": "이재영",
+    "createdAt": "2026-01-04T11:15:20.000Z",
+    "updatedAt": "2026-01-04T14:20:00.000Z"
+  },
+  {
+    "id": "DATA-000004",
+    "name": "최영호",
+    "phone": "010-4567-8901",
+    "stage": "CONSULTING",
+    "property": "MALL",
+    "email": "choi.youngho@example.com",
+    "transaction": "WOLSE",
+    "budget": {
+      "priceMax": 0,
+      "priceMin": 0,
+      "depositMin": 5000,
+      "depositMax": 10000
+    },
+    "message": "1층 상가 자리 알아보고 있습니다.",
+    "memo": "권리금 협의 필요",
+    "source": "네이버부동산",
+    "assignee": "김민수",
+    "createdAt": "2026-01-05T10:00:00.000Z",
+    "updatedAt": "2026-01-06T11:00:00.000Z"
+  },
+  {
+    "id": "DATA-000005",
+    "name": "정수진",
+    "phone": "01056789012",
+    "stage": "NEW",
+    "property": "FACTORY",
+    "email": "jung.soojin@example.com",
+    "transaction": "SALE",
+    "budget": {
+      "priceMax": 150000,
+      "priceMin": 120000,
+      "depositMin": 0,
+      "depositMax": 0
+    },
+    "message": "사옥용 빌딩 매매 문의",
+    "memo": "자료 메일로 발송함",
+    "source": "유튜브",
+    "assignee": "홍길동",
+    "createdAt": "2026-01-06T16:45:00.000Z",
+    "updatedAt": "2026-01-06T16:45:00.000Z"
+  },
+  {
+    "id": "DATA-000006",
+    "name": "강현우",
+    "phone": "010-6789-0123",
+    "stage": "TERMINATING",
+    "property": "MALL",
+    "email": "kang.hyunwoo@example.com",
+    "transaction": "WOLSE",
+    "budget": {
+      "priceMax": 0,
+      "priceMin": 0,
+      "depositMin": 2000,
+      "depositMax": 3000
+    },
+    "message": "배달 전문점 자리 구합니다.",
+    "memo": "계약 완료",
+    "source": "다방",
+    "assignee": "이재영",
+    "createdAt": "2026-01-07T13:20:00.000Z",
+    "updatedAt": "2026-01-14T09:00:00.000Z"
+  },
+  {
+    "id": "DATA-000007",
+    "name": "윤서연",
+    "phone": "01078901234",
+    "stage": "TRYING",
+    "property": "ONEROOM",
+    "email": "yoon.seoyeon@example.com",
+    "transaction": "JEONSE",
+    "budget": {
+      "priceMax": 0,
+      "priceMin": 0,
+      "depositMin": 10000,
+      "depositMax": 15000
+    },
+    "message": "전세 자금 대출 가능한 매물 있나요?",
+    "memo": "대출 상담 연결 필요",
+    "source": "카카오싱크",
+    "assignee": "홍길동",
+    "createdAt": "2026-01-08T10:30:00.000Z",
+    "updatedAt": "2026-01-08T10:30:00.000Z"
+  },
+  {
+    "id": "DATA-000008",
+    "name": "임동현",
+    "phone": "010-8901-2345",
+    "stage": "NEW",
+    "property": "LAND",
+    "email": "lim.donghyun@example.com",
+    "transaction": "SALE",
+    "budget": {
+      "priceMax": 50000,
+      "priceMin": 30000,
+      "depositMin": 0,
+      "depositMax": 0
+    },
+    "message": "경기도 인근 토지 매매 관심 있습니다.",
+    "memo": "",
+    "source": "직접입력",
+    "assignee": "김민수",
+    "createdAt": "2026-01-09T09:00:00.000Z",
+    "updatedAt": "2026-01-09T09:00:00.000Z"
+  },
+  {
+    "id": "DATA-000009",
+    "name": "송미경",
+    "phone": "01090123456",
+    "stage": "SUCCESS",
+    "property": "OFFICETEL",
+    "email": "song.mikyoung@example.com",
+    "transaction": "WOLSE",
+    "budget": {
+      "priceMax": 0,
+      "priceMin": 0,
+      "depositMin": 5000,
+      "depositMax": 8000
+    },
+    "message": "강남역 인근 30평대 사무실",
+    "memo": "방문 예약 잡음",
+    "source": "블로그",
+    "assignee": "이재영",
+    "createdAt": "2026-01-10T14:10:00.000Z",
+    "updatedAt": "2026-01-10T15:00:00.000Z"
+  },
+  {
+    "id": "DATA-000010",
+    "name": "한재석",
+    "phone": "010-0123-4567",
+    "stage": "CONSULTING",
+    "property": "MALL",
+    "email": "han.jaeseok@example.com",
+    "transaction": "SALE",
+    "budget": {
+      "priceMax": 90000,
+      "priceMin": 70000,
+      "depositMin": 0,
+      "depositMax": 0
+    },
+    "message": "수익형 꼬마빌딩 문의",
+    "memo": "가격 조정 중",
+    "source": "지인추천",
+    "assignee": "홍길동",
+    "createdAt": "2026-01-11T11:45:00.000Z",
+    "updatedAt": "2026-01-13T10:00:00.000Z"
+  },
+  {
+    "id": "DATA-000011",
+    "name": "오지현",
+    "phone": "01011112222",
+    "stage": "NEW",
+    "property": "APART",
+    "email": "oh.jihyun@example.com",
+    "transaction": "SALE",
+    "budget": {
+      "priceMax": 120000,
+      "priceMin": 100000,
+      "depositMin": 0,
+      "depositMax": 0
+    },
+    "message": "신축 아파트 분양권 문의",
+    "memo": "",
+    "source": "네이버부동산",
+    "assignee": "김민수",
+    "createdAt": "2026-01-12T08:50:00.000Z",
+    "updatedAt": "2026-01-12T08:50:00.000Z"
+  },
+  {
+    "id": "DATA-000012",
+    "name": "서준영",
+    "phone": "010-3333-4444",
+    "stage": "TRYING",
+    "property": "OFFICETEL",
+    "email": "seo.junyoung@example.com",
+    "transaction": "WOLSE",
+    "budget": {
+      "priceMax": 0,
+      "priceMin": 0,
+      "depositMin": 2000,
+      "depositMax": 4000
+    },
+    "message": "공유 오피스 입주 문의",
+    "memo": "인원 5명",
+    "source": "직방",
+    "assignee": "이재영",
+    "createdAt": "2026-01-12T13:30:00.000Z",
+    "updatedAt": "2026-01-12T13:30:00.000Z"
+  },
+  {
+    "id": "DATA-000013",
+    "name": "권민지",
+    "phone": "01055556666",
+    "stage": "NEW",
+    "property": "MALL",
+    "email": "kwon.minji@example.com",
+    "transaction": "WOLSE",
+    "budget": {
+      "priceMax": 0,
+      "priceMin": 0,
+      "depositMin": 3000,
+      "depositMax": 5000
+    },
+    "message": "카페 창업 예정입니다.",
+    "memo": "유동인구 많은 곳 선호",
+    "source": "유튜브",
+    "assignee": "홍길동",
+    "createdAt": "2026-01-13T15:15:00.000Z",
+    "updatedAt": "2026-01-13T15:15:00.000Z"
+  },
+  {
+    "id": "DATA-000014",
+    "name": "황성민",
+    "phone": "010-7777-8888",
+    "stage": "TERMINATING",
+    "property": "TWOROOM",
+    "email": "hwang.sungmin@example.com",
+    "transaction": "JEONSE",
+    "budget": {
+      "priceMax": 0,
+      "priceMin": 0,
+      "depositMin": 5000,
+      "depositMax": 10000
+    },
+    "message": "반전세 구합니다.",
+    "memo": "조건 불일치로 종료",
+    "source": "다방",
+    "assignee": "김민수",
+    "createdAt": "2026-01-13T17:00:00.000Z",
+    "updatedAt": "2026-01-14T09:30:00.000Z"
+  },
+  {
+    "id": "DATA-000015",
+    "name": "장보라",
+    "phone": "01099990000",
+    "stage": "SUCCESS",
+    "property": "LAND",
+    "email": "jang.bora@example.com",
+    "transaction": "SALE",
+    "budget": {
+      "priceMax": 60000,
+      "priceMin": 40000,
+      "depositMin": 0,
+      "depositMax": 0
+    },
+    "message": "전원주택 부지",
+    "memo": "현장 답사 예정",
+    "source": "지인추천",
+    "assignee": "이재영",
+    "createdAt": "2026-01-14T10:10:00.000Z",
+    "updatedAt": "2026-01-14T10:10:00.000Z"
+  },
+  {
+    "id": "DATA-000016",
+    "name": "조상우",
+    "phone": "010-1212-3434",
+    "stage": "NEW",
+    "property": "MALL",
+    "email": "cho.sangwoo@example.com",
+    "transaction": "SALE",
+    "budget": {
+      "priceMax": 40000,
+      "priceMin": 30000,
+      "depositMin": 0,
+      "depositMax": 0
+    },
+    "message": "1층 구분상가 매매",
+    "memo": "",
+    "source": "블로그",
+    "assignee": "홍길동",
+    "createdAt": "2026-01-14T12:00:00.000Z",
+    "updatedAt": "2026-01-14T12:00:00.000Z"
+  },
+  {
+    "id": "DATA-000017",
+    "name": "홍길동",
+    "phone": "01056567878",
+    "stage": "CONSULTING",
+    "property": "OFFICETEL",
+    "email": "hong.gildong@example.com",
+    "transaction": "WOLSE",
+    "budget": {
+      "priceMax": 0,
+      "priceMin": 0,
+      "depositMin": 10000,
+      "depositMax": 20000
+    },
+    "message": "대형 사무실 (100평 이상)",
+    "memo": "렌트프리 협의 중",
+    "source": "직접입력",
+    "assignee": "이재영",
+    "createdAt": "2026-01-14T14:40:00.000Z",
+    "updatedAt": "2026-01-15T09:00:00.000Z"
+  },
+  {
+    "id": "DATA-000018",
+    "name": "류미나",
+    "phone": "010-9898-7676",
+    "stage": "TRYING",
+    "property": "APART",
+    "email": "ryu.mina@example.com",
+    "transaction": "SALE",
+    "budget": {
+      "priceMax": 100000,
+      "priceMin": 80000,
+      "depositMin": 0,
+      "depositMax": 0
+    },
+    "message": "재개발 예정지 투자 문의",
+    "memo": "주말 미팅 가능",
+    "source": "네이버부동산",
+    "assignee": "김민수",
+    "createdAt": "2026-01-15T09:20:00.000Z",
+    "updatedAt": "2026-01-15T09:20:00.000Z"
+  },
+  {
+    "id": "DATA-000019",
+    "name": "백승호",
+    "phone": "01043218765",
+    "stage": "NEW",
+    "property": "MALL",
+    "email": "baek.seungho@example.com",
+    "transaction": "WOLSE",
+    "budget": {
+      "priceMax": 0,
+      "priceMin": 0,
+      "depositMin": 3000,
+      "depositMax": 3000
+    },
+    "message": "네일샵 자리 구합니다.",
+    "memo": "",
+    "source": "카카오싱크",
+    "assignee": "홍길동",
+    "createdAt": "2026-01-15T11:00:00.000Z",
+    "updatedAt": "2026-01-15T11:00:00.000Z"
+  },
+  {
+    "id": "DATA-000020",
+    "name": "신혜진",
+    "phone": "010-1010-2020",
+    "stage": "SUCCESS",
+    "property": "FACTORY",
+    "email": "shin.hyejin@example.com",
+    "transaction": "SALE",
+    "budget": {
+      "priceMax": 30000,
+      "priceMin": 20000,
+      "depositMin": 0,
+      "depositMax": 0
+    },
+    "message": "지식산업센터 매매",
+    "memo": "대출 80% 희망",
+    "source": "지인추천",
+    "assignee": "이재영",
+    "createdAt": "2026-01-15T13:30:00.000Z",
+    "updatedAt": "2026-01-15T13:30:00.000Z"
+  }
+]
