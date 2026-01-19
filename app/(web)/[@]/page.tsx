@@ -1,5 +1,4 @@
 import React from 'react'
-import { Profile } from '../page'
 import { notFound } from 'next/navigation'
 
 export default async function Page({ params }: { params: Promise<{ [key: string]: string }> }) {
@@ -17,6 +16,6 @@ export default async function Page({ params }: { params: Promise<{ [key: string]
     }
 
     return (
-        <Profile />
+        <div></div>
     )
 }

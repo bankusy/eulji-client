@@ -3,7 +3,6 @@ import "@/styles/web.css";
 import "@/styles/globals.css";
 import { ThemeProvider } from "next-themes";
 import Header from "@/components/Header";
-// import {AuthInitializer} from "@/components/AuthInitializer";
 
 export const metadata: Metadata = {
     title: "Eulji | Lightweight CRM System",

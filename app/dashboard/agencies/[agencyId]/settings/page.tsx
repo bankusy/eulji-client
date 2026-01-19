@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import ThemeHook from "@/hooks/ThemeHook";
 import clsx from "clsx";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 import { FormSection, FormRow, FormInput } from "@/components/ui/dashboard/Form";
 import { useParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -132,7 +131,7 @@ export default function SettingsPage() {
                                             <FormInput label="대표자명" placeholder="홍길동" defaultValue="" />
                                         </FormRow>
                                         <FormInput label="사업자등록번호" placeholder="000-00-00000" defaultValue={agency.license_no || ""} />
-                                        <FormInput label="대표 전화번호" validationType="phone" placeholder="02-0000-0000" />
+                                        <FormInput label="대표 전화번호"  placeholder="02-0000-0000" />
                                         <FormInput label="주소" placeholder="서울시..." />
                                     </div>
                                     <div className="mt-4 flex justify-end">

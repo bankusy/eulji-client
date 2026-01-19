@@ -1,6 +1,5 @@
 "use client";
 
-
 import { usePathname } from "next/navigation";
 import "@/styles/components.css";
 import HeroSection from "@/components/ui/web/HeroSection";
@@ -466,7 +465,7 @@ export function Profile() {
                                     <input
                                         type="tel"
                                         value={phone}
-                                        onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
+                                        onChange={(e) => setPhone(e.target.value)}
                                         placeholder="010-1234-5678"
                                         className="text-xs w-full px-4 py-3 border border-(--border) rounded-lg bg-(--navigation-submenu-background) text-(--foreground) placeholder:text-(--foreground-muted) focus:outline-none focus:border-transparent transition-all focus:ring-1 focus:ring-(--primary) focus:outline-0"
                                         maxLength={13}

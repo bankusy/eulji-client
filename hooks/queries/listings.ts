@@ -20,20 +20,6 @@ export const useListingGroups = (agencyId: string) => {
     });
 };
 
-export const useListingGroupMutations = () => {
-    const queryClient = useQueryClient();
-
-    const updateGroup = useMutation({
-        mutationFn: ({ address, name }: { address: string; name: string }) => 
-            updateListingGroup(address, name),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["listingGroups"] });
-            queryClient.invalidateQueries({ queryKey: ["listings"] }); // Names might change in listings list too
-        },
-    });
-
-    return { updateGroup };
-};
 
 // --- Listings ---
 
