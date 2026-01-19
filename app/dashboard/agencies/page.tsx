@@ -172,12 +172,13 @@ export default function AgencySelectPage() {
                 </div>
 
                 {isCreatingAgency ? (
-                    <div className="w-full max-w-md mx-auto bg-(--background-subtle) p-4 rounded-lg border border-(--border) space-y-3">
+                    <div className="flex flex-col w-full max-w-md mx-auto bg-(--background) p-4 rounded-lg border border-(--border) space-y-3">
                         <h3 className="text-sm font-semibold text-(--foreground)">
                             새 에이전시 정보
                         </h3>
-                        <div>
+                        <div className="w-full">
                             <Input
+                            className="w-full"
                                 placeholder="에이전시 이름"
                                 value={newAgencyName}
                                 onChange={(e) =>
@@ -186,7 +187,7 @@ export default function AgencySelectPage() {
                                 autoFocus
                             />
                         </div>
-                        <div className="flex gap-2 justify-end">
+                        <div className="flex gap-2 justify-end h-[36px]">
                             <Button
                                 variant="ghost"
                                 size="sm"
@@ -195,7 +196,7 @@ export default function AgencySelectPage() {
                                 취소
                             </Button>
                             <Button
-                                variant="primary"
+                                variant="outline"
                                 size="sm"
                                 onClick={handleCreateAgency}
                                 disabled={isCreating || !newAgencyName.trim()}
