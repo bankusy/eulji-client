@@ -66,13 +66,6 @@ export default function ListingsToolbar({
                         onClick={onToggleColumnPopup}
                     />
                 </div>
-                <div
-                    className="flex justify-center items-center w-[36px] h-[36px] border border-(--border) rounded-md cursor-pointer hover:opacity-70 transition-opacity"
-                    onClick={onReset}
-                    title="초기화"
-                >
-                    <RotateCcw size={12} className="text-(--foreground)" />
-                </div>
             </div>
             <div className="flex-1"></div>
             <div className="flex gap-2 h-[36px]">

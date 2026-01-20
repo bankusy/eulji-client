@@ -1,6 +1,7 @@
 "use server";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { verifyAgencyAccess } from "@/lib/auth/agency"; // Import added
 
 export async function getDashboardStats(agencyId: string) {
     const supabase = await createSupabaseServerClient();
@@ -100,6 +101,7 @@ export async function getDashboardStats(agencyId: string) {
         .order("created_at", { ascending: false })
         .limit(5);
 
+// ... existing code ...
     return {
         counts: {
             total: totalLeads || 0,
@@ -112,3 +114,43 @@ export async function getDashboardStats(agencyId: string) {
         recentLeads: recentLeads || [],
     };
 }
+
+export async function getAgencyMembers(agencyId: string) {
+    const auth = await verifyAgencyAccess(agencyId);
+    if (!auth) return [];
+
+    const supabase = await createSupabaseServerClient();
+
+    // 1. Get User IDs from agency_users
+    const { data: membershipData, error: membershipError } = await supabase
+        .from("agency_users")
+        .select("user_id")
+        .eq("agency_id", agencyId)
+        .eq("status", "ACTIVE");
+
+    if (membershipError || !membershipData) {
+        console.error("Error fetching agency members:", membershipError);
+        return [];
+    }
+
+    const userIds = membershipData.map((m) => m.user_id);
+
+    if (userIds.length === 0) return [];
+
+    // 2. Get Names from users
+    const { data: usersData, error: usersError } = await supabase
+        .from("users")
+        .select("id, name")
+        .in("id", userIds);
+
+    if (usersError) {
+        console.error("Error fetching user details:", usersError);
+        return [];
+    }
+
+    return usersData.map((u: any) => ({
+        id: u.id,
+        name: u.name || "Unknown",
+    }));
+}
+

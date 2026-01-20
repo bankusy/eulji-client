@@ -13,6 +13,7 @@ export interface Lead {
     source: string; // 유입 경로 (블로그, 카카오톡, 웹 사이트 등)
     createdAt: string;
     updatedAt: string;
+    assigned_user_id?: string; // 담당자 ID
 }
 
 export interface Budget {

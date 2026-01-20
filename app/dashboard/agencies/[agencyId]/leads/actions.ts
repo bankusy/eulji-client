@@ -18,8 +18,13 @@ function mapLeadToDb(lead: Partial<Lead>) {
         updatedAt, // 제외
         id, // 별도 처리
         phone, // 전화번호 별도 처리 (숫자만 저장)
+        assigned_user_id, // Destructure this out if present so ...rest doesn't have it?
+        // Wait, if it is assigned_user_id (snake case), then DB update has it in ...rest which is fine.
+        // But if there is any residue assignedUserId (camel), destructure it.
+        // Also destructure assign_user object from join
+        assigned_user, 
         ...rest
-    } = lead;
+    } = lead as any; // Cast to any to handle potential extra props like assigned_user object from join
 
     return {
         ...rest,
@@ -28,8 +33,8 @@ function mapLeadToDb(lead: Partial<Lead>) {
         transaction: transactionType,
         message: message,
         phone: phone?.replace(/[^0-9]/g, ""), // 숫자만 추출하여 저장
-        // assignee는 현재 텍스트로 입력받으므로 DB의 assigned_user_id(uuid)에 넣을 수 없음
-        // 필요하다면 users 테이블 조회 후 ID 변환 로직이 필요하나 현재는 제외
+        assigned_user_id: assigned_user_id || null, // Use the destructured variable
+        // assignee는 Display용이므로 DB 저장 시에는 무시 (assigned_user_id 사용)
     };
 }
 
@@ -158,7 +163,7 @@ export async function getLeads(
 
     let queryBuilder = supabase
         .from("leads")
-        .select("*",  { count: "exact" })
+        .select("*, assigned_user:users!assigned_user_id(name)", { count: "exact" }) // users 테이블 조인 (FK 이름 확인 필요, 보통 assigned_user_id면 자동 매핑 될 수 있음)
         .eq("agency_id", agencyId);
 
     if (query && searchColumns && searchColumns.length > 0) {
@@ -228,8 +233,12 @@ export async function getLeads(
         message: row.message,
         budget: row.budget || {}, // jsonb field might be null, but default is '{}'
         assigned_user_id: row.assigned_user_id, // keep for ref if needed
+        assignee: row.assigned_user?.name || "", // 조인된 사용자 이름
         createdAt: row.created_at,
         updatedAt: row.updated_at,
+        // Remove any camelCase variants if present in row to verify
+        // The error suggests "Could not find column assignedUserId" which implies it was in the payload
+        // Sent to update.
     })) as Lead[];
 
     const nextId = (data && data.length === limit && (count ? from + limit < count : true))

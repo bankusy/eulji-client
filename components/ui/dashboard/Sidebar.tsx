@@ -233,10 +233,10 @@ function SidebarBody({
                             <Link
                                 href={item.path}
                                 key={item.id}
-                                className={`flex w-full mb-2 transition-all duration-200 items-center ${
+                                className={`flex py-1 w-full mb-2 transition-all duration-200 items-center ${
                                     isActive
                                         ? "text-(--foreground) opacity-100"
-                                        : "text-(--foreground-hover) hover:text-(--foreground) opacity-20"
+                                        : "text-(--foreground-hover) hover:text-(--foreground) opacity-20 hover:bg-(--foreground)/20 rounded-md"
                                 } ${isFolded && "justify-center"}`}
                             >
                                 <div className="flex justify-center items-center w-[32px]">

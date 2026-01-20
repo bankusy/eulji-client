@@ -7,6 +7,7 @@ import { FormSelect, SelectOption } from "@/components/ui/FormSelect";
 import FormTextArea from "@/components/ui/FormTextArea";
 import Button from "@/components/ui/Button";
 import { useLeadMutations } from "@/hooks/queries/leads";
+import { getAgencyMembers } from "@/app/dashboard/agencies/[agencyId]/actions"; // Import added
 import { Lead, Budget } from "@/types/lead";
 import { X } from "lucide-react"; // Import X icon
 
@@ -23,6 +24,12 @@ export default function LeadForm({
 }: LeadFormProps) {
     const { createLead, updateLead } = useLeadMutations(agencyId);
     const isSubmitting = createLead.isPending || updateLead.isPending;
+
+    const [members, setMembers] = useState<{ id: string; name: string }[]>([]);
+
+    React.useEffect(() => {
+        getAgencyMembers(agencyId).then(setMembers).catch(console.error);
+    }, [agencyId]);
 
     // Helper for initial phone formatting
     const formatPhone = (val: string) => {
@@ -49,7 +56,7 @@ export default function LeadForm({
         initialData?.transactionType || "WOLSE",
     );
     const [source, setSource] = useState(initialData?.source || "");
-    const [assignee, setAssignee] = useState(initialData?.assignee || "");
+    const [assigneeId, setAssigneeId] = useState(initialData?.assigned_user_id || "");
 
     // Budget
     const [budget, setBudget] = useState<Budget>(
@@ -118,7 +125,7 @@ export default function LeadForm({
                 propertyType,
                 transactionType,
                 source,
-                assignee,
+                assigned_user_id: assigneeId,
                 budget,
                 message,
                 memo,
@@ -221,14 +228,18 @@ export default function LeadForm({
                     }
                     placeholder="직방, 다방, 블로그 등"
                 />
-                <FormInput
+                <FormSelect
                     label="담당자"
-                    value={assignee}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        setAssignee(e.target.value)
-                    }
-                    placeholder="담당자 이름"
-                />
+                    value={assigneeId}
+                    onChange={setAssigneeId}
+                >
+                    <SelectOption value="">담당자 선택</SelectOption>
+                    {members.map((member) => (
+                        <SelectOption key={member.id} value={member.id}>
+                            {member.name}
+                        </SelectOption>
+                    ))}
+                </FormSelect>
             </FormSection>
 
             <FormSection title="예산">
