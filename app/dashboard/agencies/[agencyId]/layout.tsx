@@ -35,8 +35,10 @@ function DashboardInnerLayout({ children }: { children: React.ReactNode }) {
 
 function ContentLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="w-full h-full bg-(--background)">
+        <div className="w-full h-full p-2">
+            <div className="w-full h-full bg-(--background) border border-(--border-surface) rounded-xl p-2">
             {children}
+            </div>
         </div>
     )
 }

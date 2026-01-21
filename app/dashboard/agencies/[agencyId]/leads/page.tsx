@@ -198,7 +198,7 @@ export default function Page() {
     };
 
     return (
-        <div className="flex flex-col w-full h-full py-2 pr-2">
+        <div className="flex flex-col w-full h-full">
             <LeadsToolbar
                 onOpenAddPanel={() => {
                     setEditingLead(null);

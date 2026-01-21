@@ -57,9 +57,9 @@
     display: flex;
     width: 100%;
     min-width: max-content;
+    flex-grow: 1;
     height: 36px;
     border-bottom: 1px solid var(--table-border);
-    flex-grow: 1;
 }
 
 .table-cell {

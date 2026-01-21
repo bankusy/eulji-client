@@ -163,7 +163,7 @@ export const columnsConfiguration: TableColumn[] = [
             { label: "원룸", value: "ONEROOM" },
             { label: "투룸", value: "TWOROOM" },
             { label: "쓰리룸", value: "THREEROOM" },
-            { label: "아파트", value: "APART" },
+            { label: "아파트", value: "APARTMENT" },
             { label: "공장", value: "FACTORY" },
             { label: "상가", value: "MALL" },
             { label: "토지", value: "LAND" },
@@ -179,7 +179,7 @@ export const columnsConfiguration: TableColumn[] = [
                     return "투룸";
                 case "THREEROOM":
                     return "쓰리룸";
-                case "APART":
+                case "APARTMENT":
                     return "아파트";
                 case "FACTORY":
                     return "공장";

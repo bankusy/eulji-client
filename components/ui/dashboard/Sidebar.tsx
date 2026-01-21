@@ -72,13 +72,13 @@ export default function Sidebar() {
                 `${isFolded ? "w-[8px] hover:bg-(--primary)" : "min-w-(--sidebar-width-max) p-2"} relative`,
                 "flex flex-col justify-between",
                 "text-(--sidebar-foreground) text-sm",
-                "select-none transition-all duration-200",
+                "select-none",
             )}
         >
             {isFolded ? (
                 <SidebarResizer theme={systemTheme} setFolded={setFolded} />
             ) : (
-                <div className="bg-(--sidebar-background) border border-(--sidebar-border) rounded-md p-2 h-full flex flex-col">
+                <div className="rounded-md p-2 h-full flex flex-col">
                     {/* Header */}
                     <SidebarHeader
                         agencyInfo={agencyInfo}
@@ -233,7 +233,7 @@ function SidebarBody({
                             <Link
                                 href={item.path}
                                 key={item.id}
-                                className={`flex py-1 w-full mb-2 transition-all duration-200 items-center ${
+                                className={`flex py-1 w-full mb-2 items-center ${
                                     isActive
                                         ? "text-(--foreground) opacity-100"
                                         : "text-(--foreground-hover) hover:text-(--foreground) opacity-20 hover:bg-(--foreground)/20 rounded-md"
@@ -257,7 +257,7 @@ function SidebarBody({
                                     )}
                                 </div>
                                 <span
-                                    className={`overflow-hidden transition-all duration-300 ease-in-out whitespace-nowrap ${
+                                    className={`overflow-hidden  whitespace-nowrap ${
                                         isFolded
                                             ? "w-0 opacity-0"
                                             : "w-auto opacity-100 ml-2"
@@ -376,7 +376,7 @@ function SidebarFooter({
                             size={16}
                             className={`${
                                 isMenuOpen && "-rotate-90"
-                            } transition-all duration-200 shrink-0`}
+                            } shrink-0`}
                         />
                     )}
                     <ProfileEditModal

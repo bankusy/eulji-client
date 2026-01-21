@@ -69,14 +69,7 @@ export default function ListingGroupList({
             <div className="flex-1 overflow-y-auto">
                 {filteredGroups.length === 0 ? (
                     <div className="p-4 text-center text-xs text-(--foreground-muted) flex justify-center">
-                        {isLoading ? (
-                            <Image
-                                src={`/icons/spinner/${systemTheme}.svg`}
-                                width={16}
-                                height={16}
-                                alt="loading"
-                            />
-                        ) : searchQuery ? (
+                        {searchQuery ? (
                             "검색 결과가 없습니다."
                         ) : (
                             "등록된 매물이 없습니다."

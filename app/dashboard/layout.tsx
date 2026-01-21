@@ -6,7 +6,6 @@ import QueryProvider from "@/components/QueryProvider";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { syncAuthenticatedUser } from "@/lib/auth/service";
-import GlobalLoadingTemplate from "../GlobalLoadingTemplate";
 
 
 export const metadata: Metadata = {
@@ -27,7 +26,6 @@ export default async function RootLayout({
         redirect("/auth/login");
     }
 
-    // Ensure user exists in our DB
     await syncAuthenticatedUser();
 
     return (
@@ -35,11 +33,9 @@ export default async function RootLayout({
             <body>
                 <ThemeProvider>
                     <QueryProvider>
-                        <GlobalLoadingTemplate>
                         <div className="flex h-screen w-full bg-(--background)">
                             {children}
                         </div>
-                        </GlobalLoadingTemplate>
                     </QueryProvider>
                 </ThemeProvider>
             </body>

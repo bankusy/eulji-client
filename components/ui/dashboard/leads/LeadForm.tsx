@@ -206,7 +206,7 @@ export default function LeadForm({
                     <SelectOption value="ONEROOM">원룸</SelectOption>
                     <SelectOption value="TWOROOM">투룸</SelectOption>
                     <SelectOption value="THREEROOM">쓰리룸</SelectOption>
-                    <SelectOption value="APART">아파트</SelectOption>
+                    <SelectOption value="APARTMENT">아파트</SelectOption>
                     <SelectOption value="FACTORY">공장</SelectOption>
                     <SelectOption value="MALL">상가</SelectOption>
                     <SelectOption value="LAND">토지</SelectOption>
