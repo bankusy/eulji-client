@@ -6,26 +6,24 @@ import { verifyAgencyAccess } from "@/lib/auth/agency"; // Import added
 export async function getDashboardStats(agencyId: string) {
     const supabase = await createSupabaseServerClient();
 
-    // 1. Basic Counts
-    // Total Leads
-    // New Today
-    // Active (CONSULTING, MEETING SOON, TRYING, PROVISIONAL CONTRACT)
-    // Success
-
     const today = new Date().toISOString().split("T")[0];
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const sevenDaysAgoStr = sevenDaysAgo.toISOString();
 
-    const { count: totalLeads } = await supabase
+    // 1. Prepare Promises for Parallel Execution
+    const totalLeadsPromise = supabase
         .from("leads")
         .select("*", { count: "exact", head: true })
         .eq("agency_id", agencyId);
 
-    const { count: newLeadsToday } = await supabase
+    const newLeadsTodayPromise = supabase
         .from("leads")
         .select("*", { count: "exact", head: true })
         .eq("agency_id", agencyId)
         .gte("created_at", `${today}T00:00:00.000Z`);
 
-    const { count: activeLeads } = await supabase
+    const activeLeadsPromise = supabase
         .from("leads")
         .select("*", { count: "exact", head: true })
         .eq("agency_id", agencyId)
@@ -36,33 +34,71 @@ export async function getDashboardStats(agencyId: string) {
             "PROVISIONAL CONTRACT",
         ]);
 
-    const { count: successLeads } = await supabase
+    const successLeadsPromise = supabase
         .from("leads")
         .select("*", { count: "exact", head: true })
         .eq("agency_id", agencyId)
         .eq("stage", "SUCCESS");
 
-    // 2. Source Distribution
-    const { data: sourceData } = await supabase
+    const sourceDataPromise = supabase
         .from("leads")
         .select("source")
         .eq("agency_id", agencyId);
 
+    const trendDataPromise = supabase
+        .from("leads")
+        .select("created_at")
+        .eq("agency_id", agencyId)
+        .gte("created_at", sevenDaysAgoStr);
+
+    const recentLeadsPromise = supabase
+        .from("leads")
+        .select("id, name, stage, created_at, phone")
+        .eq("agency_id", agencyId)
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+    // 2. Execute all in parallel
+    const [
+        totalRes,
+        newTodayRes,
+        activeRes,
+        successRes,
+        sourceRes,
+        trendRes,
+        recentRes,
+    ] = await Promise.all([
+        totalLeadsPromise,
+        newLeadsTodayPromise,
+        activeLeadsPromise,
+        successLeadsPromise,
+        sourceDataPromise,
+        trendDataPromise,
+        recentLeadsPromise,
+    ]);
+
+    // 3. Process Results
+    const totalLeads = totalRes.count;
+    const newLeadsToday = newTodayRes.count;
+    const activeLeads = activeRes.count;
+    const successLeads = successRes.count;
+
+    // Source Distribution
     const sourceMap: Record<string, number> = {};
-    sourceData?.forEach((item) => {
+    sourceRes.data?.forEach((item) => {
         const source = item.source || "UNKNOWN";
         sourceMap[source] = (sourceMap[source] || 0) + 1;
     });
 
-    const sourceDistribution = Object.entries(sourceMap).map(([name, value]) => ({
-        name,
-        value,
-    })).sort((a, b) => b.value - a.value); // Sort desc
+    const sourceDistribution = Object.entries(sourceMap)
+        .map(([name, value]) => ({
+            name,
+            value,
+        }))
+        .sort((a, b) => b.value - a.value);
 
-
-    // 3. Weekly Trend (Last 7 Days)
+    // Weekly Trend
     const trendMap: Record<string, number> = {};
-    // Initialize last 7 days with 0
     for (let i = 6; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
@@ -70,38 +106,18 @@ export async function getDashboardStats(agencyId: string) {
         trendMap[dateStr] = 0;
     }
 
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const sevenDaysAgoStr = sevenDaysAgo.toISOString();
-
-    const { data: trendData } = await supabase
-        .from("leads")
-        .select("created_at")
-        .eq("agency_id", agencyId)
-        .gte("created_at", sevenDaysAgoStr);
-
-    trendData?.forEach((item) => {
+    trendRes.data?.forEach((item) => {
         const dateStr = item.created_at.split("T")[0];
         if (trendMap[dateStr] !== undefined) {
-             trendMap[dateStr]++;
+            trendMap[dateStr]++;
         }
     });
-    
+
     const weeklyTrend = Object.entries(trendMap).map(([date, count]) => ({
         date: date.substring(5), // "MM-DD"
         count,
     }));
 
-
-    // 4. Recent Leads
-    const { data: recentLeads } = await supabase
-        .from("leads")
-        .select("id, name, stage, created_at, phone")
-        .eq("agency_id", agencyId)
-        .order("created_at", { ascending: false })
-        .limit(5);
-
-// ... existing code ...
     return {
         counts: {
             total: totalLeads || 0,
@@ -111,7 +127,7 @@ export async function getDashboardStats(agencyId: string) {
         },
         sourceDistribution,
         weeklyTrend,
-        recentLeads: recentLeads || [],
+        recentLeads: recentRes.data || [],
     };
 }
 
@@ -121,36 +137,33 @@ export async function getAgencyMembers(agencyId: string) {
 
     const supabase = await createSupabaseServerClient();
 
-    // 1. Get User IDs from agency_users
-    const { data: membershipData, error: membershipError } = await supabase
+    // Optimize: Single query with join if possible, or parallel
+    // Assuming agency_users has a foreign key to users. 
+    // If typical Supabase relation names are used:
+    // agency_users ( user_id ) -> users ( id )
+    
+    // Attempt join:
+    const { data, error } = await supabase
         .from("agency_users")
-        .select("user_id")
+        .select(`
+            user_id,
+            users:users!user_id ( id, name )
+        `)
         .eq("agency_id", agencyId)
         .eq("status", "ACTIVE");
 
-    if (membershipError || !membershipData) {
-        console.error("Error fetching agency members:", membershipError);
+    if (error) {
+        console.error("Error fetching agency members:", error);
         return [];
     }
 
-    const userIds = membershipData.map((m) => m.user_id);
+    if (!data) return [];
 
-    if (userIds.length === 0) return [];
-
-    // 2. Get Names from users
-    const { data: usersData, error: usersError } = await supabase
-        .from("users")
-        .select("id, name")
-        .in("id", userIds);
-
-    if (usersError) {
-        console.error("Error fetching user details:", usersError);
-        return [];
-    }
-
-    return usersData.map((u: any) => ({
-        id: u.id,
-        name: u.name || "Unknown",
-    }));
+    // Map result
+    // The type of users will be an object or array depending on relation (one-to-one here ideally)
+    return data.map((item: any) => ({
+        id: item.users?.id,
+        name: item.users?.name || "Unknown",
+    })).filter(u => u.id); // Filter out any broken links
 }
 

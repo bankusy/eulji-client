@@ -18,23 +18,27 @@ function mapLeadToDb(lead: Partial<Lead>) {
         updatedAt, // 제외
         id, // 별도 처리
         phone, // 전화번호 별도 처리 (숫자만 저장)
-        assigned_user_id, // Destructure this out if present so ...rest doesn't have it?
-        // Wait, if it is assigned_user_id (snake case), then DB update has it in ...rest which is fine.
-        // But if there is any residue assignedUserId (camel), destructure it.
-        // Also destructure assign_user object from join
+        assigned_user_id,
         assigned_user, 
+        depositMin,
+        depositMax,
+        priceMin,
+        priceMax,
         ...rest
-    } = lead as any; // Cast to any to handle potential extra props like assigned_user object from join
+    } = lead as any;
 
     return {
         ...rest,
         // 필드명 매핑 및 Enum 변환
         property: propertyType,
         transaction: transactionType,
+        deposit_min: depositMin,
+        deposit_max: depositMax,
+        price_min: priceMin,
+        price_max: priceMax,
         message: message,
         phone: phone?.replace(/[^0-9]/g, ""), // 숫자만 추출하여 저장
-        assigned_user_id: assigned_user_id || null, // Use the destructured variable
-        // assignee는 Display용이므로 DB 저장 시에는 무시 (assigned_user_id 사용)
+        assigned_user_id: assigned_user_id || null, 
     };
 }
 
@@ -49,10 +53,10 @@ export async function createLead(agencyId: string, leadData: Omit<Lead, "id" | "
     
     // Budget check
     if (
-        (leadData.budget.depositMin < 0) || 
-        (leadData.budget.depositMax < 0) || 
-        (leadData.budget.priceMin < 0) || 
-        (leadData.budget.priceMax < 0)
+        (leadData.depositMin < 0) || 
+        (leadData.depositMax < 0) || 
+        (leadData.priceMin < 0) || 
+        (leadData.priceMax < 0)
     ) {
         throw new Error("예산은 0보다 작을 수 없습니다.");
     }
@@ -231,7 +235,11 @@ export async function getLeads(
         propertyType: row.property,
         transactionType: row.transaction,
         message: row.message,
-        budget: row.budget || {}, // jsonb field might be null, but default is '{}'
+        // Budget flat fields
+        depositMin: row.deposit_min,
+        depositMax: row.deposit_max,
+        priceMin: row.price_min,
+        priceMax: row.price_max,
         assigned_user_id: row.assigned_user_id, // keep for ref if needed
         assignee: row.assigned_user?.name || "", // 조인된 사용자 이름
         createdAt: row.created_at,

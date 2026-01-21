@@ -1,6 +1,6 @@
 import React from "react";
 import clsx from "clsx";
-import Input from "../test/Input";
+import Input from "../Input";
 
 
 export function FormSection({

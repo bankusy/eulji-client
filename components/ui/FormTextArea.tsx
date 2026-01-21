@@ -1,6 +1,6 @@
 import React from "react";
 import Text from "./Text";
-import TextArea from "@/components/TextArea";
+import TextArea from "@/components/ui/TextArea";
 
 interface FormTextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
     label?: string;

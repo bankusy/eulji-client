@@ -6,7 +6,7 @@ import ThemeHook from "@/hooks/ThemeHook";
 import clsx from "clsx";
 import Image from "next/image";
 import { Button } from "../../Button";
-import Input from "@/components/Input";
+import Input from "@/components/ui/Input";
 import { InputGroup } from "@/components/ui/InputGroup";
 
 interface ListingsToolbarProps {
@@ -43,33 +43,35 @@ export default function ListingsToolbar({
     return (
         <div
             className={clsx(
-                `flex justify-between items-center bg-(--background) w-full h-full`,
+                `flex flex-col md:flex-row justify-between items-start md:items-center bg-(--background) w-full gap-2 mb-2`,
                 className,
             )}
         >
-            <div className="flex gap-2 items-center">
-                <IconWrapper
-                    className="border border-(--border)"
-                    width={14}
-                    height={14}
-                    src={`/icons/add/${systemTheme}.svg`}
-                    alt="add"
-                    onClick={onOpenAddPanel}
-                />
-                <div className="relative">
+            <div className="flex gap-2 items-center w-full md:w-auto justify-between md:justify-start">
+                <div className="flex gap-2 items-center">
                     <IconWrapper
+                        className="border border-(--border)"
                         width={14}
                         height={14}
-                        className="border border-(--border)"
-                        src={`/icons/visible/${systemTheme}.svg`}
-                        alt="filter"
-                        onClick={onToggleColumnPopup}
+                        src={`/icons/add/${systemTheme}.svg`}
+                        alt="add"
+                        onClick={onOpenAddPanel}
                     />
+                    <div className="relative">
+                        <IconWrapper
+                            width={14}
+                            height={14}
+                            className="border border-(--border)"
+                            src={`/icons/visible/${systemTheme}.svg`}
+                            alt="filter"
+                            onClick={onToggleColumnPopup}
+                        />
+                    </div>
                 </div>
             </div>
-            <div className="flex-1"></div>
-            <div className="flex gap-2 h-[36px]">
-                <div className="w-60 h-full">
+            
+            <div className="flex gap-2 w-full md:w-auto">
+                <div className="flex-1 md:w-60 h-[36px]">
                     <Input
                         className="w-full h-full text-xs"
                         value={searchQuery}
@@ -82,7 +84,7 @@ export default function ListingsToolbar({
                     size="sm"
                     variant="outline"
                     onClick={onSearchSubmit}
-                    className="h-full px-4 text-xs"
+                    className="h-[36px] px-4 text-xs whitespace-nowrap"
                 >
                     검색
                 </Button>

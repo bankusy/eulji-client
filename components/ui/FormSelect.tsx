@@ -1,6 +1,6 @@
 import React from "react";
 import Text from "./Text";
-import { Select, SelectOption } from "@/components/Select";
+import { Select, SelectOption } from "@/components/ui/Select";
 
 interface FormSelectProps {
     label?: string;

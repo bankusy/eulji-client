@@ -4,7 +4,7 @@ export default function AgencyLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <div className="flex flex-col h-full overflow-hidden  bg-(--background)">
+        <div className="flex flex-col w-full h-full overflow-hidden">
             {children}
         </div>
     );

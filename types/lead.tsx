@@ -7,7 +7,10 @@ export interface Lead {
     assignee: string; // 담당자
     propertyType: string;
     transactionType: string; // 월세, 전세, 매매
-    budget: Budget; // 예산
+    depositMin: number;
+    depositMax: number;
+    priceMin: number;
+    priceMax: number;
     message: string; // 문의 내용
     memo: string; // 메모
     source: string; // 유입 경로 (블로그, 카카오톡, 웹 사이트 등)
@@ -16,16 +19,9 @@ export interface Lead {
     assigned_user_id?: string; // 담당자 ID
 }
 
-export interface Budget {
-    priceMax: number;
-    priceMin: number;
-    depositMin: number;
-    depositMax: number;
-}
-
 export interface TableColumn {
     key: string;
-    type?: "text" | "select" | "date" | "phone";
+    type?: "text" | "select" | "date" | "phone" | "price";
     name: string;
     sticky?: boolean;
     left?: number | string;
@@ -34,9 +30,10 @@ export interface TableColumn {
     maxWidth: string;
     headerAlign: string;
     cellAlign: string;
-    changeable?: boolean;
+    editable?: boolean;
     options?: { label: string; value: string }[];
     render?: (lead: Lead) => React.ReactNode;
+    getEditValue?: (lead: Lead) => any;
 }
 
 export const columnsConfiguration: TableColumn[] = [
@@ -51,7 +48,7 @@ export const columnsConfiguration: TableColumn[] = [
         maxWidth: "300px",
         headerAlign: "start",
         cellAlign: "start",
-        changeable: true,
+        editable: true,
         render: (lead: Lead) => lead.name,
     },
     {
@@ -66,7 +63,7 @@ export const columnsConfiguration: TableColumn[] = [
 
         headerAlign: "start",
         cellAlign: "start",
-        changeable: true,
+        editable: true,
         options: [
             { label: "신규", value: "NEW" },
             { label: "대기", value: "PENDING" },
@@ -95,12 +92,14 @@ export const columnsConfiguration: TableColumn[] = [
                     return "계약 완료";
                 case "TERMINATING":
                     return "리드 종료";
+                default:
+                    return lead.stage;
             }
         },
     },
     {
         key: "phone",
-        type: "text",
+        type: "phone", // Changed to phone type for editor
         name: "휴대폰",
         sticky: true,
         left: "288px",
@@ -110,7 +109,7 @@ export const columnsConfiguration: TableColumn[] = [
 
         headerAlign: "start",
         cellAlign: "start",
-        changeable: true,
+        editable: true,
         render: (lead: Lead) => {
             return lead.phone?.replace(
                 /^(\d{2,3})(\d{3,4})(\d{4})$/,
@@ -130,7 +129,7 @@ export const columnsConfiguration: TableColumn[] = [
 
         headerAlign: "start",
         cellAlign: "start",
-        changeable: true,
+        editable: true,
         options: [
             { label: "월세", value: "WOLSE" },
             { label: "전세", value: "JEONSE" },
@@ -144,6 +143,8 @@ export const columnsConfiguration: TableColumn[] = [
                     return "전세";
                 case "SALE":
                     return "매매";
+                default:
+                    return "-";
             }
         },
     },
@@ -157,7 +158,7 @@ export const columnsConfiguration: TableColumn[] = [
 
         headerAlign: "start",
         cellAlign: "start",
-        changeable: true,
+        editable: true,
         options: [
             { label: "오피스텔", value: "OFFICETEL" },
             { label: "원룸", value: "ONEROOM" },
@@ -187,6 +188,8 @@ export const columnsConfiguration: TableColumn[] = [
                     return "상가";
                 case "LAND":
                     return "토지";
+                default:
+                    return "-";
             }
         },
     },
@@ -200,7 +203,7 @@ export const columnsConfiguration: TableColumn[] = [
 
         headerAlign: "start",
         cellAlign: "start",
-        changeable: true,
+        editable: true,
     },
     {
         key: "source",
@@ -212,7 +215,7 @@ export const columnsConfiguration: TableColumn[] = [
 
         headerAlign: "start",
         cellAlign: "start",
-        changeable: true,
+        editable: true,
         options: [
             { label: "직방", value: "ZIGBANG" },
             { label: "다방", value: "DABANG" },
@@ -239,7 +242,7 @@ export const columnsConfiguration: TableColumn[] = [
     },
     {
         key: "deposit",
-        type: "text",
+        type: "price",
         name: "보증금",
         width: "240px",
         minWidth: "50px",
@@ -247,10 +250,11 @@ export const columnsConfiguration: TableColumn[] = [
 
         headerAlign: "start",
         cellAlign: "start",
-        changeable: true,
+        editable: true,
+        getEditValue: (lead: Lead) => ({ min: lead.depositMin, max: lead.depositMax }),
         render: (lead: Lead) => {
-            const min = lead.budget.depositMin;
-            const max = lead.budget.depositMax;
+            const min = lead.depositMin;
+            const max = lead.depositMax;
 
             if (!min && !max) return "-";
             if (min && !max) return `${min.toLocaleString()}만원~`;
@@ -262,7 +266,7 @@ export const columnsConfiguration: TableColumn[] = [
     },
     {
         key: "price",
-        type: "text",
+        type: "price",
         name: "금액",
         width: "240px",
         minWidth: "50px",
@@ -270,10 +274,11 @@ export const columnsConfiguration: TableColumn[] = [
 
         headerAlign: "start",
         cellAlign: "start",
-        changeable: true,
+        editable: true,
+        getEditValue: (lead: Lead) => ({ min: lead.priceMin, max: lead.priceMax }),
         render: (lead: Lead) => {
-            const min = lead.budget.priceMin;
-            const max = lead.budget.priceMax;
+            const min = lead.priceMin;
+            const max = lead.priceMax;
 
             if (!min && !max) return "-";
             if (min && !max) return `${min.toLocaleString()}만원~`;
@@ -285,7 +290,7 @@ export const columnsConfiguration: TableColumn[] = [
     },
     {
         key: "assignee",
-        type: "select",
+        type: "select", // Assignee editing might need user list, but currently treated as string?
         name: "담당자",
         width: "120px",
         minWidth: "50px",
@@ -293,7 +298,7 @@ export const columnsConfiguration: TableColumn[] = [
 
         headerAlign: "start",
         cellAlign: "start",
-        changeable: true,
+        editable: false, // Skip assignee editing for now as it needs valid user IDs/names options
         render: (lead: Lead) => lead.assignee,
     },
     {
@@ -306,7 +311,7 @@ export const columnsConfiguration: TableColumn[] = [
 
         headerAlign: "start",
         cellAlign: "start",
-        changeable: true,
+        editable: true,
     },
     {
         key: "memo",
@@ -318,7 +323,7 @@ export const columnsConfiguration: TableColumn[] = [
 
         headerAlign: "start",
         cellAlign: "start",
-        changeable: true,
+        editable: true,
     },
     {
         key: "createdAt",
@@ -330,7 +335,7 @@ export const columnsConfiguration: TableColumn[] = [
 
         headerAlign: "start",
         cellAlign: "start",
-        changeable: false,
+        editable: false,
         render: (lead: Lead) => {
             return formatDate(lead.createdAt);
         },
@@ -345,7 +350,7 @@ export const columnsConfiguration: TableColumn[] = [
 
         headerAlign: "start",
         cellAlign: "start",
-        changeable: false,
+        editable: false,
         render: (lead: Lead) => {
             return formatDate(lead.updatedAt);
         },

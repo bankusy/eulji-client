@@ -1,6 +1,6 @@
 import React, { forwardRef } from "react";
 import clsx from "clsx";
-import Input, { InputProps } from "@/components/Input";
+import Input, { InputProps } from "@/components/ui/Input";
 import { Button } from "./Button";
 
 interface InputGroupProps extends Omit<InputProps, "className"> {

@@ -75,7 +75,7 @@ export default function Page() {
         (k) => searchColumns[k]
     );
 
-    const { deleteLeads: deleteLeadsMutation } = useLeadMutations(agencyId);
+    const { deleteLeads: deleteLeadsMutation, updateLead: updateLeadMutation } = useLeadMutations(agencyId);
     const { 
         data: leadsData, 
         isLoading, 
@@ -94,6 +94,36 @@ export default function Page() {
     const leads = useMemo(() => {
         return leadsData?.pages.flatMap((page) => page.data) || [];
     }, [leadsData]);
+
+    const handleCellUpdate = async (rowId: string, columnKey: string, value: any) => {
+        const targetLead = leads.find((l) => l.id === rowId);
+        if (!targetLead) return;
+
+        let updatedLead: Lead;
+
+        if (columnKey === "deposit" && typeof value === "object") {
+            updatedLead = { 
+                ...targetLead, 
+                depositMin: value.min, 
+                depositMax: value.max 
+            };
+        } else if (columnKey === "price" && typeof value === "object") {
+            updatedLead = { 
+                ...targetLead, 
+                priceMin: value.min, 
+                priceMax: value.max 
+            };
+        } else {
+            updatedLead = { ...targetLead, [columnKey]: value };
+        }
+
+        try {
+            await updateLeadMutation.mutateAsync(updatedLead);
+        } catch (error) {
+            console.error("Update failed", error);
+            alert("수정 실패");
+        }
+    };
 
     const [columnOrder, setColumnOrder] = useLocalStorage<string[]>(
         "leads_column_order",
@@ -252,7 +282,7 @@ export default function Page() {
                     </span>
                     <span className="text-(--foreground-muted)">개 선택됨</span>
                 </div>
-                <div className="w-[1px] h-4 bg-(--border) mx-2"></div>
+                <div className="w-px h-4 bg-(--border) mx-2"></div>
                 <IconWrapper
                     src={`/icons/delete/${systemTheme}.svg`}
                     onClick={handleDelete}
@@ -311,6 +341,7 @@ export default function Page() {
                 hasMore={!!hasNextPage}
                 isLoading={isFetchingNextPage}
                 isInitialLoading={isLoading}
+                onCellUpdate={handleCellUpdate}
             />
             <Modal
                 isOpen={isAddPanelOpen}

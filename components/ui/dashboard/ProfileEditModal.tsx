@@ -4,7 +4,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useUserStore } from "@/hooks/useUserStore";
 import { useEffect, useState } from "react";
 import { Button } from "../Button";
-import Input from "@/components/Input";
+import Input from "@/components/ui/Input";
 import Modal from "../Modal";
 import FormField from "../FormField";
 import { InputGroup } from "../InputGroup";

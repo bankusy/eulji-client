@@ -67,6 +67,7 @@ export type ListingColumn = {
     render?: (item: Listing) => ReactNode;
     type?: "text" | "select" | "date" | "phone";
     options?: { label: string; value: string }[];
+    editable?: boolean;
 };
 
 export const listingColumns: ListingColumn[] = [
@@ -80,6 +81,7 @@ export const listingColumns: ListingColumn[] = [
         cellAlign: "start",
         sticky: true,
         type: "text",
+        editable: true,
         render: (item: Listing) => item.address_detail || "-"
     },
     {
@@ -91,6 +93,7 @@ export const listingColumns: ListingColumn[] = [
         headerAlign: "left",
         cellAlign: "left",
         type: "select",
+        editable: true,
         options: [
             { label: "진행중", value: "AVAILABLE" },
             { label: "거래완료", value: "CONTRACTED" },
@@ -114,6 +117,7 @@ export const listingColumns: ListingColumn[] = [
         headerAlign: "left",
         cellAlign: "left",
         type: "select",
+        editable: true,
         options: [
             { label: "매매", value: "SALE" },
             { label: "전세", value: "JEONSE" },
@@ -153,6 +157,7 @@ export const listingColumns: ListingColumn[] = [
         headerAlign: "left",
         cellAlign: "left",
         type: "select",
+        editable: true,
         options: [
             { label: "아파트", value: "APARTMENT" },
             { label: "빌라", value: "VILLA" },

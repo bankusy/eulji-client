@@ -1,5 +1,8 @@
 "use client";
 
+import clsx from "clsx";
+import { ArrowLeft } from "lucide-react";
+
 import { useMemo, useState, useEffect } from "react";
 import ThemeHook from "@/hooks/ThemeHook";
 import { DataTable } from "@/components/ui/table/DataTable";
@@ -15,7 +18,7 @@ import {
 
 import { Listing, listingColumns } from "@/types/listing";
 import { ColumnVisibilityPopup } from "@/components/ui/table/ColumnsFilter";
-import ListingGroupList from "@/components/ListingGroupList";
+import ListingGroupList from "@/components/features/listings/ListingGroupList";
 import { Button } from "@/components/ui/Button";
 import MenuBar from "@/components/ui/table/MenuBar";
 import IconWrapper from "@/components/ui/IconWrapper";
@@ -109,7 +112,7 @@ export default function ListingsPage() {
         filters,
     });
 
-    const { deleteListings } = useListingMutations(agencyId);
+    const { deleteListings, updateListing } = useListingMutations(agencyId);
 
     const listings = useMemo(() => {
         return listingsData?.pages.flatMap((page) => page.data) || [];
@@ -143,6 +146,18 @@ export default function ListingsPage() {
         setIsSidePanelOpen(true);
     };
 
+    const handleCellUpdate = async (rowId: string, columnKey: string, value: any) => {
+        try {
+            await updateListing.mutateAsync({
+                id: rowId,
+                [columnKey as keyof Listing]: value,
+            });
+        } catch (error) {
+            console.error("Update failed", error);
+            alert("수정 실패");
+        }
+    };
+
     const handleDelete = async () => {
         if (!selectedListingIds || selectedListingIds.length === 0) return;
         if (
@@ -171,6 +186,8 @@ export default function ListingsPage() {
         const mergeSticky = (c: (typeof listingColumns)[0]) => ({
             ...c,
             sticky: stickyColumns[c.key] ?? c.sticky ?? false,
+            // HACK: Force editable true for specific columns to fail-safe against stale imports
+            editable: c.editable || ['address_detail', 'status', 'transaction_type', 'property_type'].includes(c.key),
         });
 
         const cols = listingColumns.filter((c) => visibleColumns[c.key]);
@@ -182,9 +199,14 @@ export default function ListingsPage() {
     }, [visibleColumns, columnOrder, stickyColumns]);
 
     return (
-        <div className="flex h-full w-full relative">
+        <div className="flex h-full w-full relative gap-2">
             {/* Left: Groups */}
-            <div className="w-[300px] h-full shrink-0 py-2 pr-2 overflow-x-hidden">
+            <div 
+                className={clsx(
+                    "w-full md:w-[300px] h-full shrink-0 overflow-x-hidden",
+                    selectedAddress ? "hidden md:block" : "block"
+                )}
+            >
                 <ListingGroupList
                     groups={groups}
                     selectedAddress={selectedAddress}
@@ -195,10 +217,30 @@ export default function ListingsPage() {
             </div>
 
             {/* Right: Listings */}
-            <div className="flex-1 flex flex-col w-full bg-(--background) h-full py-2 pr-2 min-w-0">
+            <div 
+                className={clsx(
+                    "flex-1 flex flex-col w-full bg-(--background) h-full md:pr-2 min-w-0",
+                    !selectedAddress ? "hidden md:flex" : "flex"
+                )}
+            >
                 {selectedAddress && (
                     <div className="flex flex-col w-full h-full min-w-0">
                         <div className="flex flex-col gap-2 items-end bg-(--background) mb-2">
+                            {/* Mobile Back Button & Header */}
+                            <div className="flex md:hidden w-full items-center gap-2 mb-1">
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="p-0 h-auto hover:bg-transparent"
+                                    onClick={() => setSelectedAddress(null)}
+                                >
+                                    <div className="flex items-center gap-1 text-(--foreground-muted)">
+                                        <ArrowLeft size={16} />
+                                        <span>목록으로</span>
+                                    </div>
+                                </Button>
+                            </div>
+
                             {/* Tools for this view */}
                             <ListingsToolbar
                                 className="flex-1"
@@ -264,7 +306,7 @@ export default function ListingsPage() {
                                     개 선택됨
                                 </span>
                             </div>
-                            <div className="w-[1px] h-4 bg-(--border) mx-2"></div>
+                            <div className="w-px h-4 bg-(--border) mx-2"></div>
                             <IconWrapper
                                 src={`/icons/delete/${systemTheme}.svg`}
                                 onClick={handleDelete}
@@ -317,6 +359,7 @@ export default function ListingsPage() {
                             hasMore={!!hasNextPage}
                             isLoading={isFetchingNextPage}
                             isInitialLoading={isListingsLoading}
+                            onCellUpdate={handleCellUpdate}
                         />
                     </div>
                 )}

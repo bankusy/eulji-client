@@ -8,7 +8,7 @@ import FormTextArea from "@/components/ui/FormTextArea";
 import Button from "@/components/ui/Button";
 import { useLeadMutations } from "@/hooks/queries/leads";
 import { getAgencyMembers } from "@/app/dashboard/agencies/[agencyId]/actions"; // Import added
-import { Lead, Budget } from "@/types/lead";
+import { Lead } from "@/types/lead";
 import { X } from "lucide-react"; // Import X icon
 
 interface LeadFormProps {
@@ -59,14 +59,13 @@ export default function LeadForm({
     const [assigneeId, setAssigneeId] = useState(initialData?.assigned_user_id || "");
 
     // Budget
-    const [budget, setBudget] = useState<Budget>(
-        initialData?.budget || {
-            depositMin: 0,
-            depositMax: 0,
-            priceMin: 0,
-            priceMax: 0,
-        },
-    );
+    // Budget State - Flattened
+    const [budget, setBudget] = useState({
+        depositMin: initialData?.depositMin || 0,
+        depositMax: initialData?.depositMax || 0,
+        priceMin: initialData?.priceMin || 0,
+        priceMax: initialData?.priceMax || 0,
+    });
 
     // Details
     const [message, setMessage] = useState(initialData?.message || "");
@@ -126,7 +125,10 @@ export default function LeadForm({
                 transactionType,
                 source,
                 assigned_user_id: assigneeId,
-                budget,
+                depositMin: budget.depositMin,
+                depositMax: budget.depositMax,
+                priceMin: budget.priceMin,
+                priceMax: budget.priceMax,
                 message,
                 memo,
             };
@@ -243,16 +245,16 @@ export default function LeadForm({
             </FormSection>
 
             <FormSection title="예산">
-                <div className="flex gap-4">
+                <div className="flex flex-col md:flex-row gap-4">
                     <FormInput
                         label="보증금 (최소)"
                         type="number"
-                        value={budget?.depositMin?.toString()}
+                        value={budget.depositMin.toString()}
                         onChange={(e) =>
-                            setBudget({
-                                ...budget,
+                            setBudget((prev) => ({
+                                ...prev,
                                 depositMin: Number(e.target.value),
-                            })
+                            }))
                         }
                         placeholder="0"
                         unit="만원"
@@ -260,27 +262,27 @@ export default function LeadForm({
                     <FormInput
                         label="보증금 (최대)"
                         type="number"
-                        value={budget?.depositMax?.toString()}
+                        value={budget.depositMax.toString()}
                         onChange={(e) =>
-                            setBudget({
-                                ...budget,
+                            setBudget((prev) => ({
+                                ...prev,
                                 depositMax: Number(e.target.value),
-                            })
+                            }))
                         }
                         placeholder="0"
                         unit="만원"
                     />
                 </div>
-                <div className="flex gap-4">
+                <div className="flex flex-col md:flex-row gap-4">
                     <FormInput
                         label="월세/매매가 (최소)"
                         type="number"
-                        value={budget?.priceMin?.toString()}
+                        value={budget.priceMin.toString()}
                         onChange={(e) =>
-                            setBudget({
-                                ...budget,
+                            setBudget((prev) => ({
+                                ...prev,
                                 priceMin: Number(e.target.value),
-                            })
+                            }))
                         }
                         placeholder="0"
                         unit="만원"
@@ -288,12 +290,12 @@ export default function LeadForm({
                     <FormInput
                         label="월세/매매가 (최대)"
                         type="number"
-                        value={budget?.priceMax?.toString()}
+                        value={budget.priceMax.toString()}
                         onChange={(e) =>
-                            setBudget({
-                                ...budget,
+                            setBudget((prev) => ({
+                                ...prev,
                                 priceMax: Number(e.target.value),
-                            })
+                            }))
                         }
                         placeholder="0"
                         unit="만원"

@@ -4,7 +4,7 @@ import { Check } from "lucide-react";
 import ThemeHook from "@/hooks/ThemeHook";
 import clsx from "clsx";
 import Image from "next/image";
-import Input from "@/components/Input";
+import Input from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 
 interface LeadsToolbarProps {
@@ -35,25 +35,28 @@ export default function LeadsToolbar({
     const { systemTheme } = ThemeHook();
 
     return (
-        <div className="flex mb-2 gap-2">
-            <div className="flex gap-2">
-                <IconWrapper
-                    className="border border-(--border-surface)"
-                    src={`/icons/add/${systemTheme}.svg`}
-                    alt="add"
-                    onClick={onOpenAddPanel}
-                />
-                <div className="relative">
+        <div className="flex flex-col md:flex-row mb-2 gap-2">
+            <div className="flex gap-2 justify-between md:justify-start w-full md:w-auto">
+                <div className="flex gap-2">
                     <IconWrapper
                         className="border border-(--border-surface)"
-                        src={`/icons/visible/${systemTheme}.svg`}
-                        alt="filter"
-                        onClick={onToggleColumnPopup}
+                        src={`/icons/add/${systemTheme}.svg`}
+                        alt="add"
+                        onClick={onOpenAddPanel}
                     />
+                    <div className="relative">
+                        <IconWrapper
+                            className="border border-(--border-surface)"
+                            src={`/icons/visible/${systemTheme}.svg`}
+                            alt="filter"
+                            onClick={onToggleColumnPopup}
+                        />
+                    </div>
                 </div>
             </div>
-            <div className="flex-1 flex gap-2 justify-end items-center relative">
-                <div className="relative">
+            
+            <div className="flex gap-2 w-full md:w-auto md:flex-1 md:justify-end items-center relative">
+                 <div className="relative">
                     <IconWrapper
                         className="border border-(--border-surface)"
                         src={`/icons/filter/${systemTheme}.svg`}
@@ -63,10 +66,10 @@ export default function LeadsToolbar({
                     {isSearchFilterOpen && (
                         <>
                             <div
-                                className="fixed inset-0"
+                                className="fixed inset-0 z-100"
                                 onClick={onToggleSearchFilter}
                             />
-                            <div className="absolute top-full left-0 mt-2 w-40 bg-(--background) border border-(--border) rounded-md shadow-lg z-[110] p-1 flex flex-col gap-1">
+                            <div className="absolute top-full left-0 mt-2 w-40 bg-(--background) border border-(--border) rounded-md shadow-lg z-110 p-1 flex flex-col gap-1">
                                 <div className="text-(--foreground-muted)  border-b border-(--border) text-xs py-2 px-1">
                                     검색 조건
                                 </div>
@@ -97,8 +100,8 @@ export default function LeadsToolbar({
                         </>
                     )}
                 </div>
-                <div className="flex gap-2 h-[36px]">
-                    <div className="w-60 h-full">
+                <div className="flex gap-2 h-[36px] flex-1 md:flex-none">
+                    <div className="flex-1 md:w-60 h-full">
                         <Input
                             className="w-full h-full text-xs"
                             value={searchQuery}
@@ -113,7 +116,7 @@ export default function LeadsToolbar({
                         size="sm"
                         variant="outline"
                         onClick={onSearchSubmit}
-                        className="h-full px-4 text-xs"
+                        className="h-full px-4 text-xs whitespace-nowrap"
                     >
                         검색
                     </Button>

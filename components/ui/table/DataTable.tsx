@@ -12,6 +12,7 @@ import ThemeHook from "@/hooks/ThemeHook";
 import { ChevronDown, ArrowUp, ArrowDown } from "lucide-react";
 import IconWrapper from "../IconWrapper";
 import useDropdownState, { ColumnKey } from "@/hooks/useDropdownState";
+import TableCellEditor from "./TableCellEditor";
 
 export interface DataTableColumn {
     key: string;
@@ -23,8 +24,10 @@ export interface DataTableColumn {
     headerAlign: string;
     cellAlign: string;
     render?: (item: any) => React.ReactNode;
-    type?: "text" | "select" | "date" | "phone";
+    type?: "text" | "select" | "date" | "phone" | "price";
     options?: { label: string; value: string | number }[];
+    editable?: boolean;
+    getEditValue?: (item: any) => any;
 }
 
 interface DataTableProps<T> {
@@ -44,6 +47,7 @@ interface DataTableProps<T> {
     onFilterChange?: (columnKey: string, values: string[]) => void;
     onColumnReorder?: (newOrder: string[]) => void;
     sortConfig?: { key: string; direction: "asc" | "desc" } | null;
+    onCellUpdate?: (rowId: string, columnKey: string, value: any) => void;
     
     // Infinite Scroll
     onLoadMore?: () => void;
@@ -69,6 +73,7 @@ export function DataTable<T extends { id: string }>({
     onFilterChange,
     onColumnReorder,
     sortConfig,
+    onCellUpdate,
     onLoadMore,
     hasMore,
     isLoading,
@@ -83,6 +88,12 @@ export function DataTable<T extends { id: string }>({
 
     const [sortColumnKey, setSortColumnKey] = useState<ColumnKey | null>(null);
     const [sortOrder, setSortOrder] = useState<"ASC" | "DESC">("ASC");
+    
+    // Cell Editing State
+    const [editingCell, setEditingCell] = useState<{
+        rowId: string;
+        columnKey: string;
+    } | null>(null);
 
     // Infinite Scroll Observer
     const observerTarget = useRef<HTMLDivElement>(null);
@@ -535,6 +546,8 @@ export function DataTable<T extends { id: string }>({
                                         .map((c) => c.sticky)
                                         .lastIndexOf(true);
                                     const isLastSticky = i === lastStickyIndex;
+                                    const isEditingCell = editingCell?.rowId === row.id && editingCell?.columnKey === column.key;
+
                                     return (
                                         <div
                                             key={column.key}
@@ -546,9 +559,21 @@ export function DataTable<T extends { id: string }>({
                                                     "table-cell-last-sticky",
                                                 selectedIds?.includes(row.id)
                                                     ? "bg-(--background-surface)"
-                                                    : "bg-(--background)"
+                                                    : "bg-(--background)",
+                                                isEditingCell && "ring-2 ring-inset ring-(--primary) z-200 overflow-visible!"
                                             )}
-                                            onClick={() => {}}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                
+                                                if (column.editable) {
+                                                    if (!isEditingCell) {
+                                                        setEditingCell({
+                                                            rowId: row.id,
+                                                            columnKey: column.key,
+                                                        });
+                                                    }
+                                                }
+                                            }}
                                             style={{
                                                 width: getWidth(column.key),
                                                 minWidth: column.minWidth,
@@ -556,12 +581,30 @@ export function DataTable<T extends { id: string }>({
                                                 left: column.sticky
                                                     ? getLeft(i)
                                                     : undefined,
-                                                justifyContent: column.cellAlign,
+                                                justifyContent: isEditingCell ? 'stretch' : column.cellAlign,
+                                                padding: isEditingCell ? 0 : undefined
                                             }}
                                         >
-                                            {column.render
-                                                ? column.render(row)
-                                                : (row as any)[column.key]}
+                                            {isEditingCell ? (
+                                                <TableCellEditor
+                                                    initialValue={
+                                                        column.getEditValue 
+                                                            ? column.getEditValue(row) 
+                                                            : (row as any)[column.key]
+                                                    }
+                                                    type={column.type}
+                                                    options={column.options}
+                                                    onSave={(val) => {
+                                                        onCellUpdate?.(row.id, column.key, val);
+                                                        setEditingCell(null);
+                                                    }}
+                                                    onCancel={() => setEditingCell(null)}
+                                                />
+                                            ) : (
+                                                column.render
+                                                    ? column.render(row)
+                                                    : (row as any)[column.key]
+                                            )}
                                         </div>
                                     );
                                 })}

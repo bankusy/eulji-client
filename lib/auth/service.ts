@@ -1,5 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { SupabaseClient } from "@supabase/supabase-js";
+import { SupabaseClient, User } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
 export type AuthenticatedUser = {
@@ -11,12 +11,17 @@ export type AuthenticatedUser = {
     fullUserData: any;
 }
 
-export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> {
+export async function getAuthenticatedUser(prefetchedUser?: User | null): Promise<AuthenticatedUser | null> {
     const supabase = await createSupabaseServerClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    let user: User | null = prefetchedUser || null;
 
-    if (authError || !user) {
-        return null;
+    if (!user) {
+        const { data: { user: fetchedUser }, error: authError } = await supabase.auth.getUser();
+        if (authError || !fetchedUser) {
+            return null;
+        }
+        user = fetchedUser;
     }
 
     let publicUserId: string | null = null;
@@ -121,12 +126,17 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> 
  * Synchronizes the authenticated user with the public.users table.
  * If the user does not exist, they are created.
  */
-export async function syncAuthenticatedUser(): Promise<AuthenticatedUser | null> {
+export async function syncAuthenticatedUser(prefetchedUser?: User | null): Promise<AuthenticatedUser | null> {
     const supabase = await createSupabaseServerClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    let user: User | null = prefetchedUser || null;
 
-    if (authError || !user) {
-        return null;
+    if (!user) {
+        const { data: { user: fetchedUser }, error: authError } = await supabase.auth.getUser();
+        if (authError || !fetchedUser) {
+            return null;
+        }
+        user = fetchedUser;
     }
 
     let publicUserId: string | null = null;
@@ -231,5 +241,5 @@ export async function syncAuthenticatedUser(): Promise<AuthenticatedUser | null>
     // Let's reuse getAuthenticatedUser logic or call it?
     // Calling it is safer to ensure consistent agency resolution logic.
     
-    return await getAuthenticatedUser();
+    return await getAuthenticatedUser(user);
 }

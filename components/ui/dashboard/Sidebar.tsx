@@ -69,7 +69,7 @@ export default function Sidebar() {
                 setFolded((prev) => !prev);
             }}
             className={clsx(
-                `${isFolded ? "w-[8px] hover:bg-(--primary)" : "min-w-(--sidebar-width-max) p-2"} relative`,
+                `${isFolded ? "w-[8px] hover:bg-(--primary)" : "min-w-(--sidebar-width-max) pl-2"} relative`,
                 "flex flex-col justify-between",
                 "text-(--sidebar-foreground) text-sm",
                 "select-none",
@@ -78,7 +78,7 @@ export default function Sidebar() {
             {isFolded ? (
                 <SidebarResizer theme={systemTheme} setFolded={setFolded} />
             ) : (
-                <div className="rounded-md p-2 h-full flex flex-col">
+                <div className="rounded-md py-2 pr-2 h-full flex flex-col">
                     {/* Header */}
                     <SidebarHeader
                         agencyInfo={agencyInfo}
@@ -213,9 +213,10 @@ function SidebarBody({
     return (
         <div className={`flex flex-col flex-1 overflow-y-auto min-h-0`}>
             {menuGroups.map((group) => (
+                // 메뉴 그룹 라벨
                 <div
                     key={group.label}
-                    className={`flex flex-col items-start px-2 py-2`}
+                    className={`flex flex-col items-start pr-2 py-2`}
                 >
                     <div className=" mb-2">
                         {!isFolded && (
@@ -239,28 +240,37 @@ function SidebarBody({
                                         : "text-(--foreground-hover) hover:text-(--foreground) opacity-20 hover:bg-(--foreground)/20 rounded-md"
                                 } ${isFolded && "justify-center"}`}
                             >
-                                <div className="flex justify-center items-center w-[32px]">
-                                    {isActive ? (
-                                        <Image
-                                            src={`${item.src}/${theme}-fill.svg`}
-                                            width={16}
-                                            height={16}
-                                            alt="icon"
-                                        />
-                                    ) : (
-                                        <Image
-                                            src={`${item.src}/${theme}.svg`}
-                                            width={16}
-                                            height={16}
-                                            alt="icon"
-                                        />
-                                    )}
+                                <div className="flex justify-center items-center w-[32px] h-4 relative">
+                                    <Image
+                                        src={`${item.src}/${theme}-fill.svg`}
+                                        width={16}
+                                        height={16}
+                                        alt="icon"
+                                        priority
+                                        className={`absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 transition-opacity duration-150 ${
+                                            isActive
+                                                ? "opacity-100"
+                                                : "opacity-0"
+                                        }`}
+                                    />
+                                    <Image
+                                        src={`${item.src}/${theme}.svg`}
+                                        width={16}
+                                        height={16}
+                                        alt="icon"
+                                        priority
+                                        className={`absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 transition-opacity duration-150 ${
+                                            isActive
+                                                ? "opacity-0"
+                                                : "opacity-100"
+                                        }`}
+                                    />
                                 </div>
                                 <span
                                     className={`overflow-hidden  whitespace-nowrap ${
                                         isFolded
                                             ? "w-0 opacity-0"
-                                            : "w-auto opacity-100 ml-2"
+                                            : "w-auto opacity-100"
                                     }`}
                                 >
                                     {item.name}
@@ -286,7 +296,6 @@ function SidebarFooter({
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const handleLogout = async () => {
-        // Clear local persistence to prevent data leak to next user
         localStorage.clear();
         sessionStorage.clear();
 
@@ -298,14 +307,12 @@ function SidebarFooter({
     const { user, fetchUser } = useUserStore();
 
     useEffect(() => {
-        fetchUser(); // Fetch user on mount
-    }, []); // fetchUser is stable from zustand
+        fetchUser(); 
+    }, []);
 
     return (
         <div className="flex flex-col justify-end  gap-2 relative">
-            {/* Wrapper */}
             <div className="relative">
-                {/* Menu Popover */}
                 {isMenuOpen && (
                     <div>
                         <div className="absolute bottom-full left-0 mb-2 w-full z-50">

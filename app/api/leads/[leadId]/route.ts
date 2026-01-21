@@ -70,11 +70,11 @@ export async function PATCH(
                     custom_id: body.custom_id || generateContractId(), // Use provided ID or generate one
 
                     contract_date: new Date().toISOString().slice(0, 10),
-                    transaction_type: body.preferences?.transaction_type || "SALE", // Default or extract
+                    transaction_type: body.transactionType || "SALE", // Default or extract based on camelCase payload
 
-                    price: body.preferences?.budget || 0, // Simplified mapping
-                    deposit: body.preferences?.deposit || 0,
-                    rent: body.preferences?.rent || 0,
+                    price: body.priceMin || 0, // Simplified mapping: use min price as contract price
+                    deposit: body.depositMin || 0,
+                    rent: 0, // Rent not in basic budget fields, assume 0 or add logic if needed
 
                     status: 'DRAFT'
                 };

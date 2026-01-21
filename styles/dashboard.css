@@ -4,7 +4,7 @@
     /* Background */
     --violet-1: #fcfdff;
     --violet-2: #f6f9ff;
-    
+
     /* Interactive components */
     --violet-3: #ebf2ff;
     --violet-4: #dde9ff;
@@ -42,21 +42,21 @@
     /* Background */
     --gray-1: #fdfdfd;
     --gray-2: #f9f9f9;
-    
+
     /* Interactive components */
     --gray-3: #f0f0f0;
     --gray-4: #e8e8e8;
     --gray-5: #e1e1e1;
-    
+
     /* Borders and separators */
     --gray-6: #d9d9d9;
     --gray-7: #cecece;
     --gray-8: #bbb;
-    
+
     /* Solid colors */
     --gray-9: #8d8d8d;
     --gray-10: #828282;
-    
+
     /* Accessible text */
     --gray-11: #636363;
     --gray-12: #202020;
@@ -153,7 +153,6 @@
     --foreground: #101010;
     --foreground-hover: var(--gray-12);
     --foreground-muted: #b0b0b0;
-    
 
     --primary: var(--violet-9);
     --ring: var(--violet-1);
@@ -173,7 +172,7 @@
     --border-surface: var(--gray-7);
     /* 기타 경계(애매한 컴포넌트) */
     --border-subtle: var(--gray-8);
-    
+
     /* 기본 배경 */
     --outer-container-background: #fafafa;
     /* 우측 컨테이너 배경 */
@@ -234,13 +233,13 @@
 
     /* 테이블 */
     --table-background: var(--background);
-    --table-header-background: var(--background-subtle);
+    --table-header-background: var(--gray-2);
     --table-border: var(--border-surface);
 
     /* 버튼 */
-    --btn-background-primary: #3f33e1;
+    --btn-background-primary: var(--violet-9);
     --btn-background-secondary: #64f2b7;
-    
+
     --btn-background-default: #fafafa;
     --btn-background-default-hover: var(--gray-1);
     --btn-background-outline: var(--background-surface);
@@ -260,16 +259,13 @@
 
 @media (prefers-color-scheme: dark) {
     :root {
-
-        --background: #0a0a0a;
+        /* 시멘틱 */
+        --background: #000000;
         --foreground: #ededed;
 
         --primary: var(--violet-9);
         --ring: var(--violet-1);
         --outline: var(--violet-9);
-
-        /* 시멘틱 */
-        --background: #000000;
 
         /* 인풋, 셀렉트 등 배경 */
         --background-surface: var(--gray-1);
@@ -291,6 +287,10 @@
 
         /* 인풋, 셀렉트 등 보조 경계 */
         --border-subtle: var(--gray-6);
+
+        --outer-container-background: #101010;
+        /* 우측 컨테이너 배경 */
+        --inner-container-background: var(--background);
 
         /* 사이드 패널 */
         --sidepanel-background: #181818;
@@ -415,4 +415,8 @@ body {
 /* 유틸리티: 가로 스크롤바 숨김 (세로 스크롤바는 유지) */
 .scrollbar-hide-horizontal::-webkit-scrollbar:horizontal {
     display: none;
+}
+
+* {
+    overscroll-behavior-x: none;
 }

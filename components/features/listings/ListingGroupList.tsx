@@ -4,9 +4,8 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import ThemeHook from "@/hooks/ThemeHook";
 import clsx from "clsx";
-import IconWrapper from "./ui/IconWrapper";
-import { Button } from "./ui/Button";
-import Input from "./Input";
+import IconWrapper from "@/components/ui/IconWrapper";
+import Input from "@/components/ui/Input";
 
 interface ListingGroup {
     address: string;

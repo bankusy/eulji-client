@@ -93,6 +93,7 @@
 
 .table-row .table-cell:last-child {
     flex-grow: 1;
+    border-right: none;
 }
 
 .table-cell-last-sticky {

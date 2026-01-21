@@ -9,8 +9,7 @@ import ThemeHook from "@/hooks/ThemeHook";
 import { Button } from "@/components/ui/Button";
 
 import { Agency } from "@/types/agency";
-import Input from "@/components/Input";
-import Loading from "@/app/loading";
+import Input from "@/components/ui/Input";
 
 // Local type extended if needed, but for now referencing shared type
 // type Agency = { ... } // Removed local definition
@@ -249,9 +248,6 @@ export default function AgencySelectPage() {
                     </div>
                 )}
             </div>
-            {isNavigating && (
-                <Loading/>
-            )}
         </div>
     );
 }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "@/styles/dashboard.css";
 import "@/styles/globals.css";
 import { ThemeProvider } from "next-themes";
-import QueryProvider from "@/components/QueryProvider";
+import QueryProvider from "@/components/providers/QueryProvider";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { syncAuthenticatedUser } from "@/lib/auth/service";
@@ -26,14 +26,14 @@ export default async function RootLayout({
         redirect("/auth/login");
     }
 
-    await syncAuthenticatedUser();
+    await syncAuthenticatedUser(user);
 
     return (
         <html lang="ko" suppressHydrationWarning>
             <body>
                 <ThemeProvider>
                     <QueryProvider>
-                        <div className="flex h-screen w-full bg-(--background)">
+                        <div className="flex h-screen w-full bg-(--outer-container-background)">
                             {children}
                         </div>
                     </QueryProvider>

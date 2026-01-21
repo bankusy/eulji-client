@@ -1,20 +1,23 @@
 import clsx from "clsx";
 import React from "react";
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-    className?: string;
-}
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
-export default function Input({ className, ...props }: InputProps) {
-    return (
-        <input
-            className={clsx(
-                `text-(--input-foreground) text-sm`,
-                `bg-(--input-background) border border-(--input-border) focus:ring-(--input-ring) focus:outline-(--input-outline) rounded-md px-2 py-1`,
-                `w-full h-full`,
-                className
-            )}
-            {...props}
-        />
-    );
-}
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+    ({ className, ...props }, ref) => {
+        return (
+            <input
+                ref={ref}
+                className={clsx(
+                    `w-full text-sm text-(--foreground) rounded-md truncate p-2 border border-(--input-border) bg-(--input-background)`,
+                    className
+                )}
+                {...props}
+            />
+        );
+    }
+);
+
+Input.displayName = "Input";
+
+export default Input;
