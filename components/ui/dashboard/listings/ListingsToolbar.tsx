@@ -43,17 +43,19 @@ export default function ListingsToolbar({
     return (
         <div
             className={clsx(
-                `flex flex-col md:flex-row justify-between items-start md:items-center bg-(--background) w-full gap-2 mb-2`,
+                `flex flex-col md:flex-row justify-between items-start md:items-center bg-(--background) w-full gap-2`,
                 className,
             )}
         >
             <div className="flex gap-2 items-center w-full md:w-auto justify-between md:justify-start">
                 <div className="flex gap-2 items-center">
                     <IconWrapper
-                        className="border border-(--border)"
+                        className="border border-(--border-surface)"
                         width={14}
                         height={14}
                         src={`/icons/add/${systemTheme}.svg`}
+                        isVisibleDescription={true}
+                        description="매물 추가"
                         alt="add"
                         onClick={onOpenAddPanel}
                     />
@@ -61,8 +63,10 @@ export default function ListingsToolbar({
                         <IconWrapper
                             width={14}
                             height={14}
-                            className="border border-(--border)"
+                            className="border border-(--border-surface)"
                             src={`/icons/visible/${systemTheme}.svg`}
+                            isVisibleDescription={true}
+                            description="컬럼 표시"
                             alt="filter"
                             onClick={onToggleColumnPopup}
                         />
@@ -70,7 +74,7 @@ export default function ListingsToolbar({
                 </div>
             </div>
             
-            <div className="flex gap-2 w-full md:w-auto">
+            <div className="flex gap-2 w-full h-full md:w-auto ">
                 <div className="flex-1 md:w-60 h-[36px]">
                     <Input
                         className="w-full h-full text-xs"
@@ -84,7 +88,7 @@ export default function ListingsToolbar({
                     size="sm"
                     variant="outline"
                     onClick={onSearchSubmit}
-                    className="h-[36px] px-4 text-xs whitespace-nowrap"
+                    className="h-full px-4 text-xs whitespace-nowrap"
                 >
                     검색
                 </Button>

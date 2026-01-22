@@ -123,7 +123,7 @@ function SidebarHeader({
     return (
         <div
             className={clsx(
-                `flex gap-1 items-center pb-2 border-b border-(--sidebar-border)`,
+                `flex gap-1 items-center py-4 border-b border-(--sidebar-border)`,
             )}
         >
             <div className="p-2">
@@ -211,7 +211,7 @@ function SidebarBody({
 
     const pathname = usePathname();
     return (
-        <div className={`flex flex-col flex-1 overflow-y-auto min-h-0`}>
+        <div className={`flex flex-col flex-1 overflow-y-auto min-h-0 pl-2 mt-4`}>
             {menuGroups.map((group) => (
                 // 메뉴 그룹 라벨
                 <div

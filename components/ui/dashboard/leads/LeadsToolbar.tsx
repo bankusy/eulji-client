@@ -42,7 +42,7 @@ export default function LeadsToolbar({
                         className="border border-(--border-surface)"
                         src={`/icons/add/${systemTheme}.svg`}
                         alt="add"
-                        isVisiblePopOver={true}
+                        isVisibleDescription={true}
                         description="리드 추가"
                         onClick={onOpenAddPanel}
                     />
@@ -51,8 +51,8 @@ export default function LeadsToolbar({
                             className="border border-(--border-surface)"
                             src={`/icons/visible/${systemTheme}.svg`}
                             alt="filter"
-                            isVisiblePopOver={true}
-                            description="필터"
+                            isVisibleDescription={true}
+                            description="컬럼 표시"
                             onClick={onToggleColumnPopup}
                         />
                     </div>
@@ -65,6 +65,8 @@ export default function LeadsToolbar({
                         className="border border-(--border-surface)"
                         src={`/icons/filter/${systemTheme}.svg`}
                         alt="search-filter"
+                        isVisibleDescription={true}
+                        description="검색 조건"
                         onClick={onToggleSearchFilter}
                     />
                     {isSearchFilterOpen && (

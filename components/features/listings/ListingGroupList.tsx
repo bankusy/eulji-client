@@ -50,9 +50,11 @@ export default function ListingGroupList({
                         건물/주소 목록
                     </h2>
                     <IconWrapper
-                        className="border border-(--border) rounded-md"
+                        className="border border-(--border-surface)"
                         src={`/icons/add_listing/${systemTheme}.svg`}
                         onClick={onAddNew}
+                        isVisibleDescription={true}
+                        description="건물 추가"
                         alt="add"
                     />
                 </div>

@@ -7,7 +7,7 @@ interface IconWrapperProps {
     height?: number;
     src?: string;
     alt?: string;
-    isVisiblePopOver?: boolean;
+    isVisibleDescription?: boolean;
     description?: string;
     className?: string;
     children?: React.ReactNode;
@@ -19,7 +19,7 @@ export default function IconWrapper({
     height,
     src,
     alt,
-    isVisiblePopOver,
+    isVisibleDescription,
     description,
     className,
     children,
@@ -33,7 +33,7 @@ export default function IconWrapper({
                     height: height ? `${height}px` : "40px",
                 }}
                 className={clsx(
-                    `flex justify-center items-center hover:bg-(--foreground)/5 rounded-md select-none z-[1200]`,
+                    `flex justify-center items-center hover:bg-(--foreground)/5 rounded-md select-none z-[11000]`,
                     className
                 )}
                 onClick={onClick}
@@ -45,13 +45,13 @@ export default function IconWrapper({
         return (
             <div
                 className={clsx(
-                    `group relative flex justify-center items-center w-[36px] h-[36px] hover:bg-(--background-surface-hover) rounded-md select-none ${isVisiblePopOver && "group-hover:z-[1000]" }`,
+                    `group relative flex justify-center items-center w-[36px] h-[36px] hover:bg-(--background-surface-hover) rounded-md select-none ${isVisibleDescription && "group-hover:z-[10000]" }`,
                     className
                 )}
                 onClick={onClick}
             >
                 <Image src={src!!} alt={alt!!} width={18} height={18} />
-                    <div className={`absolute top-full mt-1 left-0 p-2 min-w-max border border-(--border-surface) bg-(--background) opacity-0 ${isVisiblePopOver && "group-hover:opacity-100 group-hover:z-[1100]"}`}>{description}</div>
+                    <div className={`absolute top-full mt-1 -left-[1px] p-2 min-w-max text-xs border border-(--border-surface) rounded-md bg-(--background) opacity-0 ${isVisibleDescription && "group-hover:opacity-100 group-hover:z-[11000]"}`}>{description}</div>
             </div>
         );
     }

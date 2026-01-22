@@ -203,7 +203,7 @@ export default function ListingsPage() {
             {/* Left: Groups */}
             <div 
                 className={clsx(
-                    "w-full md:w-[300px] h-full shrink-0 overflow-x-hidden",
+                    "relative w-full md:w-[300px] h-full shrink-0",
                     selectedAddress ? "hidden md:block" : "block"
                 )}
             >
@@ -219,7 +219,7 @@ export default function ListingsPage() {
             {/* Right: Listings */}
             <div 
                 className={clsx(
-                    "flex-1 flex flex-col w-full bg-(--background) h-full md:pr-2 min-w-0",
+                    "flex-1 flex flex-col w-full bg-(--background) h-full min-w-0",
                     !selectedAddress ? "hidden md:flex" : "flex"
                 )}
             >
