@@ -42,14 +42,14 @@ function mapLeadToDb(lead: Partial<Lead>) {
     };
 }
 
-export async function createLead(agencyId: string, leadData: Omit<Lead, "id" | "createdAt" | "updatedAt">) {
+export async function createLead(agencyId: string, leadData: Omit<Lead, "createdAt" | "updatedAt">) {
     const auth = await verifyAgencyAccess(agencyId);
     if (!auth) throw new Error("Unauthorized");
 
     // Validation
-    if (!leadData.name || !leadData.name.trim()) {
-        throw new Error("이름은 필수 항목입니다.");
-    }
+    // if (!leadData.name || !leadData.name.trim()) {
+    //    throw new Error("이름은 필수 항목입니다.");
+    // }
     
     // Budget check
     if (
@@ -70,6 +70,7 @@ export async function createLead(agencyId: string, leadData: Omit<Lead, "id" | "
         .from("leads")
         .insert({
             ...dbData,
+            id: leadData.id, // Explicitly use provided ID if exists
             agency_id: agencyId, // Enforce agency scoping
             assigned_user_id: auth.userId // Optional: use verified user as creator/assignee if logic dictates
         })
@@ -95,9 +96,9 @@ export async function updateLead(agencyId: string, leadData: Lead) {
     const auth = await verifyAgencyAccess(agencyId);
     if (!auth) throw new Error("Unauthorized");
 
-    if (!leadData.name || !leadData.name.trim()) {
-        throw new Error("이름은 필수 항목입니다.");
-    }
+    // if (!leadData.name || !leadData.name.trim()) {
+    //     throw new Error("이름은 필수 항목입니다.");
+    // }
 
     const supabase = await createClient();
 

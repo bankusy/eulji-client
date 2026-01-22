@@ -247,7 +247,7 @@ function SidebarBody({
                                         height={16}
                                         alt="icon"
                                         priority
-                                        className={`absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 transition-opacity duration-150 ${
+                                        className={`absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 ${
                                             isActive
                                                 ? "opacity-100"
                                                 : "opacity-0"
@@ -259,7 +259,7 @@ function SidebarBody({
                                         height={16}
                                         alt="icon"
                                         priority
-                                        className={`absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 transition-opacity duration-150 ${
+                                        className={`absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 ${
                                             isActive
                                                 ? "opacity-0"
                                                 : "opacity-100"

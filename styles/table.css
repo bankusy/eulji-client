@@ -99,3 +99,37 @@
 .table-cell-last-sticky {
     border-right: 2px solid var(--table-border) !important;
 }
+
+.is-editing-row {
+    z-index: 500 !important;
+    overflow: visible !important;
+}
+
+.is-editing-cell {
+    z-index: 600 !important;
+    overflow: visible !important;
+}
+
+.is-editing-cell * {
+    overflow: visible !important;
+}
+
+@keyframes row-enter {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+        background-color: var(--violet-3);
+    }
+    50% {
+        background-color: var(--violet-3);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+        background-color: transparent;
+    }
+}
+
+.table-row-new {
+    animation: row-enter 0.6s ease-out forwards;
+}

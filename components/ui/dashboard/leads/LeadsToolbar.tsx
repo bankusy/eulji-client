@@ -42,6 +42,8 @@ export default function LeadsToolbar({
                         className="border border-(--border-surface)"
                         src={`/icons/add/${systemTheme}.svg`}
                         alt="add"
+                        isVisiblePopOver={true}
+                        description="리드 추가"
                         onClick={onOpenAddPanel}
                     />
                     <div className="relative">
@@ -49,6 +51,8 @@ export default function LeadsToolbar({
                             className="border border-(--border-surface)"
                             src={`/icons/visible/${systemTheme}.svg`}
                             alt="filter"
+                            isVisiblePopOver={true}
+                            description="필터"
                             onClick={onToggleColumnPopup}
                         />
                     </div>

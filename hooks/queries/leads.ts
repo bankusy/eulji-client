@@ -49,8 +49,44 @@ export const useLeadMutations = (agencyId: string) => {
     const queryClient = useQueryClient();
 
     const createMutation = useMutation({
-        mutationFn: (data: Omit<Lead, "id" | "createdAt" | "updatedAt">) => createLead(agencyId, data),
-        onSuccess: () => {
+        mutationFn: (data: Lead) => createLead(agencyId, data),
+        onMutate: async (newLead) => {
+            // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+            await queryClient.cancelQueries({ queryKey: ["leads"] });
+
+            // Snapshot the previous value
+            const previousLeads = queryClient.getQueryData(["leads"]);
+
+            // Optimistically update to the new value
+            queryClient.setQueriesData({ queryKey: ["leads"] }, (old: any) => {
+                if (!old) return old;
+                
+                // Add the new lead to the beginning of the FIRST page
+                const firstPage = old.pages[0];
+                return {
+                    ...old,
+                    pages: [
+                        {
+                            ...firstPage,
+                            data: [newLead, ...firstPage.data],
+                            count: (firstPage.count || 0) + 1
+                        },
+                        ...old.pages.slice(1)
+                    ]
+                };
+            });
+
+            // Return a context object with the snapshotted value
+            return { previousLeads };
+        },
+        onError: (err, newLead, context) => {
+            // If the mutation fails, use the context returned from onMutate to roll back
+            if (context?.previousLeads) {
+                queryClient.setQueriesData({ queryKey: ["leads"] }, context.previousLeads);
+            }
+        },
+        onSettled: () => {
+            // Always refetch after error or success to ensure synchronization
             queryClient.invalidateQueries({ queryKey: ["leads"] });
         },
     });

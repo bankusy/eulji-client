@@ -31,6 +31,7 @@ export default function Page() {
     );
     const [isColumnPopupOpen, setIsColumnPopupOpen] = useState(false);
     const [isAddPanelOpen, setIsAddPanelOpen] = useState(false);
+    const [newlyCreatedId, setNewlyCreatedId] = useState<string | null>(null);
     const defaultVisibleColumns = useMemo(() => {
         const initial: Record<string, boolean> = {};
         columnsConfiguration.forEach((col) => {
@@ -75,7 +76,7 @@ export default function Page() {
         (k) => searchColumns[k]
     );
 
-    const { deleteLeads: deleteLeadsMutation, updateLead: updateLeadMutation } = useLeadMutations(agencyId);
+    const { createLead: createLeadMutation, deleteLeads: deleteLeadsMutation, updateLead: updateLeadMutation } = useLeadMutations(agencyId);
     const { 
         data: leadsData, 
         isLoading, 
@@ -94,6 +95,40 @@ export default function Page() {
     const leads = useMemo(() => {
         return leadsData?.pages.flatMap((page) => page.data) || [];
     }, [leadsData]);
+
+    const handleCreateEmptyRow = async () => {
+        const newId = crypto.randomUUID();
+        const now = new Date().toISOString();
+        
+        const emptyLead: Lead = {
+            id: newId,
+            name: "신규 리드",
+            phone: "",
+            email: "",
+            stage: "NEW",
+            assignee: "",
+            propertyType: "OFFICETEL",
+            transactionType: "WOLSE",
+            depositMin: 0,
+            depositMax: 0,
+            priceMin: 0,
+            priceMax: 0,
+            message: "",
+            memo: "",
+            source: "DIRECT",
+            createdAt: now,
+            updatedAt: now,
+        };
+
+        try {
+            setNewlyCreatedId(newId);
+            setTimeout(() => setNewlyCreatedId(null), 2000);
+            await createLeadMutation.mutateAsync(emptyLead);
+        } catch (error) {
+            console.error("Failed to create empty row", error);
+            alert("행 추가 실패");
+        }
+    };
 
     const handleCellUpdate = async (rowId: string, columnKey: string, value: any) => {
         const targetLead = leads.find((l) => l.id === rowId);
@@ -230,10 +265,7 @@ export default function Page() {
     return (
         <div className="flex flex-col w-full h-full">
             <LeadsToolbar
-                onOpenAddPanel={() => {
-                    setEditingLead(null);
-                    setIsAddPanelOpen(true);
-                }}
+                onOpenAddPanel={handleCreateEmptyRow}
                 onToggleColumnPopup={() =>
                     setIsColumnPopupOpen(!isColumnPopupOpen)
                 }
@@ -324,10 +356,7 @@ export default function Page() {
                         }
                     });
                 }}
-                onRowClick={(lead) => {
-                    setEditingLead(lead as Lead);
-                    setIsAddPanelOpen(true);
-                }}
+                onRowClick={undefined}
                 onSort={(column, direction) => {
                     setSortConfig({ column, direction });
                 }}
@@ -342,6 +371,7 @@ export default function Page() {
                 isLoading={isFetchingNextPage}
                 isInitialLoading={isLoading}
                 onCellUpdate={handleCellUpdate}
+                newlyCreatedId={newlyCreatedId}
             />
             <Modal
                 isOpen={isAddPanelOpen}

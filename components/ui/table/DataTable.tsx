@@ -54,6 +54,7 @@ interface DataTableProps<T> {
     hasMore?: boolean;
     isLoading?: boolean; // For "Fetching Next Page"
     isInitialLoading?: boolean; // For "Initial Load"
+    newlyCreatedId?: string | null;
 }
 
 export function DataTable<T extends { id: string }>({
@@ -78,6 +79,7 @@ export function DataTable<T extends { id: string }>({
     hasMore,
     isLoading,
     isInitialLoading,
+    newlyCreatedId,
 }: DataTableProps<T>) {
     const { systemTheme, isThemeReady } = ThemeHook();
     const resizingRef = useRef<{
@@ -510,12 +512,16 @@ export function DataTable<T extends { id: string }>({
                 </div>
                 <div className="table-body">
                     {data && data.length > 0 ? (
-                        data.map((row, rowIndex) => (
-                            <div
-                                key={row.id || rowIndex}
-                                className={clsx("table-row cursor-pointer")}
-                                onClick={() => onRowClick?.(row)}
-                            >
+                        data.map((row, rowIndex) => {
+                            const isEditingRow = editingCell?.rowId === row.id;
+                            const isNewRow = newlyCreatedId === row.id;
+                            return (
+                                <div
+                                    key={row.id || rowIndex}
+                                    className={clsx("table-row cursor-pointer", isEditingRow && "is-editing-row", isNewRow && "table-row-new")}
+                                    onClick={() => onRowClick?.(row)}
+                                    style={{ zIndex: isEditingRow ? 500 : undefined, position: isEditingRow ? 'relative' : undefined }}
+                                >
                                 <div
                                     className={clsx(
                                         `table-cell table-cell-sticky`,
@@ -560,7 +566,7 @@ export function DataTable<T extends { id: string }>({
                                                 selectedIds?.includes(row.id)
                                                     ? "bg-(--background-surface)"
                                                     : "bg-(--background)",
-                                                isEditingCell && "ring-2 ring-inset ring-(--primary) z-200 overflow-visible!"
+                                                isEditingCell && "ring-2 ring-inset ring-(--primary) z-200 overflow-visible! relative is-editing-cell"
                                             )}
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -582,7 +588,9 @@ export function DataTable<T extends { id: string }>({
                                                     ? getLeft(i)
                                                     : undefined,
                                                 justifyContent: isEditingCell ? 'stretch' : column.cellAlign,
-                                                padding: isEditingCell ? 0 : undefined
+                                                padding: isEditingCell ? 0 : undefined,
+                                                zIndex: isEditingCell ? 501 : undefined,
+                                                overflow: isEditingCell ? 'visible' : undefined,
                                             }}
                                         >
                                             {isEditingCell ? (
@@ -608,8 +616,9 @@ export function DataTable<T extends { id: string }>({
                                         </div>
                                     );
                                 })}
-                            </div>
-                        ))
+                                </div>
+                            );
+                        })
                     ) : (
                         !isLoading && !isInitialLoading && (
                             <div className="flex flex-col items-center justify-center p-8 text-(--foreground-muted) h-[200px]">

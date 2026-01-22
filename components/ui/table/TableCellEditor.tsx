@@ -70,7 +70,7 @@ export default function TableCellEditor({
 
                 {/* Absolute Dropdown */}
                 {isOpen && (
-                    <div className="absolute top-full left-0 mt-1 w-[200px] bg-white border border-(--border-surface) rounded-none shadow-lg z-1000 max-h-[300px] overflow-y-auto flex flex-col p-1">
+                    <div className="absolute top-full left-0 mt-1 w-[200px] bg-(--background) border border-(--border-surface) rounded-none shadow-lg z-1000 max-h-[300px] overflow-y-auto flex flex-col p-1">
                          {options?.map((opt) => (
                             <button
                                 key={opt.value}
@@ -114,7 +114,7 @@ export default function TableCellEditor({
 
                  {isOpen && (
                     <div 
-                        className="absolute top-full left-0 mt-1 w-[250px] bg-white border border-(--border-surface) rounded-none shadow-lg z-1000 p-3 flex flex-col gap-3"
+                        className="absolute top-full left-0 mt-1 w-[250px] bg-(--background) border border-(--border-surface) rounded-none shadow-lg z-1000 p-3 flex flex-col gap-3"
                         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
                     >
                         <div className="flex flex-col gap-1">
@@ -187,7 +187,7 @@ export default function TableCellEditor({
             </div>
             
             {/* Action Buttons */}
-            <div className="absolute right-0 top-full mt-1 z-50 flex gap-1 bg-white border border-gray-200 p-1 rounded-none shadow-lg">
+            <div className="absolute right-0 top-full mt-1 z-50 flex gap-1 bg-(--background) border border-(--border-surface) p-1 rounded-none shadow-lg">
                 <button
                     className="p-1 hover:bg-gray-100 rounded-none text-green-600"
                     onClick={(e) => {
