@@ -318,6 +318,8 @@ export default function Page() {
                 <IconWrapper
                     src={`/icons/delete/${systemTheme}.svg`}
                     onClick={handleDelete}
+                    isVisibleDescription={true}
+                    description="삭제"
                 ></IconWrapper>
             </MenuBar>
             <DataTable

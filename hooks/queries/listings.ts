@@ -28,12 +28,13 @@ export type UseListingsParams = {
     address: string | null;
     sortConfig?: { key: string; direction: "asc" | "desc" } | null;
     searchQuery?: string;
+    searchColumns?: string[];
     filters?: Record<string, string[]>;
 };
 
-export const useListings = ({ agencyId, address, sortConfig, searchQuery, filters }: UseListingsParams) => {
+export const useListings = ({ agencyId, address, sortConfig, searchQuery, searchColumns, filters }: UseListingsParams) => {
     return useInfiniteQuery({
-        queryKey: ["listings", agencyId, address, sortConfig, searchQuery, filters],
+        queryKey: ["listings", agencyId, address, sortConfig, searchQuery, searchColumns, filters],
         queryFn: async ({ pageParam = 0 }) => {
             return getListings(
                 agencyId,
@@ -43,6 +44,7 @@ export const useListings = ({ agencyId, address, sortConfig, searchQuery, filter
                 pageParam,
                 20, // limit
                 searchQuery,
+                searchColumns,
                 filters
             );
         },

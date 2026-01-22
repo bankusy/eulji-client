@@ -65,9 +65,10 @@ export type ListingColumn = {
     headerAlign: string;
     cellAlign: string;
     render?: (item: Listing) => ReactNode;
-    type?: "text" | "select" | "date" | "phone";
+    type?: "text" | "select" | "date" | "phone" | "price";
     options?: { label: string; value: string }[];
     editable?: boolean;
+    getEditValue?: (item: Listing) => any;
 };
 
 export const listingColumns: ListingColumn[] = [
@@ -140,12 +141,19 @@ export const listingColumns: ListingColumn[] = [
         maxWidth: "200px",
         headerAlign: "end",
         cellAlign: "end",
-        type: "text",
+        type: "price",
+        editable: true,
+        getEditValue: (item: Listing) => {
+             if (item.transaction_type === "SALE") return { selling: item.price_selling };
+             if (item.transaction_type === "JEONSE") return { deposit: item.deposit };
+             if (item.transaction_type === "WOLSE") return { deposit: item.deposit, rent: item.rent };
+             return {};
+        },
         render: (item: Listing) => {
-            if (item.transaction_type === "SALE") return `${(item.price_selling || 0).toLocaleString()}만원`;
-            if (item.transaction_type === "JEONSE") return `${(item.deposit || 0).toLocaleString()}만원`;
-            if (item.transaction_type === "WOLSE") return `${(item.deposit || 0).toLocaleString()}/${(item.rent || 0).toLocaleString()}만원`;
-            return "-";
+             if (item.transaction_type === "SALE") return `${(item.price_selling || 0).toLocaleString()}만원`;
+             if (item.transaction_type === "JEONSE") return `${(item.deposit || 0).toLocaleString()}만원`;
+             if (item.transaction_type === "WOLSE") return `${(item.deposit || 0).toLocaleString()}/${(item.rent || 0).toLocaleString()}만원`;
+             return "-";
         }
     },
     {
@@ -187,6 +195,8 @@ export const listingColumns: ListingColumn[] = [
         headerAlign: "end",
         cellAlign: "end",
         type: "text",
+        editable: true,
+        getEditValue: (item: Listing) => ({ supply: item.area_supply_m2, private: item.area_private_m2 }),
         render: (item: Listing) => {
              // 0 check might hide valid 0, but unlikely for area.
              const supply = item.area_supply_m2 ? `${item.area_supply_m2}㎡` : "-";
@@ -203,6 +213,8 @@ export const listingColumns: ListingColumn[] = [
         headerAlign: "left",
         cellAlign: "left",
         type: "text",
+        editable: true,
+        getEditValue: (item: Listing) => ({ floor: item.floor, total: item.total_floors }),
         render: (item: Listing) => {
             if (item.floor === undefined && item.total_floors === undefined) return "-";
             return `${item.floor || "-"} / ${item.total_floors || "-"}`;
@@ -217,6 +229,7 @@ export const listingColumns: ListingColumn[] = [
         headerAlign: "start",
         cellAlign: "start",
         type: "phone",
+        editable: true,
         render: (item: Listing) => {
              const phone = item.owner_contact;
              if (!phone) return "-";
@@ -235,6 +248,7 @@ export const listingColumns: ListingColumn[] = [
         headerAlign: "start",
         cellAlign: "start",
         type: "text",
+        editable: true,
         render: (item: Listing) => item.memo || "-"
     },
     {

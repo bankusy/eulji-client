@@ -41,6 +41,32 @@ export default function ListingsPage() {
     const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
 
     const [searchQuery, setSearchQuery] = useState("");
+    const [activeSearchQuery, setActiveSearchQuery] = useState("");
+    const [isSearchFilterOpen, setIsSearchFilterOpen] = useState(false);
+    const [searchColumns, setSearchColumns] = useLocalStorage<Record<string, boolean>>(
+        "listings_search_columns",
+        {
+            name: true,
+            address_detail: true,
+            owner_contact: true,
+            memo: true,
+        }
+    );
+
+    const getSearchLabel = (key: string) => {
+        switch (key) {
+            case "name": return "건물명";
+            case "address_detail": return "상세 주소";
+            case "owner_contact": return "연락처";
+            case "memo": return "메모";
+            default: return key;
+        }
+    };
+
+    const activeSearchColumns = useMemo(() => {
+        return Object.keys(searchColumns).filter((k) => searchColumns[k]);
+    }, [searchColumns]);
+
     const [filters, setFilters] = useState<Record<string, string[]>>({});
     const [sortConfig, setSortConfig] = useState<{
         key: string;
@@ -93,7 +119,7 @@ export default function ListingsPage() {
         if (JSON.stringify(newOrder) !== JSON.stringify(columnOrder)) {
             setColumnOrder(newOrder);
         }
-    }, [stickyColumns]);
+    }, [stickyColumns, columnOrder]);
 
     const { data: groups = [], isLoading: isGroupsLoading } =
         useListingGroups(agencyId);
@@ -108,7 +134,8 @@ export default function ListingsPage() {
         agencyId,
         address: selectedAddress,
         sortConfig,
-        searchQuery,
+        searchQuery: activeSearchQuery,
+        searchColumns: activeSearchColumns,
         filters,
     });
 
@@ -132,6 +159,7 @@ export default function ListingsPage() {
 
     const handleReset = () => {
         setSearchQuery("");
+        setActiveSearchQuery("");
         setFilters({});
         setSortConfig(null);
     };
@@ -148,10 +176,23 @@ export default function ListingsPage() {
 
     const handleCellUpdate = async (rowId: string, columnKey: string, value: any) => {
         try {
-            await updateListing.mutateAsync({
-                id: rowId,
-                [columnKey as keyof Listing]: value,
-            });
+            let updates: any = { id: rowId };
+
+            if (columnKey === "price" && typeof value === "object") {
+                if ("selling" in value) updates.price_selling = value.selling;
+                if ("deposit" in value) updates.deposit = value.deposit;
+                if ("rent" in value) updates.rent = value.rent;
+            } else if (columnKey === "area" && typeof value === "object") {
+                updates.area_supply_m2 = value.supply;
+                updates.area_private_m2 = value.private;
+            } else if (columnKey === "floor" && typeof value === "object") {
+                updates.floor = value.floor;
+                updates.total_floors = value.total;
+            } else {
+                updates[columnKey] = value;
+            }
+
+            await updateListing.mutateAsync(updates);
         } catch (error) {
             console.error("Update failed", error);
             alert("수정 실패");
@@ -250,8 +291,21 @@ export default function ListingsPage() {
                                 onToggleColumnPopup={() =>
                                     setIsColumnPopupOpen(!isColumnPopupOpen)
                                 }
+                                isSearchFilterOpen={isSearchFilterOpen}
+                                onToggleSearchFilter={() =>
+                                    setIsSearchFilterOpen(!isSearchFilterOpen)
+                                }
+                                searchColumns={searchColumns}
+                                onToggleSearchColumn={(key) =>
+                                    setSearchColumns((prev) => ({
+                                        ...prev,
+                                        [key]: !prev[key],
+                                    }))
+                                }
                                 searchQuery={searchQuery}
                                 onSearch={setSearchQuery}
+                                onSearchSubmit={() => setActiveSearchQuery(searchQuery)}
+                                getSearchLabel={getSearchLabel}
                                 placeholder="매물 내 검색"
                                 onReset={handleReset}
                             />
@@ -310,6 +364,8 @@ export default function ListingsPage() {
                             <IconWrapper
                                 src={`/icons/delete/${systemTheme}.svg`}
                                 onClick={handleDelete}
+                                isVisibleDescription={true}
+                                description="삭제"
                             ></IconWrapper>
                         </MenuBar>
 

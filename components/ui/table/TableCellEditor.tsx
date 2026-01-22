@@ -98,18 +98,36 @@ export default function TableCellEditor({
     }
 
     if (type === "price") {
-        const priceValue = value as { min: number; max: number } || { min: 0, max: 0 };
+        const isLeadPrice = (value && ('min' in value || 'max' in value));
+        const isListingPrice = (value && ('selling' in value || 'deposit' in value || 'rent' in value));
+        const isArea = (value && ('supply' in value || 'private' in value));
+        const isFloor = (value && ('floor' in value || 'total' in value));
+
         return (
              <div ref={containerRef} className="relative w-full h-full">
                 {/* Visual anchor */}
                 <div 
-                    className="w-full h-full px-2 py-1 flex items-center text-sm cursor-pointer hover:bg-(--bg-hover) rounded-none border border-transparent hover:border-(--border-surface)" 
+                    className="w-full h-full px-2 py-1 flex items-center text-xs cursor-pointer hover:bg-(--bg-hover) rounded-none border border-transparent hover:border-(--border-surface)" 
                     onClick={() => setIsOpen(!isOpen)}
                 >
-                    {priceValue.min && !priceValue.max ? `${priceValue.min.toLocaleString()}만원~` : 
-                     !priceValue.min && priceValue.max ? `0~${priceValue.max.toLocaleString()}만원` : 
-                     priceValue.min && priceValue.max ? `${priceValue.min.toLocaleString()}~${priceValue.max.toLocaleString()}만원` : 
-                     "-"}
+                    {isLeadPrice && (
+                        <>
+                            {value.min && !value.max ? `${value.min.toLocaleString()}만원~` : 
+                             !value.min && value.max ? `0~${value.max.toLocaleString()}만원` : 
+                             value.min && value.max ? `${value.min.toLocaleString()}~${value.max.toLocaleString()}만원` : 
+                             "-"}
+                        </>
+                    )}
+                    {isListingPrice && (
+                        <>
+                            {value.selling !== undefined && `${value.selling.toLocaleString()}만원`}
+                            {value.rent !== undefined && `${(value.deposit || 0).toLocaleString()}/${value.rent.toLocaleString()}만원`}
+                            {value.rent === undefined && value.deposit !== undefined && value.selling === undefined && `${value.deposit.toLocaleString()}만원`}
+                        </>
+                    )}
+                    {isArea && `${value.supply || "-"} / ${value.private || "-"} ㎡`}
+                    {isFloor && `${value.floor || "-"} / ${value.total || "-"} 층`}
+                    {!isLeadPrice && !isListingPrice && !isArea && !isFloor && "-"}
                 </div>
 
                  {isOpen && (
@@ -117,26 +135,122 @@ export default function TableCellEditor({
                         className="absolute top-full left-0 mt-1 w-[250px] bg-(--background) border border-(--border-surface) rounded-none shadow-lg z-1000 p-3 flex flex-col gap-3"
                         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
                     >
-                        <div className="flex flex-col gap-1">
-                            <label className="text-xs text-(--foreground-muted)">최소 금액 (만원)</label>
-                            <Input 
-                                type="number"
-                                className="w-full p-1 text-sm rounded-none border border-(--border-surface)"
-                                value={priceValue.min || ""}
-                                onChange={(e) => setValue({ ...priceValue, min: Number(e.target.value) })}
-                                placeholder="0"
-                            />
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <label className="text-xs text-(--foreground-muted)">최대 금액 (만원)</label>
-                            <Input 
-                                type="number"
-                                className="w-full p-1 text-sm rounded-none border border-(--border-surface)"
-                                value={priceValue.max || ""}
-                                onChange={(e) => setValue({ ...priceValue, max: Number(e.target.value) })}
-                                placeholder="0"
-                            />
-                        </div>
+                        {isLeadPrice && (
+                             <>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-xs text-(--foreground-muted)">최소 금액 (만원)</label>
+                                    <Input 
+                                        type="number"
+                                        className="w-full p-1 text-sm rounded-none border border-(--border-surface)"
+                                        value={value.min || ""}
+                                        onChange={(e) => setValue({ ...value, min: Number(e.target.value) })}
+                                        placeholder="0"
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-xs text-(--foreground-muted)">최대 금액 (만원)</label>
+                                    <Input 
+                                        type="number"
+                                        className="w-full p-1 text-sm rounded-none border border-(--border-surface)"
+                                        value={value.max || ""}
+                                        onChange={(e) => setValue({ ...value, max: Number(e.target.value) })}
+                                        placeholder="0"
+                                    />
+                                </div>
+                             </>
+                        )}
+
+                        {isListingPrice && (
+                             <>
+                                {value.selling !== undefined && (
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-xs text-(--foreground-muted)">매매가 (만원)</label>
+                                        <Input 
+                                            type="number"
+                                            className="w-full p-1 text-sm rounded-none border border-(--border-surface)"
+                                            value={value.selling || ""}
+                                            onChange={(e) => setValue({ ...value, selling: Number(e.target.value) })}
+                                            placeholder="0"
+                                        />
+                                    </div>
+                                )}
+                                {value.deposit !== undefined && (
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-xs text-(--foreground-muted)">보증금 (만원)</label>
+                                        <Input 
+                                            type="number"
+                                            className="w-full p-1 text-sm rounded-none border border-(--border-surface)"
+                                            value={value.deposit || ""}
+                                            onChange={(e) => setValue({ ...value, deposit: Number(e.target.value) })}
+                                            placeholder="0"
+                                        />
+                                    </div>
+                                )}
+                                {value.rent !== undefined && (
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-xs text-(--foreground-muted)">월세 (만원)</label>
+                                        <Input 
+                                            type="number"
+                                            className="w-full p-1 text-sm rounded-none border border-(--border-surface)"
+                                            value={value.rent || ""}
+                                            onChange={(e) => setValue({ ...value, rent: Number(e.target.value) })}
+                                            placeholder="0"
+                                        />
+                                    </div>
+                                )}
+                             </>
+                        )}
+
+                        {isArea && (
+                             <>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-xs text-(--foreground-muted)">공급 면적 (㎡)</label>
+                                    <Input 
+                                        type="number"
+                                        className="w-full p-1 text-sm rounded-none border border-(--border-surface)"
+                                        value={value.supply || ""}
+                                        onChange={(e) => setValue({ ...value, supply: Number(e.target.value) })}
+                                        placeholder="0"
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-xs text-(--foreground-muted)">전용 면적 (㎡)</label>
+                                    <Input 
+                                        type="number"
+                                        className="w-full p-1 text-sm rounded-none border border-(--border-surface)"
+                                        value={value.private || ""}
+                                        onChange={(e) => setValue({ ...value, private: Number(e.target.value) })}
+                                        placeholder="0"
+                                    />
+                                </div>
+                             </>
+                        )}
+
+                        {isFloor && (
+                             <>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-xs text-(--foreground-muted)">해당 층</label>
+                                    <Input 
+                                        type="number"
+                                        className="w-full p-1 text-sm rounded-none border border-(--border-surface)"
+                                        value={value.floor || ""}
+                                        onChange={(e) => setValue({ ...value, floor: Number(e.target.value) })}
+                                        placeholder="0"
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-xs text-(--foreground-muted)">전체 층</label>
+                                    <Input 
+                                        type="number"
+                                        className="w-full p-1 text-sm rounded-none border border-(--border-surface)"
+                                        value={value.total || ""}
+                                        onChange={(e) => setValue({ ...value, total: Number(e.target.value) })}
+                                        placeholder="0"
+                                    />
+                                </div>
+                             </>
+                        )}
+
                         <div className="flex justify-end gap-2 pt-2 border-t border-(--border-surface)">
                              <button
                                 className="p-1 px-3 text-xs hover:bg-gray-100 rounded text-(--foreground)"

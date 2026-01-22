@@ -75,6 +75,7 @@ export async function getListings(
     page: number = 0,
     limit: number = 20,
     searchQuery?: string,
+    searchColumns?: string[],
     filters?: Record<string, string[]>
 ) {
     if (!agencyId) return { data: [], nextId: null, count: 0 };
@@ -96,7 +97,15 @@ export async function getListings(
 
     if (searchQuery) {
         // Search across fields
-        queryBuilder = queryBuilder.or(`address_detail.ilike.%${searchQuery}%,name.ilike.%${searchQuery}%,memo.ilike.%${searchQuery}%,owner_contact.ilike.%${searchQuery}%`);
+        if (searchColumns && searchColumns.length > 0) {
+            const orConditions = searchColumns
+                .map((col) => `${col}.ilike.%${searchQuery}%`)
+                .join(",");
+            queryBuilder = queryBuilder.or(orConditions);
+        } else {
+            // Fallback default search
+            queryBuilder = queryBuilder.or(`address_detail.ilike.%${searchQuery}%,name.ilike.%${searchQuery}%,memo.ilike.%${searchQuery}%,owner_contact.ilike.%${searchQuery}%`);
+        }
     }
 
     if (filters) {
