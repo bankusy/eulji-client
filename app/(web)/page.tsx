@@ -2,12 +2,12 @@
 
 import { usePathname } from "next/navigation";
 import "@/styles/components.css";
-import HeroSection from "@/components/ui/web/HeroSection";
-import WebDesignSection from "@/components/ui/web/WebDesignSection";
-import LogoBar from "@/components/ui/web/LogoBar";
-import FAQSection from "@/components/ui/web/FAQSection";
-import CTASection from "@/components/ui/web/CTASection";
-import Footer from "@/components/ui/web/Footer";
+import HeroSection from "@/components/features/landing/HeroSection";
+import WebDesignSection from "@/components/features/landing/WebDesignSection";
+import LogoBar from "@/components/features/landing/LogoBar";
+import FAQSection from "@/components/features/landing/FAQSection";
+import CTASection from "@/components/features/landing/CTASection";
+import Footer from "@/components/features/landing/Footer";
 import { useEffect, useState } from "react";
 import ThemeHook from "@/hooks/ThemeHook";
 import Image from "next/image";
@@ -374,7 +374,7 @@ export function Profile() {
                             <Image
                                 className="relative -top-[1.5px]"
                                 src={`/icons/mappin/${systemTheme}-fill.svg`}
-                                width={14}
+                                width={16}
                                 height={14}
                                 alt="mappin"
                             />

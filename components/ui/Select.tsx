@@ -28,6 +28,7 @@ interface SelectProps {
     placeholder?: string;
     className?: string;
     onChange: (value: string) => void;
+    disabled?: boolean;
 }
 
 export function Select({
@@ -36,6 +37,7 @@ export function Select({
     children,
     placeholder = "Select option",
     className = "",
+    disabled = false,
 }: SelectProps) {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -80,19 +82,20 @@ export function Select({
         >
             <div ref={containerRef} className={`relative w-full h-full  ${className}`}>
                 <div
-                    onClick={() => setIsOpen(!isOpen)}
+                    onClick={() => !disabled && setIsOpen(!isOpen)}
                     className={`
                                 flex items-center justify-between
                                 w-full px-3 py-2
-                                bg-(--select-background) border border-(--select-border)
-                                text-sm text-(--select-foreground) rounded-md
-                                cursor-pointer select-none
+                                bg-(--background-subtle) border border-(--border-subtle)
+                                text-sm text-(--foreground) rounded-md
+                                select-none
                                 focus:outline-none focus:ring-1 focus:ring-(--teal-1)
-                                ${isOpen ? "ring-1 ring-(--select-ring)" : ""}
+                                ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}
+                                ${isOpen ? "ring-1 ring-(--ring)" : ""}
                                 `}
                 >
                     <span
-                        className={!value ? "text-(--select-foreground-muted)" : ""}
+                        className={!value ? "text-(--foreground-muted)" : ""}
                     >
                         {selectedChild ? selectedChild.props.children : value || placeholder}
                     </span>
@@ -105,7 +108,7 @@ export function Select({
                     />
                 </div>
                 {isOpen && (
-                    <div className="absolute z-50  w-full mt-1 p-1 bg-(--select-option-background) border border-(--select-option-border) rounded-md ">
+                    <div className="absolute z-(--z-dropdown)  w-full mt-1 p-1 bg-(--background-subtle) border border-(--border-subtle) rounded-md ">
                         <div className="max-h-60 overflow-auto flex flex-col gap-0.5 scrollbar-hide-vertical">
                             {children}
                         </div>
@@ -137,7 +140,7 @@ export function SelectOption({ value, children }: SelectOptionProps) {
                 e.stopPropagation();
                 handleSelect(value);
             }}
-            className={`px-2 py-1.5 rounded-sm text-sm cursor-pointer flex items-center justify-between hover:bg-(--select-option-background-hover)`}
+            className={`px-2 py-1.5 rounded-sm text-sm cursor-pointer flex items-center justify-between hover:bg-(--background-subtle-hover)`}
         >
             {children}
             {isSelected && (

@@ -1,4 +1,6 @@
-import Sidebar from "@/components/ui/dashboard/Sidebar";
+import Sidebar from "@/components/features/dashboard/Sidebar";
+import SidebarToggle from "@/components/features/dashboard/SidebarToggle";
+import GlobalToolbar from "@/components/features/dashboard/GlobalToolbar";
 
 export default function AgencyDashboardLayout({
     children,
@@ -9,36 +11,33 @@ export default function AgencyDashboardLayout({
         <DashboardOuterLayout>
             <Sidebar />
             <DashboardInnerLayout>
-                <ContentLayout>
-                    {children}
-                </ContentLayout>
+                <GlobalToolbar />
+                <ContentLayout>{children}</ContentLayout>
             </DashboardInnerLayout>
         </DashboardOuterLayout>
     );
 }
 
+// function GlobalToolbar() removed
+
 function DashboardOuterLayout({ children }: { children: React.ReactNode }) {
-    return (
-        <div className="flex h-full w-full">
-            {children}
-        </div>
-    )
+    return <div className="flex h-full w-full">{children}</div>;
 }
 
 function DashboardInnerLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="flex flex-col w-full h-full overflow-hidden">
+        <div className="flex flex-col w-full h-full overflow-hidden gap-2 py-2 pr-2">
             {children}
         </div>
-    )
+    );
 }
 
 function ContentLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="w-full h-full py-2 pr-2">
-            <div className="w-full h-full bg-(--inner-container-background) border border-(--border-surface) rounded-md p-2">
-            {children}
+        <div className="flex-1 w-full min-h-0">
+            <div className="w-full h-full bg-(--background) border border-(--border-surface) rounded-md p-2 flex flex-col overflow-hidden">
+                {children}
             </div>
         </div>
-    )
+    );
 }

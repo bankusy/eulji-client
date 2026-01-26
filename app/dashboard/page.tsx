@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import Loading from "./loading";
+import GlobalLoader from "@/components/ui/GlobalLoader";
 
 export default function DashboardRootPage() {
     const router = useRouter();
@@ -11,5 +11,5 @@ export default function DashboardRootPage() {
         router.replace("/dashboard/agencies");
     }, [router]);
 
-    return <Loading />;
+    return <GlobalLoader />;
 }

@@ -12,7 +12,7 @@ export default function MenuBar({ className, isOpen, children }: MenuBarProps) {
             className={clsx(
                 "transition-all duration-200 flex items-center gap-2",
                 isOpen
-                    ? "h-12 border border-(--border) rounded-md px-2 opacity-100 mb-2"
+                    ? "h-[52px] border border-(--border) rounded-md p-2 opacity-100 mb-2 min-h-max"
                     : "h-0 border-transparent opacity-0",
                 className
             )}

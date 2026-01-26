@@ -30,7 +30,7 @@ export default function Page() {
                     </p>
                 </div>
 
-                <div className="bg-(--background-subtle) border border-(--border) rounded-xl p-6 shadow-sm">
+                <div className="bg-(--background-subtle) border border-(--border-subtle) rounded-xl p-6 shadow-sm">
                     <div className="mb-6 text-center">
                         <h2 className="text-lg font-semibold text-(--foreground)">로그인</h2>
                         <p className="text-xs text-(--foreground-muted) mt-1">계정에 접근하려면 로그인이 필요합니다.</p>

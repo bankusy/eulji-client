@@ -68,10 +68,34 @@ export const useListingMutations = (agencyId: string) => {
 
     const update = useMutation({
         mutationFn: (data: Partial<Listing> & { id: string }) => updateListing(agencyId, data),
-        onSuccess: () => {
-            // Optimistic update strategies could be added here
+        onMutate: async (newListing) => {
+            await queryClient.cancelQueries({ queryKey: ["listings", agencyId] });
+
+            const previousListings = queryClient.getQueryData(["listings", agencyId]);
+
+            queryClient.setQueriesData({ queryKey: ["listings", agencyId] }, (old: any) => {
+                if (!old) return old;
+                return {
+                    ...old,
+                    pages: old.pages.map((page: any) => ({
+                        ...page,
+                        data: page.data.map((listing: Listing) =>
+                            listing.id === newListing.id ? { ...listing, ...newListing } : listing
+                        ),
+                    })),
+                };
+            });
+
+            return { previousListings };
+        },
+        onError: (err, newListing, context) => {
+            if (context?.previousListings) {
+                queryClient.setQueriesData({ queryKey: ["listings", agencyId] }, context.previousListings);
+            }
+        },
+        onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ["listings", agencyId] });
-            queryClient.invalidateQueries({ queryKey: ["listingGroups", agencyId] }); 
+            queryClient.invalidateQueries({ queryKey: ["listingGroups", agencyId] });
         },
     });
 

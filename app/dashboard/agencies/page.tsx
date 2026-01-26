@@ -118,7 +118,7 @@ export default function AgencySelectPage() {
             if (res.ok) {
                 // router.push("/dashboard");
                 // Now we redirect to specific agency dashboard URL
-                router.push(`/dashboard/agencies/${agencyId}`);
+                router.push(`/dashboard/agencies/${agencyId}/overview`);
                 router.refresh();
             } else {
                 alert("Failed to switch agency");
@@ -209,14 +209,14 @@ export default function AgencySelectPage() {
                         {agencies?.map((agency) => (
                             <div
                                 key={agency.id}
-                                className="aspect-video p-4 border border-(--border-surface) rounded-lg hover:bg-(--background-subtle) cursor-pointer flex flex-col justify-between transition-all bg-(--background) group"
+                                className="aspect-video p-4 border border-(--border-subtle) rounded-lg hover:bg-(--background-subtle-hover) cursor-pointer flex flex-col justify-between transition-all bg-(--background-subtle) group"
                                 onClick={() => handleSelect(agency.id)}
                             >
                                 <div className="flex flex-col gap-2 items-start w-full">
                                     <h3 className="font-semibold text-(--foreground) truncate w-full">
                                         {agency.name}
                                     </h3>
-                                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-(--background-subtle) text-(--foreground-muted) border border-(--border) shrink-0">
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-(--background-subtle) text-(--foreground-muted) border border-(--border-subtle) shrink-0">
                                         {agency.role === "OWNER"
                                             ? "소유자"
                                             : "멤버"}
@@ -225,8 +225,8 @@ export default function AgencySelectPage() {
                                 <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                                     <Image
                                         src={`/icons/chevron/dark.svg`}
-                                        width={14}
-                                        height={14}
+                                        width={16}
+                                        height={16}
                                         alt="Go"
                                         className="-rotate-90 opacity-50"
                                     />
@@ -236,7 +236,7 @@ export default function AgencySelectPage() {
 
                         <button
                             onClick={() => setIsCreatingAgency(true)}
-                            className="aspect-video p-4 border border-dashed border-(--border-surface) rounded-lg hover:bg-(--background-subtle) cursor-pointer flex flex-col items-center justify-center gap-2 transition-all bg-(--background-surface)"
+                            className="aspect-video p-4 border border-dashed border-(--border-surface) rounded-lg hover:bg-(--background-surface-hover) cursor-pointer flex flex-col items-center justify-center gap-2 transition-all bg-(--background-surface)"
                         >
                             <span className="text-2xl text-(--foreground-muted)">
                                 +

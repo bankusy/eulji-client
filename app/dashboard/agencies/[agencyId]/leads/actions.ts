@@ -10,39 +10,40 @@ import { verifyAgencyAccess } from "@/lib/auth/agency";
 // DB 스키마에 맞춘 타입 매핑 헬퍼 함수
 function mapLeadToDb(lead: Partial<Lead>) {
     const {
-        propertyType,
-        transactionType,
+        property_type,
+        transaction_type,
         message,
         assignee, // 제외 (DB 스키마상 assigned_user_id는 uuid여야 함)
-        createdAt, // 제외
-        updatedAt, // 제외
+        created_at, // 제외
+        updated_at, // 제외
         id, // 별도 처리
         phone, // 전화번호 별도 처리 (숫자만 저장)
         assigned_user_id,
         assigned_user, 
-        depositMin,
-        depositMax,
-        priceMin,
-        priceMax,
+        deposit_min,
+        deposit_max,
+        price_min,
+        price_max,
         ...rest
     } = lead as any;
 
     return {
         ...rest,
-        // 필드명 매핑 및 Enum 변환
-        property: propertyType,
-        transaction: transactionType,
-        deposit_min: depositMin,
-        deposit_max: depositMax,
-        price_min: priceMin,
-        price_max: priceMax,
-        message: message,
+        // 필드명은 이미 snake_case이므로 그대로 사용
+        property_type,
+        transaction_type,
+        deposit_min,
+        deposit_max,
+        price_min,
+        price_max,
+        message,
         phone: phone?.replace(/[^0-9]/g, ""), // 숫자만 추출하여 저장
-        assigned_user_id: assigned_user_id || null, 
+        // undefined인 경우 업데이트 객체에 포함하지 않아 기존 값 유지 (PATCH), 값이 있으면 업데이트
+        assigned_user_id: assigned_user_id === undefined ? undefined : (assigned_user_id || null),
     };
 }
 
-export async function createLead(agencyId: string, leadData: Omit<Lead, "createdAt" | "updatedAt">) {
+export async function createLead(agencyId: string, leadData: Omit<Lead, "created_at" | "updated_at">) {
     const auth = await verifyAgencyAccess(agencyId);
     if (!auth) throw new Error("Unauthorized");
 
@@ -53,10 +54,10 @@ export async function createLead(agencyId: string, leadData: Omit<Lead, "created
     
     // Budget check
     if (
-        (leadData.depositMin < 0) || 
-        (leadData.depositMax < 0) || 
-        (leadData.priceMin < 0) || 
-        (leadData.priceMax < 0)
+        (leadData.deposit_min < 0) || 
+        (leadData.deposit_max < 0) || 
+        (leadData.price_min < 0) || 
+        (leadData.price_max < 0)
     ) {
         throw new Error("예산은 0보다 작을 수 없습니다.");
     }
@@ -168,14 +169,14 @@ export async function getLeads(
 
     let queryBuilder = supabase
         .from("leads")
-        .select("*, assigned_user:users!assigned_user_id(name)", { count: "exact" }) // users 테이블 조인 (FK 이름 확인 필요, 보통 assigned_user_id면 자동 매핑 될 수 있음)
+        .select("*, assigned_user:users!assigned_user_id(name, nickname)", { count: "exact" })
         .eq("agency_id", agencyId);
 
     if (query && searchColumns && searchColumns.length > 0) {
         const mappedColumns = searchColumns.map((col) => {
             if (col === "message") return "message";
-            if (col === "propertyType") return "property"; 
-            if (col === "transactionType") return "transaction";
+            if (col === "property_type") return "property_type"; 
+            if (col === "transaction_type") return "transaction_type";
             return col;
         });
 
@@ -201,8 +202,8 @@ export async function getLeads(
         Object.entries(filters).forEach(([key, values]) => {
             if (values.length > 0) {
                 let dbKey = key;
-                if (key === "propertyType") dbKey = "property";
-                if (key === "transactionType") dbKey = "transaction";
+                if (key === "property_type") dbKey = "property_type";
+                if (key === "transaction_type") dbKey = "transaction_type";
                 if (key === "message") dbKey = "message";
                 
                 queryBuilder = queryBuilder.in(dbKey, values);
@@ -211,13 +212,22 @@ export async function getLeads(
     }
 
     // Map sort column
-    let dbSortColumn = sortColumn;
-    if (sortColumn === "message") dbSortColumn = "message";
-    if (sortColumn === "propertyType") dbSortColumn = "property";
-    if (sortColumn === "transactionType") dbSortColumn = "transaction";
-    // createdAt -> created_at (if frontend sends camelCase, though Lead type has createdAt but usually we might sort by key defined in col config)
-    if (sortColumn === "createdAt") dbSortColumn = "created_at";
-    if (sortColumn === "updatedAt") dbSortColumn = "updated_at";
+    const allowedSortColumns = [
+        "created_at", "updated_at", "name", "phone", "email", "source",
+        "stage", "message", "property_type", "transaction_type", "deposit_min",
+        "deposit_max", "price_min", "price_max"
+    ];
+    
+    // Validate and fallback to default if invalid
+    const validSortColumn = allowedSortColumns.includes(sortColumn) ? sortColumn : "created_at";
+    
+    let dbSortColumn = validSortColumn;
+    if (validSortColumn === "message") dbSortColumn = "message";
+    if (validSortColumn === "property_type") dbSortColumn = "property_type";
+    if (validSortColumn === "transaction_type") dbSortColumn = "transaction_type";
+    // created_at, updated_at은 이미 snake_case
+    if (validSortColumn === "created_at") dbSortColumn = "created_at";
+    if (validSortColumn === "updated_at") dbSortColumn = "updated_at";
 
     queryBuilder = queryBuilder
         .order(dbSortColumn, { ascending: sortDirection === "asc" })
@@ -230,27 +240,34 @@ export async function getLeads(
         return { data: [], nextId: null, count: 0 };
     }
     
+    // 중복 제거: ID 기준으로 unique한 데이터만 유지
+    const uniqueData = data?.reduce((acc: any[], row: any) => {
+        if (!acc.find(item => item.id === row.id)) {
+            acc.push(row);
+        }
+        return acc;
+    }, []) || [];
+    
     // DB 데이터를 Lead 타입으로 변환 (필드명 매핑 필요)
-    const mappedData = data.map((row: any) => ({
-        ...row,
-        propertyType: row.property,
-        transactionType: row.transaction,
-        message: row.message,
-        // Budget flat fields
-        depositMin: row.deposit_min,
-        depositMax: row.deposit_max,
-        priceMin: row.price_min,
-        priceMax: row.price_max,
-        assigned_user_id: row.assigned_user_id, // keep for ref if needed
-        assignee: row.assigned_user?.name || "", // 조인된 사용자 이름
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-        // Remove any camelCase variants if present in row to verify
-        // The error suggests "Could not find column assignedUserId" which implies it was in the payload
-        // Sent to update.
-    })) as Lead[];
+    const mappedData = uniqueData.map((row: any) => {
+        const userObj = Array.isArray(row.assigned_user) ? row.assigned_user[0] : row.assigned_user;
+        return {
+            ...row,
+            property_type: row.property_type,
+            transaction_type: row.transaction_type,
+            message: row.message,
+            deposit_min: row.deposit_min,
+            deposit_max: row.deposit_max,
+            price_min: row.price_min,
+            price_max: row.price_max,
+            assigned_user_id: row.assigned_user_id,
+            assignee: userObj?.nickname || userObj?.name || "", 
+            created_at: row.created_at,
+            updated_at: row.updated_at,
+        };
+    }) as Lead[];
 
-    const nextId = (data && data.length === limit && (count ? from + limit < count : true))
+    const nextId = (uniqueData && uniqueData.length === limit && (count ? from + limit < count : true))
         ? page + 1
         : null;
 

@@ -7,8 +7,8 @@ import { useMemo, useState, useEffect } from "react";
 import ThemeHook from "@/hooks/ThemeHook";
 import { DataTable } from "@/components/ui/table/DataTable";
 import Modal from "@/components/ui/Modal";
-import ListingForm from "@/components/ui/dashboard/listings/ListingForm";
-import ListingsToolbar from "@/components/ui/dashboard/listings/ListingsToolbar";
+import ListingForm from "@/components/features/listings/ListingForm";
+import ListingsToolbar from "@/components/features/listings/ListingsToolbar";
 
 import {
     useListingGroups,
@@ -43,6 +43,7 @@ export default function ListingsPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [activeSearchQuery, setActiveSearchQuery] = useState("");
     const [isSearchFilterOpen, setIsSearchFilterOpen] = useState(false);
+
     const [searchColumns, setSearchColumns] = useLocalStorage<Record<string, boolean>>(
         "listings_search_columns",
         {
@@ -52,6 +53,8 @@ export default function ListingsPage() {
             memo: true,
         }
     );
+    const [newlyCreatedId, setNewlyCreatedId] = useState<string | null>(null);
+    const [tempListing, setTempListing] = useState<Listing | null>(null);
 
     const getSearchLabel = (key: string) => {
         switch (key) {
@@ -67,11 +70,16 @@ export default function ListingsPage() {
         return Object.keys(searchColumns).filter((k) => searchColumns[k]);
     }, [searchColumns]);
 
-    const [filters, setFilters] = useState<Record<string, string[]>>({});
-    const [sortConfig, setSortConfig] = useState<{
+    // Sort State
+    const [sortConfig, setSortConfig] = useLocalStorage<{
         key: string;
         direction: "asc" | "desc";
-    } | null>(null);
+    } | null>("listings_sort_config", {
+        key: "created_at",
+        direction: "desc",
+    });
+
+    const [filters, setFilters] = useState<Record<string, string[]>>({});
 
     const [columnWidths, setColumnWidths] = useState<Record<string, number>>(
         {},
@@ -139,11 +147,12 @@ export default function ListingsPage() {
         filters,
     });
 
-    const { deleteListings, updateListing } = useListingMutations(agencyId);
+    const { deleteListings, updateListing, createListing } = useListingMutations(agencyId);
 
     const listings = useMemo(() => {
-        return listingsData?.pages.flatMap((page) => page.data) || [];
-    }, [listingsData]);
+        const data = listingsData?.pages.flatMap((page) => page.data) || [];
+        return tempListing ? [tempListing, ...data] : data;
+    }, [listingsData, tempListing]);
 
     // handlers
     const handleGroupSelect = (address: string | null) => {
@@ -151,17 +160,50 @@ export default function ListingsPage() {
         setSelectedListingIds([]);
     };
 
+    const handleCreateEmptyRow = async (address?: string) => {
+        const newId = crypto.randomUUID();
+        const now = new Date().toISOString();
+
+        const emptyListing: Listing = {
+            id: newId,
+            agency_id: agencyId,
+            assigned_user_id: "", // TODO: Set to current user if needed, or leave empty
+            name: "신규 매물",
+            address: address || "새 건물",
+            address_detail: "",
+            property_type: "OFFICETEL", // Default
+            transaction_type: "WOLSE", // Default
+            deposit: 0,
+            rent: 0,
+            status: "AVAILABLE",
+            created_at: now,
+            updated_at: now,
+        };
+
+        setTempListing(emptyListing);
+        setNewlyCreatedId(newId);
+        setTimeout(() => setNewlyCreatedId(null), 2000); // Highlight duration
+    };
+
     const handleAddNew = (address?: string) => {
-        setEditingListing(undefined);
-        setTargetAddress(address);
-        setIsSidePanelOpen(true);
+        // Legacy modal open - keeping for reference if needed, but we want inline creation now
+        // But the toolbar calls onOpenAddPanel.
+        // We will repurpose this or create a new handler.
+        // The requirement is "like leads page" which adds a row directly.
+        
+        // If we want to support both (maybe from different buttons), we can keep this.
+        // But for the main toolbar "Add" button:
+        handleCreateEmptyRow(address);
     };
 
     const handleReset = () => {
         setSearchQuery("");
         setActiveSearchQuery("");
         setFilters({});
-        setSortConfig(null);
+        setSortConfig({
+            key: "created_at",
+            direction: "desc",
+        });
     };
 
     const handleColumnResize = (key: string, width: number) => {
@@ -175,8 +217,9 @@ export default function ListingsPage() {
     };
 
     const handleCellUpdate = async (rowId: string, columnKey: string, value: any) => {
-        try {
-            let updates: any = { id: rowId };
+        // If updating the temp listing, we create it first
+        if (tempListing && rowId === tempListing.id) {
+            let updates: any = { ...tempListing };
 
             if (columnKey === "price" && typeof value === "object") {
                 if ("selling" in value) updates.price_selling = value.selling;
@@ -192,11 +235,41 @@ export default function ListingsPage() {
                 updates[columnKey] = value;
             }
 
-            await updateListing.mutateAsync(updates);
-        } catch (error) {
-            console.error("Update failed", error);
-            alert("수정 실패");
+            try {
+                await createListing.mutateAsync(updates);
+                setTempListing(null); // Clear temp, now it's in the server data (optimistically or after refetch)
+            } catch (error) {
+                console.error("Failed to create listing on first edit", error);
+                alert("등록 실패");
+            }
+            return;
         }
+
+        // For existing listings: optimistic update (UI updates immediately)
+        let updates: any = { id: rowId };
+
+        if (columnKey === "price" && typeof value === "object") {
+            if ("selling" in value) updates.price_selling = value.selling;
+            if ("deposit" in value) updates.deposit = value.deposit;
+            if ("rent" in value) updates.rent = value.rent;
+        } else if (columnKey === "area" && typeof value === "object") {
+            updates.area_supply_m2 = value.supply;
+            updates.area_private_m2 = value.private;
+        } else if (columnKey === "floor" && typeof value === "object") {
+            updates.floor = value.floor;
+            updates.total_floors = value.total;
+        } else {
+            updates[columnKey] = value;
+        }
+
+        // Use mutate instead of mutateAsync for optimistic updates
+        // This will update the UI immediately via onMutate, then call the API
+        updateListing.mutate(updates, {
+            onError: (error) => {
+                console.error("Update failed", error);
+                alert("수정 실패");
+            }
+        });
     };
 
     const handleDelete = async () => {
@@ -214,13 +287,13 @@ export default function ListingsPage() {
         }
     };
 
-    const handleSort = (key: string) => {
-        setSortConfig((current) => {
-            if (current?.key === key && current.direction === "asc") {
-                return { key, direction: "desc" };
-            }
-            return { key, direction: "asc" };
-        });
+    const handleSort = (key: string, direction: "asc" | "desc") => {
+        // direction이 이미 선택된 것과 같으면 정렬 해제
+        if (sortConfig?.key === key && sortConfig?.direction === direction) {
+            setSortConfig(null);
+        } else {
+            setSortConfig({ key, direction });
+        }
     };
 
     const visibleColumnConfig = useMemo(() => {
@@ -253,7 +326,7 @@ export default function ListingsPage() {
                     selectedAddress={selectedAddress}
                     onSelect={handleGroupSelect}
                     isLoading={isGroupsLoading}
-                    onAddNew={() => handleAddNew()}
+                    onAddNew={() => handleCreateEmptyRow(selectedAddress || undefined)}
                 />
             </div>
 
@@ -286,7 +359,7 @@ export default function ListingsPage() {
                             <ListingsToolbar
                                 className="flex-1"
                                 onOpenAddPanel={() => {
-                                    handleAddNew(selectedAddress);
+                                    handleCreateEmptyRow(selectedAddress || undefined);
                                 }}
                                 onToggleColumnPopup={() =>
                                     setIsColumnPopupOpen(!isColumnPopupOpen)
@@ -416,6 +489,7 @@ export default function ListingsPage() {
                             isLoading={isFetchingNextPage}
                             isInitialLoading={isListingsLoading}
                             onCellUpdate={handleCellUpdate}
+                            newlyCreatedId={newlyCreatedId}
                         />
                     </div>
                 )}
@@ -431,7 +505,7 @@ export default function ListingsPage() {
                                 </p>
                                 <button
                                     className="bg-(--background-surface) hover:bg-(--background-surface-hover) px-3 py-2 rounded-md border border-(--border)"
-                                    onClick={() => handleAddNew()}
+                                    onClick={() => handleCreateEmptyRow()}
                                 >
                                     새 건물 등록하기
                                 </button>
@@ -441,7 +515,7 @@ export default function ListingsPage() {
                                 <p>좌측 목록에서 주소(건물)를 선택하거나</p>
                                 <button
                                     className="bg-(--background-surface) hover:bg-(--background-surface-hover) px-2 py-2 rounded-md border border-(--border)"
-                                    onClick={() => handleAddNew()}
+                                    onClick={() => handleCreateEmptyRow()}
                                 >
                                     새 건물 등록하기
                                 </button>
@@ -450,20 +524,6 @@ export default function ListingsPage() {
                     </div>
                 )}
             </div>
-
-            {/* Overlays */}
-            <Modal
-                isOpen={isSidePanelOpen}
-                onClose={() => setIsSidePanelOpen(false)}
-                className="max-w-2xl"
-            >
-                <ListingForm
-                    initialData={editingListing}
-                    initialAddress={targetAddress}
-                    onClose={() => setIsSidePanelOpen(false)}
-                    agencyId={agencyId}
-                />
-            </Modal>
         </div>
     );
 }

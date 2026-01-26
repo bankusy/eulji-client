@@ -4,24 +4,28 @@ export interface Lead {
     phone: string;
     email: string;
     stage: string;
-    assignee: string; // 담당자
-    propertyType: string;
-    transactionType: string; // 월세, 전세, 매매
-    depositMin: number;
-    depositMax: number;
-    priceMin: number;
-    priceMax: number;
+    assignee: string; // 담당자 (표시용)
+    property_type: string;
+    transaction_type: string; // 월세, 전세, 매매
+    deposit_min: number;
+    deposit_max: number;
+    price_min: number;
+    price_max: number;
     message: string; // 문의 내용
     memo: string; // 메모
-    source: string; // 유입 경로 (블로그, 카카오톡, 웹 사이트 등)
-    createdAt: string;
-    updatedAt: string;
+    source: string; // 유입 경로
+    preferred_region?: string; // 희망 지역
+    move_in_date?: string; // 입주 시기
+    channel_meta?: Record<string, any>; // 채널 메타데이터
+    converted_customer_id?: string; // 전환된 고객 ID
+    created_at: string;
+    updated_at: string;
     assigned_user_id?: string; // 담당자 ID
 }
 
 export interface TableColumn {
     key: string;
-    type?: "text" | "select" | "date" | "phone" | "price";
+    type?: "text" | "select" | "date" | "phone" | "price" | "area" | "floor";
     name: string;
     sticky?: boolean;
     left?: number | string;
@@ -52,52 +56,6 @@ export const columnsConfiguration: TableColumn[] = [
         render: (lead: Lead) => lead.name,
     },
     {
-        key: "stage",
-        type: "select",
-        name: "상태",
-        sticky: true,
-        left: "168px",
-        width: "120px",
-        minWidth: "50px",
-        maxWidth: "300px",
-
-        headerAlign: "start",
-        cellAlign: "start",
-        editable: true,
-        options: [
-            { label: "신규", value: "NEW" },
-            { label: "대기", value: "PENDING" },
-            { label: "연락 시도", value: "TRYING" },
-            { label: "상담 예정", value: "MEETING SOON" },
-            { label: "상담 중", value: "CONSULTING" },
-            { label: "가계약", value: "PROVISIONAL CONTRACT" },
-            { label: "계약 완료", value: "SUCCESS" },
-            { label: "리드 종료", value: "TERMINATING" },
-        ],
-        render: (lead: Lead) => {
-            switch (lead.stage) {
-                case "NEW":
-                    return "신규";
-                case "PENDING":
-                    return "대기";
-                case "TRYING":
-                    return "연락 시도";
-                case "CONSULTING":
-                    return "상담 중";
-                case "MEETING SOON":
-                    return "상담 예정";
-                case "PROVISIONAL CONTRACT":
-                    return "가계약";
-                case "SUCCESS":
-                    return "계약 완료";
-                case "TERMINATING":
-                    return "리드 종료";
-                default:
-                    return lead.stage;
-            }
-        },
-    },
-    {
         key: "phone",
         type: "phone", // Changed to phone type for editor
         name: "휴대폰",
@@ -113,16 +71,57 @@ export const columnsConfiguration: TableColumn[] = [
         render: (lead: Lead) => {
             return lead.phone?.replace(
                 /^(\d{2,3})(\d{3,4})(\d{4})$/,
-                "$1-$2-$3"
+                "$1-$2-$3",
             );
         },
     },
     {
-        key: "transactionType",
+        key: "stage",
+        type: "select",
+        name: "상태",
+        // sticky: false,
+        // left: "168px",
+        width: "120px",
+        minWidth: "50px",
+        maxWidth: "300px",
+
+        headerAlign: "start",
+        cellAlign: "start",
+        editable: true,
+        options: [
+            { label: "신규", value: "NEW" },
+            { label: "진행 중", value: "IN_PROGRESS" },
+            { label: "예약", value: "RESERVED" },
+            { label: "계약 완료", value: "CONTRACTED" },
+            { label: "계약 취소", value: "CANCELED" },
+            { label: "계약 실패", value: "FAILED" },
+        ],
+
+        render: (lead: Lead) => {
+            switch (lead.stage) {
+                case "NEW":
+                    return "신규";
+                case "IN_PROGRESS":
+                    return "진행 중";
+                case "RESERVED":
+                    return "예약";
+                case "CONTRACTED":
+                    return "계약 완료";
+                case "CANCELED":
+                    return "계약 취소";
+                case "FAILED":
+                    return "계약 실패";
+                default:
+                    return lead.stage;
+            }
+        },
+    },
+    {
+        key: "transaction_type",
         type: "select",
         name: "거래",
-        sticky: true,
-        left: "408px",
+        sticky: false,
+        left: "168px",
         width: "120px",
         minWidth: "50px",
         maxWidth: "300px",
@@ -136,7 +135,7 @@ export const columnsConfiguration: TableColumn[] = [
             { label: "매매", value: "SALE" },
         ],
         render: (lead: Lead) => {
-            switch (lead.transactionType) {
+            switch (lead.transaction_type) {
                 case "WOLSE":
                     return "월세";
                 case "JEONSE":
@@ -144,12 +143,12 @@ export const columnsConfiguration: TableColumn[] = [
                 case "SALE":
                     return "매매";
                 default:
-                    return "-";
+                    return "";
             }
         },
     },
     {
-        key: "propertyType",
+        key: "property_type",
         type: "select",
         name: "매물",
         width: "120px",
@@ -160,38 +159,44 @@ export const columnsConfiguration: TableColumn[] = [
         cellAlign: "start",
         editable: true,
         options: [
+            { label: "아파트", value: "APARTMENT" },
+            { label: "빌라", value: "VILLA" },
             { label: "오피스텔", value: "OFFICETEL" },
             { label: "원룸", value: "ONEROOM" },
-            { label: "투룸", value: "TWOROOM" },
-            { label: "쓰리룸", value: "THREEROOM" },
-            { label: "아파트", value: "APARTMENT" },
-            { label: "공장", value: "FACTORY" },
-            { label: "상가", value: "MALL" },
+            { label: "상가", value: "COMMERCIAL" },
             { label: "토지", value: "LAND" },
         ],
 
         render: (lead: Lead) => {
-            switch (lead.propertyType) {
+            switch (lead.property_type) {
+                case "APARTMENT":
+                    return "아파트";
+                case "VILLA":
+                    return "빌라";
                 case "OFFICETEL":
                     return "오피스텔";
                 case "ONEROOM":
                     return "원룸";
-                case "TWOROOM":
-                    return "투룸";
-                case "THREEROOM":
-                    return "쓰리룸";
-                case "APARTMENT":
-                    return "아파트";
-                case "FACTORY":
-                    return "공장";
-                case "MALL":
+                case "COMMERCIAL":
                     return "상가";
                 case "LAND":
                     return "토지";
                 default:
-                    return "-";
+                    return "";
             }
         },
+    },
+    {
+        key: "preferred_region",
+        type: "text",
+        name: "희망지역",
+        width: "150px",
+        minWidth: "50px",
+        maxWidth: "300px",
+        headerAlign: "start",
+        cellAlign: "start",
+        editable: true,
+        render: (lead: Lead) => lead.preferred_region || "",
     },
     {
         key: "email",
@@ -200,7 +205,6 @@ export const columnsConfiguration: TableColumn[] = [
         width: "210px",
         minWidth: "50px",
         maxWidth: "300px",
-
         headerAlign: "start",
         cellAlign: "start",
         editable: true,
@@ -212,7 +216,6 @@ export const columnsConfiguration: TableColumn[] = [
         width: "120px",
         minWidth: "50px",
         maxWidth: "300px",
-
         headerAlign: "start",
         cellAlign: "start",
         editable: true,
@@ -221,10 +224,11 @@ export const columnsConfiguration: TableColumn[] = [
             { label: "다방", value: "DABANG" },
             { label: "네이버", value: "NAVER" },
             { label: "블로그", value: "BLOG" },
+            { label: "문의 폼", value: "WEB_FORM" },
             { label: "유튜브", value: "YOUTUBE" },
             { label: "지인 추천", value: "REFERRAL" },
             { label: "카카오", value: "KAKAO" },
-            { label: "직접 입력", value: "DIRECT" },
+            { label: "기타", value: "ETC" },
         ],
         render: (lead: Lead) => {
             const map: Record<string, string> = {
@@ -232,10 +236,11 @@ export const columnsConfiguration: TableColumn[] = [
                 DABANG: "다방",
                 NAVER: "네이버",
                 BLOG: "블로그",
+                WEB_FORM: "문의 폼",
                 YOUTUBE: "유튜브",
                 REFERRAL: "지인 추천",
                 KAKAO: "카카오",
-                DIRECT: "직접입력",
+                ETC: "기타",
             };
             return map[lead.source] || lead.source;
         },
@@ -247,16 +252,18 @@ export const columnsConfiguration: TableColumn[] = [
         width: "240px",
         minWidth: "50px",
         maxWidth: "300px",
-
         headerAlign: "start",
         cellAlign: "start",
         editable: true,
-        getEditValue: (lead: Lead) => ({ min: lead.depositMin, max: lead.depositMax }),
+        getEditValue: (lead: Lead) => ({
+            min: lead.deposit_min,
+            max: lead.deposit_max,
+        }),
         render: (lead: Lead) => {
-            const min = lead.depositMin;
-            const max = lead.depositMax;
+            const min = lead.deposit_min;
+            const max = lead.deposit_max;
 
-            if (!min && !max) return "-";
+            if (!min && !max) return "";
             if (min && !max) return `${min.toLocaleString()}만원~`;
             if (!min && max) return `0~${max.toLocaleString()}만원`;
             return `${min ? min.toLocaleString() : 0}만원~${
@@ -271,16 +278,18 @@ export const columnsConfiguration: TableColumn[] = [
         width: "240px",
         minWidth: "50px",
         maxWidth: "300px",
-
         headerAlign: "start",
         cellAlign: "start",
         editable: true,
-        getEditValue: (lead: Lead) => ({ min: lead.priceMin, max: lead.priceMax }),
+        getEditValue: (lead: Lead) => ({
+            min: lead.price_min,
+            max: lead.price_max,
+        }),
         render: (lead: Lead) => {
-            const min = lead.priceMin;
-            const max = lead.priceMax;
+            const min = lead.price_min;
+            const max = lead.price_max;
 
-            if (!min && !max) return "-";
+            if (!min && !max) return "";
             if (min && !max) return `${min.toLocaleString()}만원~`;
             if (!min && max) return `0~${max.toLocaleString()}만원`;
             return `${min ? min.toLocaleString() : 0}만원~${
@@ -295,10 +304,9 @@ export const columnsConfiguration: TableColumn[] = [
         width: "120px",
         minWidth: "50px",
         maxWidth: "300px",
-
         headerAlign: "start",
         cellAlign: "start",
-        editable: false, // Skip assignee editing for now as it needs valid user IDs/names options
+        editable: true,
         render: (lead: Lead) => lead.assignee,
     },
     {
@@ -320,7 +328,6 @@ export const columnsConfiguration: TableColumn[] = [
         width: "300px",
         minWidth: "250px",
         maxWidth: "500px",
-
         headerAlign: "start",
         cellAlign: "start",
         editable: true,
@@ -332,12 +339,11 @@ export const columnsConfiguration: TableColumn[] = [
         width: "120px",
         minWidth: "50px",
         maxWidth: "300px",
-
         headerAlign: "start",
         cellAlign: "start",
         editable: false,
         render: (lead: Lead) => {
-            return formatDate(lead.createdAt);
+            return formatDate(lead.created_at);
         },
     },
     {
@@ -347,12 +353,13 @@ export const columnsConfiguration: TableColumn[] = [
         width: "120px",
         minWidth: "50px",
         maxWidth: "300px",
-
         headerAlign: "start",
         cellAlign: "start",
         editable: false,
         render: (lead: Lead) => {
-            return formatDate(lead.updatedAt);
+            return (
+                <div className="cursor-not-allowed">{formatDate(lead.updated_at)}</div>
+            )
         },
     },
 ];

@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
         .from("leads")
         .insert({
             ...body,
-            agency_id: user.agencyId // Enforce Agency ID
+            agency_id: user.agencyId
         })
         .select()
         .single();

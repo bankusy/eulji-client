@@ -1,10 +1,4 @@
 :root {
-    --background: #fdfbfb;
-    /* 배경 */
-    --foreground: #171717;
-    --foreground-muted: #b9b9b9;
-
-    --border: #cdc4c4;
     --header-height: 72px;
 
     --navigation-background: var(--background);
@@ -17,11 +11,6 @@
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --background: #0a0a0a;
-        --foreground: #ededed;
-        --foreground-muted: #515151;
-        --border: #1a1a1a;
-
         --navigation-background: var(--background);
         --navigation-foreground: var(--foreground);
         --navigation-hover-background: #0f0f0f;

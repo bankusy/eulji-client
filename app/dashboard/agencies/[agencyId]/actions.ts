@@ -3,6 +3,7 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { verifyAgencyAccess } from "@/lib/auth/agency"; // Import added
 
+// 사용하는 쿼리들 정리해놓은 곳
 export async function getDashboardStats(agencyId: string) {
     const supabase = await createSupabaseServerClient();
 
@@ -58,7 +59,6 @@ export async function getDashboardStats(agencyId: string) {
         .order("created_at", { ascending: false })
         .limit(5);
 
-    // 2. Execute all in parallel
     const [
         totalRes,
         newTodayRes,
@@ -136,19 +136,14 @@ export async function getAgencyMembers(agencyId: string) {
     if (!auth) return [];
 
     const supabase = await createSupabaseServerClient();
-
-    // Optimize: Single query with join if possible, or parallel
-    // Assuming agency_users has a foreign key to users. 
-    // If typical Supabase relation names are used:
-    // agency_users ( user_id ) -> users ( id )
-    
-    // Attempt join:
     const { data, error } = await supabase
         .from("agency_users")
-        .select(`
+        .select(
+            `
             user_id,
-            users:users!user_id ( id, name )
-        `)
+            users ( id, name, nickname )
+        `,
+        )
         .eq("agency_id", agencyId)
         .eq("status", "ACTIVE");
 
@@ -159,11 +154,13 @@ export async function getAgencyMembers(agencyId: string) {
 
     if (!data) return [];
 
-    // Map result
-    // The type of users will be an object or array depending on relation (one-to-one here ideally)
-    return data.map((item: any) => ({
-        id: item.users?.id,
-        name: item.users?.name || "Unknown",
-    })).filter(u => u.id); // Filter out any broken links
+    return data
+        .map((item: any) => {
+            const u = Array.isArray(item.users) ? item.users[0] : item.users;
+            return {
+                id: u?.id || item.user_id,
+                name: u?.nickname || u?.name || "알 수 없음",
+            };
+        })
+        .filter((u) => u.id);
 }
-

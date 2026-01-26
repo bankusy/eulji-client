@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Navigation, { Menu } from "@/components/ui/web/Navigation";
+import Navigation, { Menu } from "@/components/features/landing/Navigation";
 import ThemeHook from "@/hooks/ThemeHook";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

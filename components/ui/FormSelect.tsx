@@ -9,6 +9,7 @@ interface FormSelectProps {
     children?: React.ReactNode;
     className?: string;
     placeholder?: string;
+    disabled?: boolean;
 }
 
 export function FormSelect({
@@ -18,6 +19,7 @@ export function FormSelect({
     children,
     className,
     placeholder,
+    disabled = false,
 }: FormSelectProps) {
     return (
         <div className="flex flex-col gap-1 w-full">
@@ -32,6 +34,7 @@ export function FormSelect({
                     value={value}
                     onChange={onChange}
                     placeholder={placeholder}
+                    disabled={disabled}
                 >
                     {children}
                 </Select>

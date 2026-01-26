@@ -65,7 +65,7 @@ export type ListingColumn = {
     headerAlign: string;
     cellAlign: string;
     render?: (item: Listing) => ReactNode;
-    type?: "text" | "select" | "date" | "phone" | "price";
+    type?: "text" | "select" | "date" | "phone" | "price" | "area" | "floor";
     options?: { label: string; value: string }[];
     editable?: boolean;
     getEditValue?: (item: Listing) => any;
@@ -96,14 +96,14 @@ export const listingColumns: ListingColumn[] = [
         type: "select",
         editable: true,
         options: [
-            { label: "진행중", value: "AVAILABLE" },
-            { label: "거래완료", value: "CONTRACTED" },
+            { label: "진행 중", value: "AVAILABLE" },
+            { label: "거래 완료", value: "CONTRACTED" },
             { label: "취소/보류", value: "CANCELED" },
         ],
         render: (item: Listing) => {
             switch (item.status) {
-                case "AVAILABLE": return "진행중";
-                case "CONTRACTED": return "거래완료";
+                case "AVAILABLE": return "진행 중";
+                case "CONTRACTED": return "거래 완료";
                 case "CANCELED": return "취소/보류";
                 default: return item.status;
             }
@@ -194,7 +194,7 @@ export const listingColumns: ListingColumn[] = [
         maxWidth: "150px",
         headerAlign: "end",
         cellAlign: "end",
-        type: "text",
+        type: "area",
         editable: true,
         getEditValue: (item: Listing) => ({ supply: item.area_supply_m2, private: item.area_private_m2 }),
         render: (item: Listing) => {
@@ -212,7 +212,7 @@ export const listingColumns: ListingColumn[] = [
         maxWidth: "100px",
         headerAlign: "left",
         cellAlign: "left",
-        type: "text",
+        type: "floor",
         editable: true,
         getEditValue: (item: Listing) => ({ floor: item.floor, total: item.total_floors }),
         render: (item: Listing) => {

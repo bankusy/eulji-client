@@ -126,10 +126,10 @@ export async function getListings(
         "price_selling", "deposit", "rent", "area_private_m2",
         "area_supply_m2", "floor", "total_floors"
     ];
-    const actualSortColumn = allowedSortColumns.includes(sortColumn) ? sortColumn : "created_at";
+    const validSortColumn = allowedSortColumns.includes(sortColumn) ? sortColumn : "created_at";
 
     queryBuilder = queryBuilder
-        .order(actualSortColumn, { ascending: sortDirection === "asc" })
+        .order(validSortColumn, { ascending: sortDirection === "asc" })
         .range(from, to);
 
     const { data, error, count } = await queryBuilder;
@@ -139,12 +139,20 @@ export async function getListings(
         return { data: [], nextId: null, count: 0 };
     }
 
-    const nextId = (data && data.length === limit && (count ? from + limit < count : true))
+    // 중복 제거: ID 기준으로 unique한 데이터만 유지
+    const uniqueData = data?.reduce((acc: any[], row: any) => {
+        if (!acc.find(item => item.id === row.id)) {
+            acc.push(row);
+        }
+        return acc;
+    }, []) || [];
+
+    const nextId = (uniqueData && uniqueData.length === limit && (count ? from + limit < count : true))
         ? page + 1
         : null;
 
     return {
-        data: data as Listing[], // Cast assuming DB matches type
+        data: uniqueData as Listing[], // Cast assuming DB matches type
         nextId,
         count: count || 0
     };

@@ -7,6 +7,7 @@ export interface Agency {
     license_no?: string | null;
     domain?: string | null;
     config?: Record<string, any>;
+    kakao_url?: string | null;
     created_at: string | null;
     
     // UI Helper - not in DB table directly but often joined

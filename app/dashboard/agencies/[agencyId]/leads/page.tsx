@@ -12,11 +12,15 @@ import { ColumnVisibilityPopup } from "@/components/ui/table/ColumnsFilter";
 import { DataTable } from "@/components/ui/table/DataTable";
 import IconWrapper from "@/components/ui/IconWrapper";
 import Modal from "@/components/ui/Modal";
-import LeadForm from "@/components/ui/dashboard/leads/LeadForm";
+import LeadForm from "@/components/features/leads/LeadForm";
 import MenuBar from "@/components/ui/table/MenuBar";
 import { useParams } from "next/navigation";
 import { useLeadMutations, useLeads } from "@/hooks/queries/leads";
-import LeadsToolbar from "@/components/ui/dashboard/leads/LeadsToolbar";
+import LeadsToolbar from "@/components/features/leads/LeadsToolbar";
+import { getAgencyMembers } from "../actions";
+import { useQuery } from "@tanstack/react-query";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useUserStore } from "@/hooks/useUserStore";
 
 export default function Page() {
     const { systemTheme } = ThemeHook();
@@ -26,12 +30,39 @@ export default function Page() {
     const [selectedLeadIds, setSelectedLeadIds] = useState<string[] | null>([]);
     const [isAllCheck, setAllCheck] = useState(false);
     const [editingLead, setEditingLead] = useState<Lead | null>(null);
-    const [columnWidths, setColumnWidths] = useLocalStorage<{ [key: string]: number }>(
-        "leads_column_widths", {}
-    );
+    const [columnWidths, setColumnWidths] = useLocalStorage<{
+        [key: string]: number;
+    }>("leads_column_widths", {});
     const [isColumnPopupOpen, setIsColumnPopupOpen] = useState(false);
     const [isAddPanelOpen, setIsAddPanelOpen] = useState(false);
     const [newlyCreatedId, setNewlyCreatedId] = useState<string | null>(null);
+    const [tempLead, setTempLead] = useState<Lead | null>(null);
+    const { user } = useUserStore();
+
+    // Fetch Role & Members
+    const { data: agencyInfo } = useQuery({
+        queryKey: ["agencyInfo", agencyId, user?.id],
+        queryFn: async () => {
+            if (!agencyId || !user?.id) return null;
+            const supabase = createSupabaseBrowserClient();
+            const { data: membership } = await supabase
+                .from("agency_users")
+                .select("role")
+                .eq("agency_id", agencyId)
+                .eq("user_id", user.id)
+                .single();
+            return { role: membership?.role };
+        },
+        enabled: !!agencyId && !!user?.id,
+    });
+
+    const { data: members = [] } = useQuery({
+        queryKey: ["agencyMembers", agencyId],
+        queryFn: () => getAgencyMembers(agencyId),
+        enabled: !!agencyId,
+    });
+
+    const isOwner = agencyInfo?.role === "OWNER";
     const defaultVisibleColumns = useMemo(() => {
         const initial: Record<string, boolean> = {};
         columnsConfiguration.forEach((col) => {
@@ -47,23 +78,22 @@ export default function Page() {
     // Search State
     const [searchQuery, setSearchQuery] = useState("");
     const [activeSearchQuery, setActiveSearchQuery] = useState("");
-    const [searchColumns, setSearchColumns] = useLocalStorage<Record<string, boolean>>(
-        "leads_search_columns",
-        {
-            name: true,
-            phone: true,
-            email: true,
-            source: true,
-            message: true,
-        }
-    );
+    const [searchColumns, setSearchColumns] = useLocalStorage<
+        Record<string, boolean>
+    >("leads_search_columns", {
+        name: true,
+        phone: true,
+        email: true,
+        source: true,
+        message: true,
+    });
     const [isSearchFilterOpen, setIsSearchFilterOpen] = useState(false);
 
     // Sort State
     const [sortConfig, setSortConfig] = useLocalStorage<{
         column: string;
         direction: "asc" | "desc";
-    }>("leads_sort_config", {
+    } | null>("leads_sort_config", {
         column: "created_at",
         direction: "desc",
     });
@@ -73,33 +103,38 @@ export default function Page() {
 
     // Data Fetching via React Query
     const activeSearchColumns = Object.keys(searchColumns).filter(
-        (k) => searchColumns[k]
+        (k) => searchColumns[k],
     );
 
-    const { createLead: createLeadMutation, deleteLeads: deleteLeadsMutation, updateLead: updateLeadMutation } = useLeadMutations(agencyId);
-    const { 
-        data: leadsData, 
-        isLoading, 
-        fetchNextPage, 
-        hasNextPage, 
-        isFetchingNextPage 
+    const {
+        createLead: createLeadMutation,
+        deleteLeads: deleteLeadsMutation,
+        updateLead: updateLeadMutation,
+    } = useLeadMutations(agencyId);
+    const {
+        data: leadsData,
+        isLoading,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
     } = useLeads({
         agencyId,
         query: activeSearchQuery,
         searchColumns: activeSearchColumns,
-        sortColumn: sortConfig.column,
-        sortDirection: sortConfig.direction,
+        sortColumn: sortConfig?.column || "created_at",
+        sortDirection: sortConfig?.direction || "desc",
         filters,
     });
 
     const leads = useMemo(() => {
-        return leadsData?.pages.flatMap((page) => page.data) || [];
-    }, [leadsData]);
+        const data = leadsData?.pages.flatMap((page) => page.data) || [];
+        return tempLead ? [tempLead, ...data] : data;
+    }, [leadsData, tempLead]);
 
     const handleCreateEmptyRow = async () => {
         const newId = crypto.randomUUID();
         const now = new Date().toISOString();
-        
+
         const emptyLead: Lead = {
             id: newId,
             name: "신규 리드",
@@ -107,80 +142,127 @@ export default function Page() {
             email: "",
             stage: "NEW",
             assignee: "",
-            propertyType: "OFFICETEL",
-            transactionType: "WOLSE",
-            depositMin: 0,
-            depositMax: 0,
-            priceMin: 0,
-            priceMax: 0,
+            property_type: "OFFICETEL",
+            transaction_type: "WOLSE",
+            deposit_min: 0,
+            deposit_max: 0,
+            price_min: 0,
+            price_max: 0,
             message: "",
             memo: "",
-            source: "DIRECT",
-            createdAt: now,
-            updatedAt: now,
+            source: "ETC",
+            created_at: now,
+            updated_at: now,
         };
 
-        try {
-            setNewlyCreatedId(newId);
-            setTimeout(() => setNewlyCreatedId(null), 2000);
-            await createLeadMutation.mutateAsync(emptyLead);
-        } catch (error) {
-            console.error("Failed to create empty row", error);
-            alert("행 추가 실패");
-        }
+        setTempLead(emptyLead);
+        setNewlyCreatedId(newId);
+        setTimeout(() => setNewlyCreatedId(null), 2000);
     };
 
-    const handleCellUpdate = async (rowId: string, columnKey: string, value: any) => {
+    const handleCellUpdate = async (
+        rowId: string,
+        columnKey: string,
+        value: any,
+    ) => {
+        // If updating the temp lead, create it first
+        if (tempLead && rowId === tempLead.id) {
+            let updatedLead: Lead = { ...tempLead };
+
+            if (columnKey === "deposit" && typeof value === "object") {
+                updatedLead = {
+                    ...updatedLead,
+                    deposit_min: value.min,
+                    deposit_max: value.max,
+                };
+            } else if (columnKey === "price" && typeof value === "object") {
+                updatedLead = {
+                    ...updatedLead,
+                    price_min: value.min,
+                    price_max: value.max,
+                };
+            } else if (columnKey === "assignee") {
+                updatedLead = {
+                    ...updatedLead,
+                    assigned_user_id: value,
+                    assignee: members.find((m) => m.id === value)?.name || "",
+                };
+            } else {
+                updatedLead = { ...updatedLead, [columnKey]: value };
+            }
+
+            try {
+                await createLeadMutation.mutateAsync(updatedLead);
+                setTempLead(null); // Clear temp, now in server data
+            } catch (error) {
+                console.error("Failed to create lead on first edit", error);
+                alert("등록 실패");
+            }
+            return;
+        }
+
+        // For existing leads: optimistic update (UI updates immediately)
         const targetLead = leads.find((l) => l.id === rowId);
         if (!targetLead) return;
 
         let updatedLead: Lead;
 
         if (columnKey === "deposit" && typeof value === "object") {
-            updatedLead = { 
-                ...targetLead, 
-                depositMin: value.min, 
-                depositMax: value.max 
+            updatedLead = {
+                ...targetLead,
+                deposit_min: value.min,
+                deposit_max: value.max,
             };
         } else if (columnKey === "price" && typeof value === "object") {
-            updatedLead = { 
-                ...targetLead, 
-                priceMin: value.min, 
-                priceMax: value.max 
+            updatedLead = {
+                ...targetLead,
+                price_min: value.min,
+                price_max: value.max,
+            };
+        } else if (columnKey === "assignee") {
+            updatedLead = {
+                ...targetLead,
+                assigned_user_id: value,
+                assignee: members.find((m) => m.id === value)?.name || "",
             };
         } else {
             updatedLead = { ...targetLead, [columnKey]: value };
         }
 
-        try {
-            await updateLeadMutation.mutateAsync(updatedLead);
-        } catch (error) {
-            console.error("Update failed", error);
-            alert("수정 실패");
-        }
+        // Use mutate instead of mutateAsync for optimistic updates
+        // This will update the UI immediately via onMutate, then call the API
+        updateLeadMutation.mutate(updatedLead, {
+            onError: (error) => {
+                console.error("Update failed", error);
+                alert("수정 실패");
+            }
+        });
     };
 
     const [columnOrder, setColumnOrder] = useLocalStorage<string[]>(
         "leads_column_order",
-        columnsConfiguration.map((c) => c.key)
+        columnsConfiguration.map((c) => c.key),
     );
 
     const [stickyColumns, setStickyColumns] = useLocalStorage<
         Record<string, boolean>
     >(
         "leads_sticky_columns",
-        columnsConfiguration.reduce((acc, col) => {
-            if (col.sticky) acc[col.key] = true;
-            return acc;
-        }, {} as Record<string, boolean>)
+        columnsConfiguration.reduce(
+            (acc, col) => {
+                if (col.sticky) acc[col.key] = true;
+                return acc;
+            },
+            {} as Record<string, boolean>,
+        ),
     );
 
     useEffect(() => {
         // Enforce sticky columns to be at the start
         const stickyKeys: string[] = [];
         const nonStickyKeys: string[] = [];
-        
-        columnOrder.forEach(key => {
+
+        columnOrder.forEach((key) => {
             if (stickyColumns[key]) {
                 stickyKeys.push(key);
             } else {
@@ -189,9 +271,9 @@ export default function Page() {
         });
 
         // Also handle any missing keys from config if needed, but columnOrder usually has all
-        
+
         const newOrder = [...stickyKeys, ...nonStickyKeys];
-        
+
         if (JSON.stringify(newOrder) !== JSON.stringify(columnOrder)) {
             setColumnOrder(newOrder);
         }
@@ -199,29 +281,54 @@ export default function Page() {
 
     const visibleColumnConfig = useMemo(() => {
         const colMap = new Map(columnsConfiguration.map((c) => [c.key, c]));
-        
+
         // Helper to merge sticky state
-        const mergeSticky = (c: typeof columnsConfiguration[0]) => ({
+        const mergeSticky = (c: (typeof columnsConfiguration)[0]) => ({
             ...c,
             sticky: stickyColumns[c.key] ?? c.sticky ?? false,
         });
 
+        const enrichColumn = (c: (typeof columnsConfiguration)[0]) => {
+            const merged = mergeSticky(c);
+            if (merged.key === "assignee") {
+                return {
+                    ...merged,
+                    type: "select" as const,
+                    editable: isOwner,
+                    getEditValue: (lead: Lead) => lead.assigned_user_id,
+                    options: [
+                        { label: "미지정", value: "" },
+                        ...members.map((m: any) => ({
+                            label: m.name,
+                            value: m.id,
+                        })),
+                    ],
+                };
+            }
+            return merged;
+        };
+
         const ordered = columnOrder
             .map((key) => colMap.get(key))
             .filter((c) => c && visibleColumns[c.key])
-            .map((c) => mergeSticky(c!));
-        
-        const missing = columnsConfiguration
-            .filter(c => !columnOrder.includes(c.key) && visibleColumns[c.key])
-            .map(mergeSticky);
-        
-        return [...ordered, ...missing] as typeof columnsConfiguration;
-    }, [columnOrder, visibleColumns, stickyColumns]);
+            .map((c) => enrichColumn(c!));
 
-    const columnLabels = columnsConfiguration.reduce((acc, col) => {
-        acc[col.key] = col.name;
-        return acc;
-    }, {} as Record<string, string>);
+        const missing = columnsConfiguration
+            .filter(
+                (c) => !columnOrder.includes(c.key) && visibleColumns[c.key],
+            )
+            .map((c) => enrichColumn(c));
+
+        return [...ordered, ...missing] as typeof columnsConfiguration;
+    }, [columnOrder, visibleColumns, stickyColumns, members, isOwner]);
+
+    const columnLabels = columnsConfiguration.reduce(
+        (acc, col) => {
+            acc[col.key] = col.name;
+            return acc;
+        },
+        {} as Record<string, string>,
+    );
 
     // Helper for search column labels
     const getSearchLabel = (key: string) => {
@@ -236,7 +343,7 @@ export default function Page() {
                 return "유입 경로";
             case "message":
                 return "문의 내용";
-            default: 
+            default:
                 return key;
         }
     };
@@ -316,6 +423,7 @@ export default function Page() {
                 </div>
                 <div className="w-px h-4 bg-(--border) mx-2"></div>
                 <IconWrapper
+                    className="border border-(--border-surface)"
                     src={`/icons/delete/${systemTheme}.svg`}
                     onClick={handleDelete}
                     isVisibleDescription={true}
@@ -360,9 +468,17 @@ export default function Page() {
                 }}
                 onRowClick={undefined}
                 onSort={(column, direction) => {
-                    setSortConfig({ column, direction });
+                    // 이미 선택된 정렬을 다시 클릭하면 해제
+                    if (sortConfig?.column === column && sortConfig?.direction === direction) {
+                        setSortConfig(null);
+                    } else {
+                        setSortConfig({ column, direction });
+                    }
                 }}
-                sortConfig={{ key: sortConfig.column, direction: sortConfig.direction }}
+                sortConfig={sortConfig ? {
+                    key: sortConfig.column,
+                    direction: sortConfig.direction,
+                } : null}
                 filters={filters}
                 onFilterChange={(columnKey, values) => {
                     setFilters((prev) => ({ ...prev, [columnKey]: values }));

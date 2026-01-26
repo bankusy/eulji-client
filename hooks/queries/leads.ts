@@ -93,7 +93,32 @@ export const useLeadMutations = (agencyId: string) => {
 
     const updateMutation = useMutation({
         mutationFn: (data: Lead) => updateLead(agencyId, data),
-        onSuccess: () => {
+        onMutate: async (newLead) => {
+            await queryClient.cancelQueries({ queryKey: ["leads"] });
+
+            const previousLeads = queryClient.getQueryData(["leads"]);
+
+            queryClient.setQueriesData({ queryKey: ["leads"] }, (old: any) => {
+                if (!old) return old;
+                return {
+                    ...old,
+                    pages: old.pages.map((page: any) => ({
+                        ...page,
+                        data: page.data.map((lead: Lead) =>
+                            lead.id === newLead.id ? { ...lead, ...newLead } : lead
+                        ),
+                    })),
+                };
+            });
+
+            return { previousLeads };
+        },
+        onError: (err, newLead, context) => {
+            if (context?.previousLeads) {
+                queryClient.setQueriesData({ queryKey: ["leads"] }, context.previousLeads);
+            }
+        },
+        onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ["leads"] });
         },
     });

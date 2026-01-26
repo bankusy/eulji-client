@@ -33,7 +33,7 @@ export default async function RootLayout({
             <body>
                 <ThemeProvider>
                     <QueryProvider>
-                        <div className="flex h-screen w-full bg-(--outer-container-background)">
+                        <div className="flex h-screen w-full bg-(--background)">
                             {children}
                         </div>
                     </QueryProvider>

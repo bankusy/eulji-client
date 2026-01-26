@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { invite_code, agency_id } = body;
+        const { invite_code } = body;
 
         if (!invite_code) {
             return NextResponse.json({ error: "Invite Code required" }, { status: 400 });
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
         // 2. Verify Agency Exists by Invite Code
         const { data: agency, error: agencyError } = await supabase
             .from("agencies")
-            .select("id")
+            .select("id, name")
             .eq("invite_code", invite_code)
             .single();
 
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
         
         const targetAgencyId = agency.id;
 
-        // 3. Update User
+        // 3. Get Public User ID
         const { data: publicUser, error: userFetchError } = await supabase
             .from("users")
             .select("id")
@@ -42,19 +42,39 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Public user profile not found" }, { status: 404 });
         }
 
-        const { error: updateError } = await supabase
-            .from("users")
-            .update({
-                agency_id: targetAgencyId,
-                role: "MEMBER" // Default role for joiners
-            })
-            .eq("id", publicUser.id);
+        // 4. Check if already a member
+        const { data: existingMembership } = await supabase
+            .from("agency_users")
+            .select("id")
+            .eq("agency_id", targetAgencyId)
+            .eq("user_id", publicUser.id)
+            .single();
 
-        if (updateError) {
+        if (existingMembership) {
+            return NextResponse.json({ error: "Already a member of this agency" }, { status: 400 });
+        }
+
+        // 5. Add to agency_users with ACTIVE status (자동 승인)
+        const { error: insertError } = await supabase
+            .from("agency_users")
+            .insert({
+                agency_id: targetAgencyId,
+                user_id: publicUser.id,
+                role: "MEMBER",
+                status: "ACTIVE", // 자동 승인
+                joined_at: new Date().toISOString(),
+            });
+
+        if (insertError) {
+            console.error("Insert error:", insertError);
             return NextResponse.json({ error: "Failed to join agency" }, { status: 500 });
         }
 
-        return NextResponse.json({ success: true, agencyId: targetAgencyId });
+        return NextResponse.json({ 
+            success: true, 
+            agencyId: targetAgencyId,
+            agencyName: agency.name 
+        });
 
     } catch (error) {
         console.error("Unexpected error:", error);

@@ -6,8 +6,8 @@ export type ColumnKey =
     | "email"
     | "stage"
     | "assignee"
-    | "propertyType"
-    | "transactionType"
+    | "property_type"
+    | "transaction_type"
     | "budget"
     | "message"
     | "memo"
@@ -15,15 +15,15 @@ export type ColumnKey =
     | "createdAt"
     | "updatedAt";
 
-type DropdownState = Record<ColumnKey, boolean>;
+type DropdownState = Record<string, boolean>;
 const initialDropdownState: DropdownState = {
     name: false,
     phone: false,
     email: false,
     stage: false,
     assignee: false,
-    propertyType: false,
-    transactionType: false,
+    property_type: false,
+    transaction_type: false,
     budget: false,
     message: false,
     memo: false,
@@ -38,7 +38,7 @@ export default function useDropdownState() {
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     // 특정 컬럼 토글
-    const toggleDropdown = useCallback((column: ColumnKey) => {
+    const toggleDropdown = useCallback((column: string) => {
         setDropdownOpen((prev) => ({
             ...prev,
             [column]: !prev[column],
@@ -46,7 +46,7 @@ export default function useDropdownState() {
     }, []);
 
     const setDropdownOpenState = useCallback(
-        (column: ColumnKey, isOpen: boolean) => {
+        (column: string, isOpen: boolean) => {
             setDropdownOpen((prev) => ({
                 ...prev,
                 [column]: isOpen,

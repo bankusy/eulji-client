@@ -1,5 +1,5 @@
 .table {
-    z-index: 100;
+    z-index: var(--z-base);
     position: relative;
     display: flex;
     flex-direction: column;
@@ -8,66 +8,71 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     height: 100%;
-    background-color: var(--table-background);
+    background-color: var(--background);
 }
 
 /* 주의할 점: sticky를 쓰는 순간 스태킹의 중심이 되므로 조심해야 됨 => z-index를 입력하지 않으면 auto(0)로 동작하기 떄문*/
 .table-header {
+    z-index: var(--z-table-header);
     position: sticky;
     top: 0;
-    left: 0;
     display: flex;
     width: 100%;
     min-width: max-content;
-    z-index: 100;
-    background-color: var(--table-header-background);
-}
-
-.table-cell {
-    position: sticky;
-    top: 0;
-}
-
-.table-header .table-cell {
-    z-index: 40;
-}
-
-.table-header .table-cell.table-cell-sticky {
-    z-index: 60;
-    position: sticky;
-}
-
-.table-body .table-cell {
-    z-index: 10;
-}
-
-.table-body .table-cell.table-cell-sticky {
-    z-index: 40;
-    position: sticky;
 }
 
 .table-body {
     display: flex;
     flex-direction: column;
     width: 100%;
+    z-index: var(--z-table-body);
+    /* position: relative; */
+}
+
+.table-cell {
+    /* 전역 sticky 제거 (헤더에서만 필요) */
+    z-index: var(--z-table-cell);
     position: relative;
+    top: 0;
+}
+
+.table-header .table-cell {
+    z-index: var(--z-table-header-cell);
+    position: sticky; /* 헤더 고정을 위해 다시 추가 */
+    top: 0;
+}
+
+.table-header .table-cell.table-cell-sticky {
+    z-index: var(--z-table-header-cell-sticky);
+    position: sticky;
+    left: 0; /* sticky left 보강 */
+}
+
+.table-body .table-cell {
+    z-index: var(--z-table-cell);
+}
+
+.table-body .table-cell.table-cell-sticky {
+    z-index: var(--z-table-cell-sticky);
+    position: sticky;
 }
 
 .table-row {
     display: flex;
     width: 100%;
-    min-width: max-content;
+    min-width: fit-content; /* max-content 대신 fit-content 사용 */
     flex-grow: 1;
     height: 36px;
-    border-bottom: 1px solid var(--table-border);
+
+    border-bottom: 1px solid var(--border-surface);
+    
 }
 
 .table-cell {
     display: flex;
     align-items: center;
     padding: 0 8px;
-    border-right: 1px solid var(--table-border);
-    /* background-color: var(--background); */
+    border-right: 1px solid var(--border-surface);
     box-sizing: border-box;
     flex-shrink: 0;
     text-overflow: ellipsis;
@@ -79,7 +84,6 @@
 .table-header .table-cell {
     font-weight: normal;
     height: 100%;
-    background-color: var(--table-header-background);
     overflow: visible;
 }
 
@@ -92,23 +96,27 @@
 }
 
 .table-row .table-cell:last-child {
-    flex-grow: 1;
     border-right: none;
+    flex: 1 0 auto; /* 마지막 셀이 남은 공간을 채우면서도 축소되지 않게 설정 */
 }
 
 .table-cell-last-sticky {
-    border-right: 2px solid var(--table-border) !important;
+    border-right: 2px solid var(--border-surface) !important;
 }
 
 .is-editing-row {
-    z-index: 500 !important;
     overflow: visible !important;
+    z-index: var(--z-dropdown) !important;
 }
 
 .is-editing-cell {
-    z-index: 600 !important;
+    z-index: calc(var(--z-dropdown) + 1) !important;
     overflow: visible !important;
+    /* 에디터가 행 너비를 확장하지 않도록 설정 */
+    contain: layout;
 }
+
+
 
 .is-editing-cell * {
     overflow: visible !important;
@@ -118,10 +126,10 @@
     0% {
         opacity: 0;
         transform: translateY(-10px);
-        background-color: var(--violet-3);
+        background-color: var(--background-surface);
     }
     50% {
-        background-color: var(--violet-3);
+        background-color: var(--background-surface);
     }
     100% {
         opacity: 1;
