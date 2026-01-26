@@ -11,6 +11,7 @@ import { Lead } from "@/types/lead";
 import { X } from "lucide-react"; // Import X icon
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useUserStore } from "@/hooks/useUserStore";
+import Form from "@/components/ui/BaseForm";
 
 interface LeadFormProps {
     initialData?: Lead | null;
