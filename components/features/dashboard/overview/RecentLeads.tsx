@@ -27,7 +27,7 @@ export default function RecentLeads({ recentLeads, agencyId }: RecentLeadsProps)
     };
 
     return (
-        <div className="rounded-xl border border-(--border-surface) bg-(--background-surface) p-6 shadow-sm">
+        <div className="rounded-xl border border-(--border-surface) bg-(--background-surface) p-6">
             <div className="flex items-center justify-between mb-4">
                 <div>
                     <h3 className="font-semibold text-(--foreground)">최근 등록된 리드</h3>

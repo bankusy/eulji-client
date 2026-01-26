@@ -199,17 +199,17 @@ function SidebarBody({
                     },
                 ],
             },
-            {
-                label: "기타",
-                items: [
-                    {
-                        id: 3,
-                        name: "설정",
-                        path: `/dashboard/agencies/${agencyId}/settings`,
-                        src: "/icons/settings",
-                    },
-                ],
-            },
+            // {
+            //     label: "기타",
+            //     items: [
+            //         {
+            //             id: 3,
+            //             name: "설정",
+            //             path: `/dashboard/agencies/${agencyId}/settings`,
+            //             src: "/icons/settings",
+            //         },
+            //     ],
+            // },
             // ...
         ],
         [agencyId],

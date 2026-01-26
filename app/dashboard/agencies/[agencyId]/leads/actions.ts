@@ -277,3 +277,64 @@ export async function getLeads(
         count: count || 0
     };
 }
+
+export async function getRecommendedListings(agencyId: string, lead: Lead) {
+    if (!agencyId) return [];
+    const auth = await verifyAgencyAccess(agencyId);
+    if (!auth) return [];
+
+    const supabase = await createClient();
+
+    let query = supabase
+        .from("listings")
+        .select("*")
+        .eq("agency_id", agencyId)
+        .eq("status", "AVAILABLE");
+
+    // 1. Transaction Type Match
+    if (lead.transaction_type) {
+        query = query.eq("transaction_type", lead.transaction_type);
+    }
+
+    // 2. Property Type Match
+    if (lead.property_type) {
+        query = query.eq("property_type", lead.property_type);
+    }
+
+    // 3. Budget Match (Loose matching: if listing price is within lead's range)
+    // Note: If user set 0 or null, we might ignore min check, but usually 0 means "unlimited" or "any"?
+    // Let's assume user inputs specific range. If max is 0, we might assume "no limit" or "consult".
+    // For now, simple logic:
+    
+    if (lead.transaction_type === "WOLSE") {
+        if (lead.deposit_max > 0) {
+            query = query.lte("deposit", lead.deposit_max);
+        }
+        if (lead.price_max > 0) { // Using price_max as rent_max for WOLSE usually? or separate field?
+            // Lead type has price_min/max. For WOLSE, usually price = monthly rent?
+            // Let's check DB schema or convention. 
+            // Listing has `rent`. Lead has `price_min/max`.
+            // Usually price_min/max maps to rent in WOLSE context.
+            query = query.lte("rent", lead.price_max);
+        }
+    } else if (lead.transaction_type === "JEONSE") {
+        if (lead.deposit_max > 0) {
+            query = query.lte("deposit", lead.deposit_max);
+        }
+    } else if (lead.transaction_type === "SALE") {
+        if (lead.price_max > 0) {
+            query = query.lte("price_selling", lead.price_max);
+        }
+    }
+
+    // 4. Region Match
+    if (lead.preferred_region) {
+        // Simple 'like' match
+        query = query.or(`address.ilike.%${lead.preferred_region}%,address_detail.ilike.%${lead.preferred_region}%`);
+    }
+
+    // Limit candidates
+    const { data } = await query.limit(10);
+    
+    return data || [];
+}

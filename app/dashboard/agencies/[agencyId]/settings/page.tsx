@@ -271,7 +271,7 @@ export default function SettingsPage() {
                     {activeTab === "profile" && (
                         <>
                             {/* 프로필 정보 */}
-                            <div className="rounded-xl border border-(--border-surface) bg-(--background-surface) p-6 shadow-sm">
+                            <div className="rounded-xl border border-(--border-surface) bg-(--background-surface) p-6">
                                 <h3 className="font-semibold text-(--foreground) mb-4">프로필 정보</h3>
                                 <div className="space-y-4">
                                     <div>
@@ -327,7 +327,7 @@ export default function SettingsPage() {
                             </div>
 
                             {/* 개인 문의 폼 링크 */}
-                            <div className="rounded-xl border border-(--border-surface) bg-(--background-surface) p-6 shadow-sm">
+                            <div className="rounded-xl border border-(--border-surface) bg-(--background-surface) p-6">
                                 <h3 className="font-semibold text-(--foreground) mb-4">나의 문의 폼 링크</h3>
                                 <p className="text-sm text-(--foreground-muted) mb-4">
                                     이 링크를 블로그, SNS, 명함 등에 공유하면 문의가 자동으로 나에게 배정됩니다.
@@ -364,7 +364,7 @@ export default function SettingsPage() {
                             </div>
 
                             {/* 알림 설정 */}
-                            <div className="rounded-xl border border-(--border-surface) bg-(--background-surface) p-6 shadow-sm">
+                            <div className="rounded-xl border border-(--border-surface) bg-(--background-surface) p-6">
                                 <h3 className="font-semibold text-(--foreground) mb-4">알림 설정</h3>
                                 <div className="text-center py-12 text-(--foreground-muted)">
                                     준비 중인 기능입니다.
@@ -376,7 +376,7 @@ export default function SettingsPage() {
                     {activeTab === "agency" && isOwner && (
                         <>
                             {/* 에이전시 정보 */}
-                            <div className="rounded-xl border border-(--border-surface) bg-(--background-surface) p-6 shadow-sm">
+                            <div className="rounded-xl border border-(--border-surface) bg-(--background-surface) p-6">
                                 <h3 className="font-semibold text-(--foreground) mb-4">에이전시 정보</h3>
                                 <div className="space-y-4">
                                     <div>
@@ -452,7 +452,7 @@ export default function SettingsPage() {
                             </div>
 
                             {/* 팀원 초대 */}
-                            <div className="rounded-xl border border-(--border-surface) bg-(--background-surface) p-6 shadow-sm">
+                            <div className="rounded-xl border border-(--border-surface) bg-(--background-surface) p-6">
                                 <h3 className="font-semibold text-(--foreground) mb-4">팀원 초대</h3>
                                 <div className="bg-(--background-subtle) p-4 rounded-lg border border-(--border-subtle)">
                                     <label className="text-xs font-medium text-(--foreground-muted) mb-2 block">

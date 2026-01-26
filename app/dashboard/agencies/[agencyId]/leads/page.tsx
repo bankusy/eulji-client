@@ -18,7 +18,8 @@ import { useParams } from "next/navigation";
 import { useLeadMutations, useLeads } from "@/hooks/queries/leads";
 import LeadsToolbar from "@/components/features/leads/LeadsToolbar";
 import { getAgencyMembers } from "../actions";
-import { useQuery } from "@tanstack/react-query";
+import { getRecommendedListings } from "./actions";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useUserStore } from "@/hooks/useUserStore";
 
@@ -38,6 +39,7 @@ export default function Page() {
     const [newlyCreatedId, setNewlyCreatedId] = useState<string | null>(null);
     const [tempLead, setTempLead] = useState<Lead | null>(null);
     const { user } = useUserStore();
+    const queryClient = useQueryClient();
 
     // Fetch Role & Members
     const { data: agencyInfo } = useQuery({
@@ -197,8 +199,31 @@ export default function Page() {
             }
 
             try {
-                await createLeadMutation.mutateAsync(updatedLead);
+                const res = await createLeadMutation.mutateAsync(updatedLead);
                 setTempLead(null); // Clear temp, now in server data
+                
+                // Async fetch recommendations
+                if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
+                    const newLead = res.data[0];
+                    getRecommendedListings(agencyId, newLead).then((recs: any[]) => {
+                        // Update cache with recommendations
+                        queryClient.setQueriesData({ queryKey: ["leads"] }, (old: any) => {
+                            if (!old) return old;
+                            return {
+                                ...old,
+                                pages: old.pages.map((page: any) => ({
+                                    ...page,
+                                    data: page.data.map((lead: Lead) => {
+                                        if (lead.id === newLead.id) {
+                                            return { ...lead, recommendations: recs };
+                                        }
+                                        return lead;
+                                    })
+                                }))
+                            };
+                        });
+                    });
+                }
             } catch (error) {
                 console.error("Failed to create lead on first edit", error);
                 alert("등록 실패");

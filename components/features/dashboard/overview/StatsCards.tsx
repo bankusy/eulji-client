@@ -46,7 +46,7 @@ export default function StatsCards({ counts }: StatsCardsProps) {
             {cards.map((card, index) => (
                 <div
                     key={index}
-                    className="p-6 rounded-xl border border-(--border-surface) bg-(--background-surface) shadow-sm"
+                    className="p-6 rounded-xl border border-(--border-surface) bg-(--background-surface)"
                 >
                     <div className="flex items-center justify-between space-y-0 pb-2">
                         <h3 className="tracking-tight text-sm font-medium text-(--foreground-muted)">

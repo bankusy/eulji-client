@@ -21,6 +21,7 @@ export interface Lead {
     created_at: string;
     updated_at: string;
     assigned_user_id?: string; // 담당자 ID
+    recommendations?: any[]; // Recommended Listings (Used in UI)
 }
 
 export interface TableColumn {
@@ -361,6 +362,23 @@ export const columnsConfiguration: TableColumn[] = [
                 <div className="cursor-not-allowed">{formatDate(lead.updated_at)}</div>
             )
         },
+    },
+    {
+        key: "recommendations",
+        type: "text",
+        name: "추천 매물",
+        width: "150px",
+        minWidth: "100px",
+        maxWidth: "300px",
+        headerAlign: "center",
+        cellAlign: "center",
+        editable: false,
+        render: (lead: Lead) => {
+             if (lead.recommendations === undefined) return "-";
+             if (lead.recommendations === null) return "검색 중...";
+             if (lead.recommendations.length === 0) return "없음";
+             return <span className="text-blue-500 font-medium cursor-pointer">{lead.recommendations.length}건 매칭</span>;
+        }
     },
 ];
 

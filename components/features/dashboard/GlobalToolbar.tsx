@@ -31,21 +31,14 @@ export default function GlobalToolbar() {
     };
 
     return (
-        <div className="flex justify-between items-center h-[52px] border border-(--border-surface) rounded-md p-2 bg-(--background)">
+        <div className="flex items-center h-[52px] border border-(--border-surface) rounded-md p-2 bg-(--background)">
             <SidebarToggle />
 
             <div className="flex items-center gap-3">
-                <IconWrapper
-                    src={`/icons/settings/${systemTheme}.svg`}
-                    onClick={() => setIsProfileModalOpen(true)}
-                    isVisibleDescription={true}
-                    description="프로필 설정"
-                ></IconWrapper>
-
                 {/* 프로필 정보 (아바타 + 이메일) */}
                 <div className="relative">
                     <div
-                        className="flex items-center gap-2 pl-3 border-l border-(--border-surface) cursor-pointer hover:opacity-80 transition-opacity"
+                        className="flex items-center gap-2 ml-2 pl-2 border-l border-(--border-surface) cursor-pointer hover:opacity-80 transition-opacity"
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
                     >
                         {user?.avatar_url ? (
@@ -73,7 +66,14 @@ export default function GlobalToolbar() {
                                 className="fixed inset-0 z-(--z-dropdown-backdrop)"
                                 onClick={() => setIsMenuOpen(false)}
                             />
-                            <div className="absolute top-full right-0 mt-2 w-40 bg-(--background) border border-(--border-surface) rounded-md shadow-lg z-(--z-dropdown) overflow-hidden py-1">
+                            <div className="absolute top-full right-0 mt-2 w-40 bg-(--background) border border-(--border-surface) rounded-md z-(--z-dropdown) overflow-hidden py-1">
+                                <button
+                                    onClick={() => setIsProfileModalOpen(true)}
+                                    className="w-full text-left px-4 py-2 hover:bg-(--bg-hover) text-xs flex items-center gap-2 text-(--warning)"
+                                >
+                                    <Settings size={14} />
+                                    <span>프로필 설정</span>
+                                </button>
                                 <button
                                     onClick={handleLogout}
                                     className="w-full text-left px-4 py-2 hover:bg-(--bg-hover) text-xs flex items-center gap-2 text-(--warning)"

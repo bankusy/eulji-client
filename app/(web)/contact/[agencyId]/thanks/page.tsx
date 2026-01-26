@@ -54,7 +54,7 @@ export default function ThanksPage() {
 
     return (
         <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-            <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 sm:p-8 text-center">
+            <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 text-center">
                 {/* Success Icon */}
                 <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-6">
                     <svg

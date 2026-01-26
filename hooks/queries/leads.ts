@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
-import { getLeads, createLead, updateLead, deleteLeads } from "@/app/dashboard/agencies/[agencyId]/leads/actions";
+import { getLeads, createLead, updateLead, deleteLeads, getRecommendedListings } from "@/app/dashboard/agencies/[agencyId]/leads/actions";
 import { Lead } from "@/types/lead";
 
 interface LeadsResponse {

@@ -106,7 +106,7 @@ export default function TableCellEditor({
                             const viewportHeight = window.innerHeight; 
                             const spaceBelow = viewportHeight - (rect?.bottom || 0); 
                             return spaceBelow < 300 && (rect?.top || 0) > spaceBelow ? 'bottom-full mb-1' : 'top-full mt-1'; 
-                        })()} w-[200px] bg-(--background) border border-(--border-surface) rounded-none shadow-lg z-(--z-dropdown) max-h-[300px] overflow-y-auto flex flex-col p-1`}
+                        })()} w-[200px] bg-(--background) border border-(--border-surface) rounded-none z-(--z-dropdown) max-h-max overflow-y-auto flex flex-col p-1`}
                     >
                          {options?.map((opt) => (
                             <button
@@ -170,7 +170,7 @@ export default function TableCellEditor({
 
                  {isOpen && (
                     <div 
-                        className={`absolute left-0 ${(() => { const rect = containerRef.current?.getBoundingClientRect(); const viewportHeight = window.innerHeight; const spaceBelow = viewportHeight - (rect?.bottom || 0); return spaceBelow < 400 && (rect?.top || 0) > spaceBelow ? 'bottom-full mb-1' : 'top-full mt-1'; })()} w-[250px] bg-(--background) border border-(--border-surface) rounded-none shadow-lg z-(--z-dropdown) p-3 flex flex-col gap-3`}
+                        className={`absolute left-0 ${(() => { const rect = containerRef.current?.getBoundingClientRect(); const viewportHeight = window.innerHeight; const spaceBelow = viewportHeight - (rect?.bottom || 0); return spaceBelow < 400 && (rect?.top || 0) > spaceBelow ? 'bottom-full mb-1' : 'top-full mt-1'; })()} w-[250px] bg-(--background) border border-(--border-surface) rounded-none z-(--z-dropdown) p-3 flex flex-col gap-3`}
                         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
                     >
                         {isLeadPrice && (
@@ -375,7 +375,7 @@ export default function TableCellEditor({
             </div>
             
             {/* Action Buttons */}
-            <div className="absolute right-0 top-full mt-1 z-(--z-dropdown) flex gap-1 bg-(--background) border border-(--border-surface) p-1 rounded-none shadow-lg">
+            <div className="absolute right-0 top-full mt-1 z-(--z-dropdown) flex gap-1 bg-(--background) border border-(--border-surface) p-1 rounded-none">
                 <button
                     className="p-1 hover:bg-gray-100 rounded-none text-green-600"
                     onClick={(e) => {

@@ -18,7 +18,6 @@ export default function SidebarToggle() {
             {isCollapsed ? (
                 <IconWrapper>
                     <ArrowRightFromLine
-                        stroke={"#b0b0b0"}
                         width={16}
                         height={16}
                     />
@@ -26,7 +25,6 @@ export default function SidebarToggle() {
             ) : (
                 <IconWrapper>
                     <ArrowLeftFromLine
-                        stroke={"#b0b0b0"}
                         width={16}
                         height={16}
                     />

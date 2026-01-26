@@ -1,7 +1,6 @@
 
 import { X } from "lucide-react";
 import React, { useState } from "react";
-import Form from "@/components/ui/Form";
 import FormSection from "@/components/ui/FormSection";
 import FormInput from "@/components/ui/FormInput";
 import { FormSelect, SelectOption } from "@/components/ui/FormSelect";
@@ -9,6 +8,7 @@ import FormTextArea from "@/components/ui/FormTextArea";
 import Button from "@/components/ui/Button";
 import { useListingMutations } from "@/hooks/queries/listings";
 import { Listing } from "@/types/listing";
+import Form from "@/components/ui/BaseForm";
 
 // Helper for phone formatting
 const formatPhoneNumber = (value: string) => {

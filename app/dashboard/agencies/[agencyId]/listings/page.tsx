@@ -55,6 +55,7 @@ export default function ListingsPage() {
     );
     const [newlyCreatedId, setNewlyCreatedId] = useState<string | null>(null);
     const [tempListing, setTempListing] = useState<Listing | null>(null);
+    const [isNewBuildingModalOpen, setIsNewBuildingModalOpen] = useState(false);
 
     const getSearchLabel = (key: string) => {
         switch (key) {
@@ -332,7 +333,7 @@ export default function ListingsPage() {
                     selectedAddress={selectedAddress}
                     onSelect={handleGroupSelect}
                     isLoading={isGroupsLoading}
-                    onAddNew={() => handleCreateEmptyRow(selectedAddress || undefined)}
+                    onAddNew={() => setIsNewBuildingModalOpen(true)}
                 />
             </div>
 
@@ -365,7 +366,11 @@ export default function ListingsPage() {
                             <ListingsToolbar
                                 className="flex-1"
                                 onOpenAddPanel={() => {
-                                    handleCreateEmptyRow(selectedAddress || undefined);
+                                    if (selectedAddress) {
+                                        handleCreateEmptyRow(selectedAddress);
+                                    } else {
+                                        setIsNewBuildingModalOpen(true);
+                                    }
                                 }}
                                 onToggleColumnPopup={() =>
                                     setIsColumnPopupOpen(!isColumnPopupOpen)
@@ -511,7 +516,7 @@ export default function ListingsPage() {
                                 </p>
                                 <button
                                     className="bg-(--background-surface) hover:bg-(--background-surface-hover) px-3 py-2 rounded-md border border-(--border)"
-                                    onClick={() => handleCreateEmptyRow()}
+                                    onClick={() => setIsNewBuildingModalOpen(true)}
                                 >
                                     새 건물 등록하기
                                 </button>
@@ -521,7 +526,7 @@ export default function ListingsPage() {
                                 <p>좌측 목록에서 주소(건물)를 선택하거나</p>
                                 <button
                                     className="bg-(--background-surface) hover:bg-(--background-surface-hover) px-2 py-2 rounded-md border border-(--border)"
-                                    onClick={() => handleCreateEmptyRow()}
+                                    onClick={() => setIsNewBuildingModalOpen(true)}
                                 >
                                     새 건물 등록하기
                                 </button>
@@ -530,6 +535,17 @@ export default function ListingsPage() {
                     </div>
                 )}
             </div>
+
+            <Modal
+                isOpen={isNewBuildingModalOpen}
+                onClose={() => setIsNewBuildingModalOpen(false)}
+                className="max-w-xl"
+            >
+                <ListingForm
+                    onClose={() => setIsNewBuildingModalOpen(false)}
+                    agencyId={agencyId}
+                />
+            </Modal>
         </div>
     );
 }

@@ -63,7 +63,7 @@
 //     return (
 //         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
 //             {/* Weekly Trend (Bar Chart) */}
-//             <div className="col-span-4 rounded-xl border border-(--border) bg-(--background-subtle) p-6 shadow-sm">
+//             <div className="col-span-4 rounded-xl border border-(--border) bg-(--background-subtle) p-6">
 //                 <div className="mb-4">
 //                     <h3 className="font-semibold text-(--foreground)">주간 리드 유입 추이</h3>
 //                     <p className="text-sm text-(--foreground-muted)">최근 7일간의 리드 등록 현황</p>
@@ -91,7 +91,7 @@
 //             </div>
 
 //             {/* Source Distribution (Pie Chart) */}
-//             <div className="col-span-3 rounded-xl border border-(--border) bg-(--background-subtle) p-6 shadow-sm">
+//             <div className="col-span-3 rounded-xl border border-(--border) bg-(--background-subtle) p-6">
 //                 <div className="mb-4">
 //                     <h3 className="font-semibold text-(--foreground)">유입 경로 분포</h3>
 //                     <p className="text-sm text-(--foreground-muted)">전체 리드의 유입 출처</p>

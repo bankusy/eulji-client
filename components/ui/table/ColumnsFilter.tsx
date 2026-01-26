@@ -103,7 +103,7 @@ export function ColumnVisibilityPopup({
                                 {label}
                             </span>
                         </label>
-                        {/* {setStickyColumns && (
+                        {setStickyColumns && (
                             <div
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -121,7 +121,7 @@ export function ColumnVisibilityPopup({
                                     <Unlock size={12} />
                                 )}
                             </div>
-                        )} */}
+                        )}
                     </div>
                 ))}
             </div>

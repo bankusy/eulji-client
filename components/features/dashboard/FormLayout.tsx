@@ -13,7 +13,7 @@ export function FormSection({
     return (
         <div className="space-y-4">
             <h3 className="text-lg font-medium text-(--foreground)">{title}</h3>
-            <div className="p-6 bg-(--background) border border-(--border) rounded-lg shadow-sm">
+            <div className="p-6 bg-(--background) border border-(--border) rounded-lg">
                 {children}
             </div>
         </div>
