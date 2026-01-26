@@ -151,7 +151,13 @@ export default function ListingsPage() {
 
     const listings = useMemo(() => {
         const data = listingsData?.pages.flatMap((page) => page.data) || [];
-        return tempListing ? [tempListing, ...data] : data;
+        if (tempListing) {
+            // Optimistic update might have added the item to data already
+            const exists = data.some((item) => item.id === tempListing.id);
+            if (exists) return data;
+            return [tempListing, ...data];
+        }
+        return data;
     }, [listingsData, tempListing]);
 
     // handlers

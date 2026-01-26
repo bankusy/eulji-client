@@ -128,7 +128,12 @@ export default function Page() {
 
     const leads = useMemo(() => {
         const data = leadsData?.pages.flatMap((page) => page.data) || [];
-        return tempLead ? [tempLead, ...data] : data;
+        if (tempLead) {
+            const exists = data.some((item) => item.id === tempLead.id);
+            if (exists) return data;
+            return [tempLead, ...data];
+        }
+        return data;
     }, [leadsData, tempLead]);
 
     const handleCreateEmptyRow = async () => {
