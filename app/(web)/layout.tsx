@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "@/styles/web.css";
-import "@/styles/globals.css";
+import "@/styles/components.css";
 import { ThemeProvider } from "next-themes";
 import Header from "@/components/layout/Header";
 

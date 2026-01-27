@@ -9,7 +9,6 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { Menu as MenuIcon, X } from "lucide-react";
 
 export default function Header() {
-    const { systemTheme } = ThemeHook();
     const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -151,7 +150,7 @@ export default function Header() {
                     <div className="flex items-center gap-4 md:gap-12">
                         <Image
                             className="w-[28px] md:w-[32px] cursor-pointer"
-                            src={`/logo-${systemTheme}-min.svg`}
+                            src={`/logo-dark-min.svg`}
                             width={64}
                             height={64}
                             alt="logo"

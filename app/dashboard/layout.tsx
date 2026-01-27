@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "@/styles/dashboard.css";
-import "@/styles/globals.css";
 import { ThemeProvider } from "next-themes";
 import QueryProvider from "@/components/providers/QueryProvider";
 import { createSupabaseServerClient } from "@/lib/supabase/server";

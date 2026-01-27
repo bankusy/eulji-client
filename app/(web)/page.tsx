@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import "@/styles/components.css";
 import HeroSection from "@/components/features/landing/HeroSection";
 import WebDesignSection from "@/components/features/landing/WebDesignSection";
 import LogoBar from "@/components/features/landing/LogoBar";

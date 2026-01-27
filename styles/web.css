@@ -1,4 +1,6 @@
-:root {
+@import "tailwindcss";
+
+/* :root {
     --header-height: 72px;
 
     --navigation-background: var(--background);
@@ -7,9 +9,8 @@
     --navigation-submenu-border: var(--border);
     --navigation-submenu-background: #f8f4f4;
     --navigation-submenu-description-foreground: #cbc1c1;
-}
-
-@media (prefers-color-scheme: dark) {
+} */
+/* @media (prefers-color-scheme: dark) {
     :root {
         --navigation-background: var(--background);
         --navigation-foreground: var(--foreground);
@@ -18,8 +19,52 @@
         --navigation-submenu-background: #0d0c0c;
         --navigation-submenu-description-foreground: #3f3a3a;
     }
-}
+} */
 
+:root {
+    --header-height: 72px;
+    --foreground: #fafafa;
+    --foreground-muted: #a1a1a1;
+    --foreground-hover: #8b8b8b;
+
+    --primary: #209c72;
+    --ring: #e6e6e6;
+    --outline: #ededed;
+
+    /* 메인 배경 */
+    --background: #0a0a0a;
+    /* 서브 배경(주 컴포넌트) */
+    --background-surface: #171717;
+    --background-surface-hover: #121212;
+
+    /* 기타 배경(서브 레이어 위에 존재하는 컴포넌트의 배경) */
+    --background-subtle: var(--background);
+    --background-subtle-hover: rgba(var(--background), 0.2);
+
+    /* 메인 경계 */
+    --border: #222222;
+    /* 서브 경계(주 컴포넌트) */
+    --border-surface: #222222;
+    /* 기타 경계(서브 레이어 위에 존재하는 컴포넌트의 경계) */
+    --border-subtle: #222222;
+
+    --btn-background-outline: #262626;
+    --btn-background-outline-border: var(--border);
+    --btn-background-outline-hover: #121212;
+
+    --btn-background-primary: #d4d4d4;
+    --btn-background-secondary: #212121;
+
+    --btn-foreground-primary: var(--background-surface);
+    --scrollbar-background-thumb: #1f1f1f;
+    --scrollbar-background-track: #101010;
+    --navigation-background: var(--background);
+    --navigation-foreground: var(--foreground);
+    --navigation-hover-background: #0f0f0f;
+    --navigation-submenu-border: #302c2c;
+    --navigation-submenu-background: #0d0c0c;
+    --navigation-submenu-description-foreground: #3f3a3a;
+}
 
 html,
 body {
@@ -27,5 +72,7 @@ body {
 }
 
 body {
-    background-color: var(--background);
+    background: var(--background);
+    color: var(--foreground);
+    font-family: "Pretendard", Arial, Helvetica, sans-serif;
 }
