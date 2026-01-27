@@ -18,7 +18,7 @@ export default function WeeklyTrendChart({ data }: WeeklyTrendChartProps) {
     };
 
     return (
-        <Card className="col-span-4 bg-(--background-surface) border-(--border-surface)">
+        <Card className="col-span-1 md:col-span-1 lg:col-span-4 bg-(--background-surface) border-(--border-surface)">
             <CardHeader>
                 <CardTitle className="text-(--foreground)">주간 리드 유입 현황</CardTitle>
                 <CardDescription className="text-(--foreground-muted)">최근 7일간 등록된 신규 리드 수입니다.</CardDescription>
@@ -35,7 +35,7 @@ export default function WeeklyTrendChart({ data }: WeeklyTrendChartProps) {
                             className="text-(--foreground-muted)"
                         />
                         <ChartTooltip content={<ChartTooltipContent hideLabel className="bg-(--background) border-(--border) text-(--foreground)" />} />
-                        <Bar dataKey="count" fill="var(--color-leads)" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="count" fill="var(--primary)" radius={[4, 4, 0, 0]} />
                     </BarChart>
                 </ChartContainer>
             </CardContent>

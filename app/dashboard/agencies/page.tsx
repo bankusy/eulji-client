@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 
 import { Agency } from "@/types/agency";
 import Input from "@/components/ui/Input";
+import GlobalLoader from "@/components/ui/GlobalLoader";
 
 // Local type extended if needed, but for now referencing shared type
 // type Agency = { ... } // Removed local definition
@@ -160,6 +161,7 @@ export default function AgencySelectPage() {
 
     return (
         <div className="fixed inset-0 z-50 bg-(--background) flex flex-col items-center justify-center p-6">
+            {(isLoading || isNavigating || isCreating) && <GlobalLoader />}
             <div className="w-full max-w-2xl">
                 <div className="mb-6 text-center">
                     <h1 className="text-xl font-bold mb-1 text-(--foreground)">

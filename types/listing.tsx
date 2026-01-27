@@ -96,13 +96,13 @@ export const listingColumns: ListingColumn[] = [
         type: "select",
         editable: true,
         options: [
-            { label: "진행 중", value: "AVAILABLE" },
+            { label: "활성", value: "AVAILABLE" },
             { label: "거래 완료", value: "CONTRACTED" },
             { label: "취소/보류", value: "CANCELED" },
         ],
         render: (item: Listing) => {
             switch (item.status) {
-                case "AVAILABLE": return "진행 중";
+                case "AVAILABLE": return "활성";
                 case "CONTRACTED": return "거래 완료";
                 case "CANCELED": return "취소/보류";
                 default: return item.status;

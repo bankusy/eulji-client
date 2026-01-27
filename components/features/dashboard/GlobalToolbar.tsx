@@ -31,10 +31,12 @@ export default function GlobalToolbar() {
     };
 
     return (
-        <div className="flex items-center h-[52px] border border-(--border-surface) rounded-md p-2 bg-(--background)">
+        <div className="flex justify-between items-center h-[52px] border border-(--border-surface) rounded-md p-2 bg-(--background)">
             <SidebarToggle />
-
             <div className="flex items-center gap-3">
+                <IconWrapper className="border border-(--border-surface)" onClick={() => setIsProfileModalOpen(true)}>
+                    <Settings size={14} />
+                </IconWrapper>
                 {/* 프로필 정보 (아바타 + 이메일) */}
                 <div className="relative">
                     <div
@@ -42,13 +44,14 @@ export default function GlobalToolbar() {
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
                     >
                         {user?.avatar_url ? (
-                            <Image
-                                className="rounded-full object-cover border border-(--border-surface)"
-                                src={user.avatar_url}
-                                alt="Avatar"
-                                width={28}
-                                height={28}
-                            />
+                            <div className="relative overflow-hidden w-[28px] h-[28px] rounded-full border border-(--border-surface)">
+                                <Image
+                                    className="object-cover"
+                                    src={user.avatar_url}
+                                    alt="Avatar"
+                                    fill={true}
+                                />
+                            </div>
                         ) : (
                             <div className="w-7 h-7 rounded-full bg-(--border-surface) flex items-center justify-center text-(--foreground-muted)">
                                 <UserIcon size={16} />
@@ -67,13 +70,6 @@ export default function GlobalToolbar() {
                                 onClick={() => setIsMenuOpen(false)}
                             />
                             <div className="absolute top-full right-0 mt-2 w-40 bg-(--background) border border-(--border-surface) rounded-md z-(--z-dropdown) overflow-hidden py-1">
-                                <button
-                                    onClick={() => setIsProfileModalOpen(true)}
-                                    className="w-full text-left px-4 py-2 hover:bg-(--bg-hover) text-xs flex items-center gap-2 text-(--warning)"
-                                >
-                                    <Settings size={14} />
-                                    <span>프로필 설정</span>
-                                </button>
                                 <button
                                     onClick={handleLogout}
                                     className="w-full text-left px-4 py-2 hover:bg-(--bg-hover) text-xs flex items-center gap-2 text-(--warning)"

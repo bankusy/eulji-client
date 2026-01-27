@@ -29,7 +29,7 @@ export default function SourceDistributionChart({ data, totalCount }: SourceDist
     }));
 
     return (
-        <Card className="col-span-3 bg-(--background-surface) border-(--border-surface)">
+        <Card className="col-span-1 md:col-span-1 lg:col-span-3 bg-(--background-surface) border-(--border-surface)">
             <CardHeader>
                 <CardTitle className="text-(--foreground)">유입 경로 분석</CardTitle>
                 <CardDescription className="text-(--foreground-muted)">리드 유입 경로 분포입니다.</CardDescription>

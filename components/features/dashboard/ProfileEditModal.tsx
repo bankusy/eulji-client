@@ -2,10 +2,11 @@
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useUserStore } from "@/hooks/useUserStore";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import ProfileCard from "@/components/web/profile/ProfileCard";
+import { compressImage } from "@/lib/imageUtils";
 
 interface ProfileEditModalProps {
     isOpen: boolean;
@@ -26,6 +27,9 @@ export default function ProfileEditModal({
     const [officeAddress, setOfficeAddress] = useState("");
     const [agencyDomain, setAgencyDomain] = useState("");
     const [isSaving, setIsSaving] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (isOpen && user) {
@@ -68,6 +72,9 @@ export default function ProfileEditModal({
         if (!user) return;
         setIsSaving(true);
         const supabase = createSupabaseBrowserClient();
+        
+        // Keep track of the old avatar URL
+        const previousAvatarUrl = user.avatar_url;
 
         try {
             // 주소를 address와 detail_address로 분리 (간단하게 처리)
@@ -119,6 +126,20 @@ export default function ProfileEditModal({
                 }
             }
 
+            // If avatar has changed and there was a previous avatar, delete the old one
+            if (previousAvatarUrl && previousAvatarUrl !== avatarUrl) {
+                try {
+                    await fetch("/api/storage/delete", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ fileUrl: previousAvatarUrl }),
+                    });
+                } catch (deleteError) {
+                    // We don't block the UI flow for deletion errors, just log it
+                    console.error("Failed to delete old avatar:", deleteError);
+                }
+            }
+
             await fetchUser(); // Refresh store data
             onClose();
         } catch (error) {
@@ -130,9 +151,61 @@ export default function ProfileEditModal({
     };
 
     const handleAvatarClick = () => {
-        const url = prompt("프로필 이미지 URL을 입력하세요", avatarUrl);
-        if (url !== null) {
-            setAvatarUrl(url);
+        if (isUploading) return;
+        fileInputRef.current?.click();
+    };
+
+    const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file || !user || isUploading) return;
+
+        setIsUploading(true);
+        try {
+            // Use custom compressor instead of library
+            const compressedBlob = await compressImage(file, 1024, 0.8);
+            
+            // 1. Get Presigned URL from our API
+            const response = await fetch("/api/upload/presigned-url", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    filename: file.name,
+                    fileType: "image/webp", // We always convert to webp
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to get upload URL");
+            }
+
+            const { uploadUrl, publicUrl } = await response.json();
+
+            console.log(uploadUrl);
+            
+            // 2. Upload directly to R2 using PUT
+            const uploadResponse = await fetch(uploadUrl, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "image/webp",
+                },
+                body: compressedBlob,
+            });
+
+            if (!uploadResponse.ok) {
+                throw new Error("Failed to upload image to storage");
+            }
+
+            // 3. Update state with the public URL
+            setAvatarUrl(publicUrl);
+        } catch (error) {
+            console.error("Error uploading image:", error);
+            alert("이미지 업로드에 실패했습니다.");
+        } finally {
+            setIsUploading(false);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+            }
         }
     };
 
@@ -157,6 +230,13 @@ export default function ProfileEditModal({
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} className="max-w-md" transparent={true}>
+            <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleImageUpload} 
+                className="hidden" 
+                accept="image/*"
+            />
             <ProfileCard
                 editable={true}
                 username={agencyDomain || user?.email || ""}
@@ -173,9 +253,9 @@ export default function ProfileEditModal({
                 <Button
                     variant="primary"
                     onClick={handleSave}
-                    disabled={isSaving}
+                    disabled={isSaving || isUploading}
                 >
-                    {isSaving ? "저장 중..." : "저장하기"}
+                    {isSaving ? "저장 중..." : isUploading ? "업로드 중..." : "저장하기"}
                 </Button>
             </div>
         </Modal>

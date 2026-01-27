@@ -34,7 +34,7 @@ export default async function DashboardPage({
     }));
 
     return (
-        <div className="flex flex-col h-full w-full overflow-hidden gap-2">
+        <div className="flex flex-col h-full w-full overflow-hidden">
             {/* 1. Header */}
             {/* Scrollable Content Area */}
             <div className="flex-1 overflow-y-auto space-y-2 scrollbar-hide-vertical">
@@ -89,7 +89,8 @@ export default async function DashboardPage({
                 </div>
 
                 {/* 3. Charts & Recent Activity */}
-                <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-7">
+                {/* 3. Charts & Recent Activity */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-2">
                     {/* Weekly Trend Chart (4 cols) */}
                     <WeeklyTrendChart data={stats.weeklyTrend} />
 
