@@ -33,8 +33,8 @@ export default function GlobalToolbar() {
     return (
         <div className="flex justify-between items-center h-[52px] border border-(--border-surface) rounded-md p-2 bg-(--background)">
             <SidebarToggle />
-            <div className="flex items-center gap-3">
-                <IconWrapper className="border border-(--border-surface)" onClick={() => setIsProfileModalOpen(true)}>
+            <div className="flex items-center">
+                <IconWrapper className="hover:bg-(--background-surface-hover)" onClick={() => setIsProfileModalOpen(true)}>
                     <Settings size={14} />
                 </IconWrapper>
                 {/* 프로필 정보 (아바타 + 이메일) */}

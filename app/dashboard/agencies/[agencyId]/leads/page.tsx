@@ -22,6 +22,7 @@ import { getRecommendedListings } from "./actions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useUserStore } from "@/hooks/useUserStore";
+import GlobalLoader from "@/components/ui/GlobalLoader";
 
 export default function Page() {
     const { systemTheme } = ThemeHook();
@@ -401,6 +402,7 @@ export default function Page() {
 
     return (
         <div className="flex flex-col w-full h-full">
+            {isLoading && <GlobalLoader />}
             <LeadsToolbar
                 onOpenAddPanel={handleCreateEmptyRow}
                 onToggleColumnPopup={() =>

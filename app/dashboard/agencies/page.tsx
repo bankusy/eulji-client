@@ -207,47 +207,49 @@ export default function AgencySelectPage() {
                         </div>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        {agencies?.map((agency) => (
-                            <div
-                                key={agency.id}
-                                className="aspect-video p-4 border border-(--border-subtle) rounded-lg hover:bg-(--background-subtle-hover) cursor-pointer flex flex-col justify-between transition-all bg-(--background-subtle) group"
-                                onClick={() => handleSelect(agency.id)}
-                            >
-                                <div className="flex flex-col gap-2 items-start w-full">
-                                    <h3 className="font-semibold text-(--foreground) truncate w-full">
-                                        {agency.name}
-                                    </h3>
-                                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-(--background-subtle) text-(--foreground-muted) border border-(--border-subtle) shrink-0">
-                                        {agency.role === "OWNER"
-                                            ? "소유자"
-                                            : "멤버"}
-                                    </span>
+                    !isLoading && (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            {agencies?.map((agency) => (
+                                <div
+                                    key={agency.id}
+                                    className="aspect-video p-4 border border-(--border-subtle) rounded-lg hover:bg-(--background-subtle-hover) cursor-pointer flex flex-col justify-between transition-all bg-(--background-subtle) group"
+                                    onClick={() => handleSelect(agency.id)}
+                                >
+                                    <div className="flex flex-col gap-2 items-start w-full">
+                                        <h3 className="font-semibold text-(--foreground) truncate w-full">
+                                            {agency.name}
+                                        </h3>
+                                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-(--background-subtle) text-(--foreground-muted) border border-(--border-subtle) shrink-0">
+                                            {agency.role === "OWNER"
+                                                ? "소유자"
+                                                : "멤버"}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Image
+                                            src={`/icons/chevron/dark.svg`}
+                                            width={16}
+                                            height={16}
+                                            alt="Go"
+                                            className="-rotate-90 opacity-50"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <Image
-                                        src={`/icons/chevron/dark.svg`}
-                                        width={16}
-                                        height={16}
-                                        alt="Go"
-                                        className="-rotate-90 opacity-50"
-                                    />
-                                </div>
-                            </div>
-                        ))}
+                            ))}
 
-                        <button
-                            onClick={() => setIsCreatingAgency(true)}
-                            className="aspect-video p-4 border border-dashed border-(--border-surface) rounded-lg hover:bg-(--background-surface-hover) cursor-pointer flex flex-col items-center justify-center gap-2 transition-all bg-(--background-surface)"
-                        >
-                            <span className="text-2xl text-(--foreground-muted)">
-                                +
-                            </span>
-                            <span className="text-xs text-(--foreground-muted) font-medium">
-                                새 에이전시 추가
-                            </span>
-                        </button>
-                    </div>
+                            <button
+                                onClick={() => setIsCreatingAgency(true)}
+                                className="aspect-video p-4 border border-dashed border-(--border-surface) rounded-lg hover:bg-(--background-surface-hover) cursor-pointer flex flex-col items-center justify-center gap-2 transition-all bg-(--background-surface)"
+                            >
+                                <span className="text-2xl text-(--foreground-muted)">
+                                    +
+                                </span>
+                                <span className="text-xs text-(--foreground-muted) font-medium">
+                                    새 에이전시 추가
+                                </span>
+                            </button>
+                        </div>
+                    )
                 )}
             </div>
         </div>

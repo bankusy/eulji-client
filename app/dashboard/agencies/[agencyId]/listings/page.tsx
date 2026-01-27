@@ -9,6 +9,7 @@ import { DataTable } from "@/components/ui/table/DataTable";
 import Modal from "@/components/ui/Modal";
 import ListingForm from "@/components/features/listings/ListingForm";
 import ListingsToolbar from "@/components/features/listings/ListingsToolbar";
+import GlobalLoader from "@/components/ui/GlobalLoader";
 
 import {
     useListingGroups,
@@ -321,6 +322,7 @@ export default function ListingsPage() {
 
     return (
         <div className="flex h-full w-full relative gap-2">
+            {(isGroupsLoading || isListingsLoading) && <GlobalLoader />}
             {/* Left: Groups */}
             <div 
                 className={clsx(
