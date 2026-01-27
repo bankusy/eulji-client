@@ -78,7 +78,7 @@ export default function RecommendationListModal({
                 </p>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <div className="flex-1 overflow-y-auto p-2 space-y-2">
                 {isLoading && finalRecommendations.length === 0 ? (
                     <div className="flex justify-center py-12">
                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -94,12 +94,12 @@ export default function RecommendationListModal({
                         return (
                             <div
                                 key={listing.id}
-                                className="relative flex gap-4 p-4 border border-(--border-surface) rounded-lg hover:bg-(--background-subtle) transition-colors"
+                                className="relative flex gap-2 p-2 border border-(--border-surface) rounded-lg hover:bg-(--background-subtle) transition-colors"
                             >
 
 
                                 {/* Info */}
-                                    <Button
+                                    {/* <Button
                                         size="sm"
                                         variant={isProposed ? "outline" : "primary"}
                                         disabled={isProposed}
@@ -117,7 +117,7 @@ export default function RecommendationListModal({
                                                 제안하기
                                             </>
                                         )}
-                                    </Button>
+                                    </Button> */}
 
                                     <div className="flex-1 min-w-0 pr-24">
                                         <div className="flex flex-col">
