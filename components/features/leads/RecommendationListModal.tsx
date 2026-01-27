@@ -5,8 +5,8 @@ import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import { Lead } from "@/types/lead";
 import { Listing } from "@/types/listing";
-import { saveLeadListing } from "@/app/dashboard/agencies/[agencyId]/leads/actions";
-import { useQueryClient } from "@tanstack/react-query";
+import { saveLeadListing, getRecommendedListings } from "@/app/dashboard/agencies/[agencyId]/leads/actions";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Send } from "lucide-react";
 import Image from "next/image";
 
@@ -28,13 +28,34 @@ export default function RecommendationListModal({
 
     if (!lead || !lead.recommendations) return null;
 
+
+    // Fetch detailed recommendations when modal is open
+    const { data: recommendations, isLoading } = useQuery({
+        queryKey: ["recommendations", lead.id, agencyId],
+        queryFn: () => getRecommendedListings(agencyId, lead),
+        enabled: isOpen && !!lead,
+        initialData: lead.recommendations || [], // Use passed data (likely just IDs or partial) as placeholder if structure matches
+        staleTime: 1000 * 60 * 5, // Cache for 5 mins
+    });
+
+    const displayList = recommendations && recommendations.length > 0 ? recommendations : (lead.recommendations || []);
+    // Note: if lead.recommendations only has IDs, we might fallback to empty, but useQuery should be fast.
+    // Actually, if we are in minimal mode, lead.recommendations has [{id: ...}], so we need to be careful not to render that as full listing.
+    // Let's rely on isLoading for the switch or check if properties exist.
+    
+    // Improved logic:
+    // If we have full data from useQuery, use it.
+    // If not, and we are loading, show loader.
+    // If not loading and no data, show empty.
+
+    const hasFullData = (list: any[]) => list.length > 0 && list[0].property_type; // Check for a property that minimal mode doesn't have
+    const finalRecommendations = hasFullData(recommendations) ? recommendations : [];
+
     const handlePropose = async (listingId: string) => {
         try {
             const res = await saveLeadListing(agencyId, lead.id, listingId);
             if (res.success) {
                 setProposedIds((prev) => new Set(prev).add(listingId));
-                // Optional: Invalidate queries if we want to update some "related listings" view immediately
-                // queryClient.invalidateQueries({ queryKey: ["lead-listings", lead.id] });
             } else {
                 alert(res.message || "추천 실패");
             }
@@ -53,17 +74,21 @@ export default function RecommendationListModal({
             <div className="flex-none p-6 border-b border-(--border)">
                 <h2 className="text-xl font-semibold">추천 매물 목록</h2>
                 <p className="text-sm text-(--foreground-muted) mt-1">
-                    {lead.name}님에게 적합한 매물이 {lead.recommendations.length}건 있습니다.
+                    {lead.name}님에게 적합한 매물이 {finalRecommendations.length > 0 ? finalRecommendations.length : (lead.recommendations?.length || 0)}건 있습니다.
                 </p>
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                {lead.recommendations.length === 0 ? (
+                {isLoading && finalRecommendations.length === 0 ? (
+                    <div className="flex justify-center py-12">
+                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    </div>
+                ) : finalRecommendations.length === 0 ? (
                     <div className="text-center py-12 text-(--foreground-muted)">
                         추천할 매물이 없습니다.
                     </div>
                 ) : (
-                    lead.recommendations.map((listing: any) => {
+                    finalRecommendations.map((listing: any) => {
                         const isProposed = proposedIds.has(listing.id);
 
                         return (

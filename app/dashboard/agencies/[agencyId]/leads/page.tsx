@@ -11,7 +11,19 @@ export default async function Page({ params }: PageProps) {
 
     // Prefetch initial data on the server
     // Lean Loading: includeRecommendations = false by default
-    const initialData = await getLeads(agencyId, "", [], "created_at", "desc", {}, 0, 20, true);
+    // Lean Loading: includeRecommendations = false by default
+    // Match Client Defaults: name, phone, email, source, message
+    const initialData = await getLeads(
+        agencyId, 
+        "", 
+        ["name", "phone", "email", "source", "message"], // Default search columns
+        "created_at", 
+        "desc", 
+        {}, 
+        0, 
+        20, 
+        true
+    );
 
     return <LeadsClientPage initialData={initialData} agencyId={agencyId} />;
 }

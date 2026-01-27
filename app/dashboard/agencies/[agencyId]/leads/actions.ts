@@ -276,7 +276,7 @@ export async function getLeads(
         dataWithRecommendations = await Promise.all(
             mappedData.map(async (lead) => {
                 try {
-                    const recommendations = await getRecommendedListings(agencyId, lead);
+                    const recommendations = await getRecommendedListings(agencyId, lead, { minimal: true });
                     if (recommendations.length > 0) {
                         console.log(`[getLeads] Lead ${lead.name} has ${recommendations.length} recs`);
                     }
@@ -300,7 +300,7 @@ export async function getLeads(
     };
 }
 
-export async function getRecommendedListings(agencyId: string, lead: Lead) {
+export async function getRecommendedListings(agencyId: string, lead: Lead, options: { minimal?: boolean } = {}) {
     if (!agencyId) return [];
     const auth = await verifyAgencyAccess(agencyId);
     if (!auth) return [];
@@ -309,7 +309,7 @@ export async function getRecommendedListings(agencyId: string, lead: Lead) {
 
     let query = supabase
         .from("listings")
-        .select("*")
+        .select(options.minimal ? "id" : "*")
         .eq("agency_id", agencyId)
         .eq("status", "AVAILABLE");
 
