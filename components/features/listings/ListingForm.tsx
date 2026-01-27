@@ -77,7 +77,7 @@ export default function ListingForm({
         if (initialAddress) return; // Prevent search if address is fixed
         const script = document.createElement("script");
         script.src =
-            "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+            "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
         script.onload = () => {
             new (window as any).daum.Postcode({
                 oncomplete: (data: any) => {

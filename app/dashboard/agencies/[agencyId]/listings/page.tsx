@@ -288,6 +288,16 @@ export default function ListingsPage() {
             try {
                 await deleteListings.mutateAsync(selectedListingIds);
                 setSelectedListingIds([]);
+                
+                // If all listings in the current view are deleted, reset the view
+                // We check if (listings.length - deleted count) <= 0
+                // Note: listings array might not be updated immediately in this event loop if it depends on refetch,
+                // but deleteListings.mutateAsync usually triggers refetch or optimistic update.
+                // A safer check is to wait for effect or check logically.
+                // If we selected everything, and deleted everything.
+                if (selectedListingIds.length === listings.length) {
+                     setSelectedAddress(null);
+                }
             } catch (error) {
                 console.error("Delete failed", error);
                 alert("삭제 중 오류가 발생했습니다.");

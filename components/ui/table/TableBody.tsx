@@ -70,8 +70,6 @@ export function TableBody<T extends { id: string }>({
         <div className="table-body">
             {data && data.length > 0
                 ? data.map((row, rowIndex) => {
-                      console.log(rowIndex);
-
                       const isSelected = selectedIds?.includes(row.id) || false;
                       const isNewRow = newlyCreatedId === row.id;
 

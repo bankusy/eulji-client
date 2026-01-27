@@ -214,7 +214,7 @@ export default function TableCellEditor({
 
                         {isListingPrice && (
                              <>
-                                {value?.selling != null && (
+                                {'selling' in value && (
                                     <div className="flex flex-col gap-1">
                                         <label className="text-xs text-(--foreground-muted)">매매가 (만원)</label>
                                         <Input 
@@ -233,7 +233,7 @@ export default function TableCellEditor({
                                         />
                                     </div>
                                 )}
-                                {value?.deposit != null && (
+                                {'deposit' in value && (
                                     <div className="flex flex-col gap-1">
                                         <label className="text-xs text-(--foreground-muted)">보증금 (만원)</label>
                                         <Input 
@@ -252,7 +252,7 @@ export default function TableCellEditor({
                                         />
                                     </div>
                                 )}
-                                {value?.rent != null && (
+                                {'rent' in value && (
                                     <div className="flex flex-col gap-1">
                                         <label className="text-xs text-(--foreground-muted)">월세 (만원)</label>
                                         <Input 

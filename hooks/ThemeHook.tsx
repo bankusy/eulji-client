@@ -9,8 +9,6 @@ export default function ThemeHook() {
 
     useEffect(() => {
         setMounted(true);
-        console.log(systemTheme);
-        
     }, []);
 
     return {

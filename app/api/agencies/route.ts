@@ -1,22 +1,39 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { handleApiError } from "@/lib/api-error";
+import { logActivity } from "@/lib/audit";
+
+const createAgencySchema = z.object({
+    name: z.string().min(1, "Agency name is required").max(50, "Name allows up to 50 chars"),
+    license_no: z.string().optional(),
+});
 
 export async function POST(req: NextRequest) {
-    const supabase = await createSupabaseServerClient();
-
-    // 1. Auth Check
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     try {
-        const body = await req.json();
-        const { name, license_no } = body;
+        const supabase = await createSupabaseServerClient();
 
-        if (!name) {
-            return NextResponse.json({ error: "Agency name is required" }, { status: 400 });
+        // 1. Auth Check
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError || !user) {
+            throw new Error("Unauthorized");
         }
+
+        const json = await req.json();
+        const validationResult = createAgencySchema.safeParse(json);
+
+        if (!validationResult.success) {
+            // Re-throw as ZodError or handle directly using helper if we want custom 400 immediately
+            // But handleApiError handles ZodError if instantiated, or we can just return strictly here.
+            // Let's rely on manual return for validation to match previous strict structure, 
+            // or throw ZodError. Let's return manually for clarity.
+             return NextResponse.json(
+                { error: "Invalid input", details: validationResult.error.format() },
+                { status: 400 }
+            );
+        }
+
+        const { name } = validationResult.data;
 
         // 2. Fetch Public User first
         const { data: publicUser, error: userFetchError } = await supabase
@@ -26,11 +43,11 @@ export async function POST(req: NextRequest) {
             .single();
 
         if (userFetchError || !publicUser) {
-            return NextResponse.json({ error: "Public user profile not found" }, { status: 404 });
+             return NextResponse.json({ error: "Public user profile not found" }, { status: 404 });
         }
 
-        // 2a. Check if user is already an OWNER of any agency
-        const { data: existingOwnership, error: ownershipError } = await supabase
+        // 2a. Check ownership limit
+        const { data: existingOwnership } = await supabase
             .from("agency_users")
             .select("id")
             .eq("user_id", publicUser.id)
@@ -39,7 +56,7 @@ export async function POST(req: NextRequest) {
             .maybeSingle();
 
         if (existingOwnership) {
-            return NextResponse.json({ error: "이미 소유한 에이전시가 있습니다. (계정당 1개 제한)" }, { status: 400 });
+             return NextResponse.json({ error: "이미 소유한 에이전시가 있습니다. (계정당 1개 제한)" }, { status: 400 });
         }
 
         // 3. Create Agency
@@ -52,10 +69,7 @@ export async function POST(req: NextRequest) {
             .select("id")
             .single();
 
-        if (createError) {
-            console.error("Error creating agency:", createError);
-            return NextResponse.json({ error: "Failed to create agency" }, { status: 500 });
-        }
+        if (createError) throw new Error("Failed to create agency");
 
         // 4. Create Agency User (OWNER)
         const { error: linkError } = await supabase
@@ -67,15 +81,20 @@ export async function POST(req: NextRequest) {
                 status: "ACTIVE"
             });
 
-        if (linkError) {
-            console.error("Error linking user to agency:", linkError);
-            return NextResponse.json({ error: "Failed to link user to agency" }, { status: 500 });
-        }
+
+        if (linkError) throw new Error("Failed to link user to agency");
+
+        // Log the activity (fire and forget)
+        logActivity(
+            user.id,
+            "AGENCY_CREATED",
+            { agencyId: agency.id, name: name },
+            req.headers.get("x-forwarded-for") || "unknown"
+        );
 
         return NextResponse.json({ success: true, agencyId: agency.id });
 
     } catch (error) {
-        console.error("Unexpected error:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return handleApiError(error);
     }
 }

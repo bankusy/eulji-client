@@ -49,10 +49,6 @@ const nextConfig: NextConfig = {
                         key: "Referrer-Policy",
                         value: "strict-origin-when-cross-origin",
                     },
-                    {
-                        key: "Content-Security-Policy",
-                        value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net https://vercel.live; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://*.googleusercontent.com https://*.pinimg.com https://assets.getliner.com https://*.r2.dev https://avatar.vercel.sh; font-src 'self'; connect-src 'self' https://*.supabase.co https://*.r2.cloudflarestorage.com; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';",
-                    }
                 ],
             },
         ];

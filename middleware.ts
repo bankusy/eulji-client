@@ -60,6 +60,27 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
         const isAuthenticated = !error && !!user;
         // console.log("👤 User Status:", isAuthenticated ? "Logged In" : "Logged Out");
 
+        // Rate Limiting for API routes
+        // Use standard headers to get IP
+        const ip = request.headers.get("x-forwarded-for") || "unknown";
+        
+        if (request.nextUrl.pathname.startsWith("/api")) {
+            // Import dynamically to avoid edge runtime issues if any (though rpc uses fetch)
+            // But standard import is fine for node runtime. Middleware runs on edge usually.
+            // Supabase-js is edge compatible.
+            const { rateLimit } = await import("@/lib/rate-limit");
+            
+            // Limit: 20 requests per minute for API
+            const { success } = await rateLimit(ip, 20, 60000);
+            
+            if (!success) {
+                return new NextResponse(JSON.stringify({ error: "Too many requests" }), {
+                    status: 429,
+                    headers: { "Content-Type": "application/json" }
+                });
+            }
+        }
+
         // Protect Dashboard Routes
         if (request.nextUrl.pathname.startsWith("/dashboard") && !isAuthenticated) {
             // console.log("🔒 Dashboard Access Denied - Redirecting to Login");
