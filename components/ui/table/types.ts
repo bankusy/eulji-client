@@ -2,7 +2,7 @@ import React from "react";
 
 export interface DataTableColumn {
     key: string;
-    name: string;
+    name: string | React.ReactNode;
     width: string;
     minWidth: string;
     maxWidth: string;

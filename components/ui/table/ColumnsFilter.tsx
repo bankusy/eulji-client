@@ -10,7 +10,7 @@ import { Lock, Unlock } from "lucide-react";
 interface ColumnVisibilityPopupProps {
     className?: string;
     isOpen: boolean;
-    columnLabels: Record<string, string>;
+    columnLabels: Record<string, string | React.ReactNode>;
     visibleColumns: Record<string, boolean>;
     setVisibleColumns: (cols: Record<string, boolean>) => void;
     stickyColumns?: Record<string, boolean>;

@@ -7,7 +7,7 @@ export default function TextArea({ ...props }: TextAreaProps) {
     return (
         <textarea
             className={clsx(
-                `text-sm text-(--foreground) rounded-md truncate p-2 border border-(--border-subtle) bg-(--background-subtle)`,
+                `text-sm text-(--foreground) rounded-md truncate p-2 border border-(--border-surface) bg-(--background-surface)`,
             )}
             onChange={props.onChange}
             {...props}

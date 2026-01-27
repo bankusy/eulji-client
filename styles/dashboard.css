@@ -132,8 +132,8 @@ body {
         --background-surface-hover: #121212;
 
         /* 기타 배경(서브 레이어 위에 존재하는 컴포넌트의 배경) */
-        --background-subtle: var(--background);
-        --background-subtle-hover: rgba(var(--background), 0.2);
+        --background-subtle: #0a0a0a;
+        --background-subtle-hover: #171717;
 
         /* 메인 경계 */
         --border: #222222;

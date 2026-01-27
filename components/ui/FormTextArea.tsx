@@ -14,7 +14,7 @@ export default function FormTextArea({ label, ...props }: FormTextAreaProps) {
                     {label}
                 </Text>
             )}
-            <div className="flex flex-col gap-1 w-full bg-(--background-subtle) border border-(--border-subtle) p-2 rounded-md">
+            <div className="flex flex-col gap-1 w-full bg-(--background-surface) border border-(--border-subtle) rounded-md">
                 <TextArea {...props} />
             </div>
         </div>

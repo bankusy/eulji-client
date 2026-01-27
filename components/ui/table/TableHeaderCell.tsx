@@ -97,7 +97,7 @@ export function TableHeaderCell({
                         "font-bold text-(--primary)",
                 )}
             >
-                <span>{column.name}</span>
+                {column.name}
                 {sortConfig?.key === column.key && (
                     <div className="text-(--primary)">
                         {sortConfig.direction === "asc" ? (

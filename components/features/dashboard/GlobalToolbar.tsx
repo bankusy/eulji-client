@@ -33,10 +33,8 @@ export default function GlobalToolbar() {
     return (
         <div className="flex justify-between items-center h-[52px] border border-(--border-surface) rounded-md p-2 bg-(--background)">
             <SidebarToggle />
-            <div className="flex items-center">
-                <IconWrapper className="hover:bg-(--background-surface-hover)" onClick={() => setIsProfileModalOpen(true)}>
-                    <Settings size={14} />
-                </IconWrapper>
+
+            <div className="flex items-center gap-3">
                 {/* 프로필 정보 (아바타 + 이메일) */}
                 <div className="relative">
                     <div
@@ -69,10 +67,17 @@ export default function GlobalToolbar() {
                                 className="fixed inset-0 z-(--z-dropdown-backdrop)"
                                 onClick={() => setIsMenuOpen(false)}
                             />
-                            <div className="absolute top-full right-0 mt-2 w-40 bg-(--background) border border-(--border-surface) rounded-md z-(--z-dropdown) overflow-hidden py-1">
+                            <div className="absolute top-full right-0 mt-2 p-2  w-40 bg-(--background) border border-(--border-surface) rounded-md z-(--z-dropdown) overflow-hidden">
+                                <button
+                                    onClick={() => setIsProfileModalOpen(true)}
+                                    className="w-full text-left p-2 hover:bg-(--background-surface-hover) text-xs flex items-center gap-2 text-(--warning) rounded-md"
+                                >
+                                    <Settings size={14} />
+                                    <span>프로필 설정</span>
+                                </button>
                                 <button
                                     onClick={handleLogout}
-                                    className="w-full text-left px-4 py-2 hover:bg-(--bg-hover) text-xs flex items-center gap-2 text-(--warning)"
+                                    className="w-full text-left p-2 hover:bg-(--background-surface-hover) text-xs flex items-center gap-2 text-(--warning) rounded-md"
                                 >
                                     <LogOut size={14} />
                                     <span>로그아웃</span>

@@ -24,6 +24,7 @@ function mapLeadToDb(lead: Partial<Lead>) {
         deposit_max,
         price_min,
         price_max,
+        recommendations, // 제외 (가상 필드)
         ...rest
     } = lead as any;
 
@@ -157,7 +158,8 @@ export async function getLeads(
     sortDirection: "asc" | "desc" = "desc",
     filters?: Record<string, string[]>,
     page: number = 0,
-    limit: number = 20
+    limit: number = 20,
+    includeRecommendations: boolean = false
 ) {
     if (!agencyId) return { data: [], nextId: null, count: 0 };
     const auth = await verifyAgencyAccess(agencyId);
@@ -267,12 +269,32 @@ export async function getLeads(
         };
     }) as Lead[];
 
+    // Fetch recommendations ONLY if requested (Lean Loading)
+    let dataWithRecommendations = mappedData;
+    
+    if (includeRecommendations) {
+        dataWithRecommendations = await Promise.all(
+            mappedData.map(async (lead) => {
+                try {
+                    const recommendations = await getRecommendedListings(agencyId, lead);
+                    if (recommendations.length > 0) {
+                        console.log(`[getLeads] Lead ${lead.name} has ${recommendations.length} recs`);
+                    }
+                    return { ...lead, recommendations };
+                } catch (err) {
+                    console.error(`Failed to fetch recommendations for lead ${lead.id}`, err);
+                    return { ...lead, recommendations: [] }; // Fallback to empty
+                }
+            })
+        );
+    }
+
     const nextId = (uniqueData && uniqueData.length === limit && (count ? from + limit < count : true))
         ? page + 1
         : null;
 
     return {
-        data: mappedData,
+        data: dataWithRecommendations,
         nextId,
         count: count || 0
     };
@@ -301,20 +323,17 @@ export async function getRecommendedListings(agencyId: string, lead: Lead) {
         query = query.eq("property_type", lead.property_type);
     }
 
-    // 3. Budget Match (Loose matching: if listing price is within lead's range)
-    // Note: If user set 0 or null, we might ignore min check, but usually 0 means "unlimited" or "any"?
-    // Let's assume user inputs specific range. If max is 0, we might assume "no limit" or "consult".
-    // For now, simple logic:
-    
+    // 4. Region Match (Moved up for debugging priority)
+    if (lead.preferred_region) {
+        query = query.or(`address.ilike.%${lead.preferred_region}%,address_detail.ilike.%${lead.preferred_region}%`);
+    }
+
+    // 3. Budget Match
     if (lead.transaction_type === "WOLSE") {
         if (lead.deposit_max > 0) {
             query = query.lte("deposit", lead.deposit_max);
         }
-        if (lead.price_max > 0) { // Using price_max as rent_max for WOLSE usually? or separate field?
-            // Lead type has price_min/max. For WOLSE, usually price = monthly rent?
-            // Let's check DB schema or convention. 
-            // Listing has `rent`. Lead has `price_min/max`.
-            // Usually price_min/max maps to rent in WOLSE context.
+        if (lead.price_max > 0) {
             query = query.lte("rent", lead.price_max);
         }
     } else if (lead.transaction_type === "JEONSE") {
@@ -327,14 +346,36 @@ export async function getRecommendedListings(agencyId: string, lead: Lead) {
         }
     }
 
-    // 4. Region Match
-    if (lead.preferred_region) {
-        // Simple 'like' match
-        query = query.or(`address.ilike.%${lead.preferred_region}%,address_detail.ilike.%${lead.preferred_region}%`);
-    }
-
     // Limit candidates
     const { data } = await query.limit(10);
     
     return data || [];
 }
+
+export async function saveLeadListing(agencyId: string, leadId: string, listingId: string) {
+    const auth = await verifyAgencyAccess(agencyId);
+    if (!auth) throw new Error("Unauthorized");
+
+    const supabase = await createClient();
+
+    const { error } = await supabase
+        .from("lead_listings")
+        .insert({
+            agency_id: agencyId,
+            lead_id: leadId,
+            listing_id: listingId,
+            relation_type: "RECOMMENDED",
+        });
+
+    if (error) {
+        // 이미 추천된 경우 등 중복 에러 처리 (무시하거나 알림)
+        if (error.code === "23505") { // Unique violation
+             return { success: false, message: "이미 추천된 매물입니다." };
+        }
+        console.error("Error saving lead listing:", error);
+        throw new Error(`Failed to save recommendation: ${error.message}`);
+    }
+
+    return { success: true };
+}
+

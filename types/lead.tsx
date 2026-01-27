@@ -1,3 +1,6 @@
+import { Tooltip } from "@/components/ui/Tooltip";
+import { HelpCircle } from "lucide-react";
+
 export interface Lead {
     id: string;
     name: string;
@@ -27,7 +30,7 @@ export interface Lead {
 export interface TableColumn {
     key: string;
     type?: "text" | "select" | "date" | "phone" | "price" | "area" | "floor";
-    name: string;
+    name: string | React.ReactNode;
     sticky?: boolean;
     left?: number | string;
     width: string;
@@ -334,6 +337,30 @@ export const columnsConfiguration: TableColumn[] = [
         editable: true,
     },
     {
+        key: "recommendations",
+        type: "text",
+        name: (
+            <div className="flex items-center gap-1">
+                추천 매물
+                <Tooltip position="bottom" content="활성화 상태의 매물 중 조건이 일치하는 매물을 추천합니다.">
+                    <HelpCircle size={14} className="text-gray-400" />
+                </Tooltip>
+            </div>
+        ),
+        width: "150px",
+        minWidth: "100px",
+        maxWidth: "300px",
+        headerAlign: "center",
+        cellAlign: "center",
+        editable: false,
+        render: (lead: Lead) => {
+             if (lead.recommendations === undefined) return "-";
+             if (lead.recommendations === null) return "검색 중...";
+             if (lead.recommendations.length === 0) return "없음";
+             return <div className="text-center text-(--primary) font-medium cursor-pointer">{lead.recommendations.length}건 매칭</div>;
+        }
+    },
+    {
         key: "createdAt",
         type: "text",
         name: "등록일",
@@ -344,7 +371,7 @@ export const columnsConfiguration: TableColumn[] = [
         cellAlign: "start",
         editable: false,
         render: (lead: Lead) => {
-            return formatDate(lead.created_at);
+            return <div className="cursor-not-allowed">{formatDate(lead.created_at)}</div>
         },
     },
     {
@@ -363,23 +390,7 @@ export const columnsConfiguration: TableColumn[] = [
             )
         },
     },
-    {
-        key: "recommendations",
-        type: "text",
-        name: "추천 매물",
-        width: "150px",
-        minWidth: "100px",
-        maxWidth: "300px",
-        headerAlign: "center",
-        cellAlign: "center",
-        editable: false,
-        render: (lead: Lead) => {
-             if (lead.recommendations === undefined) return "-";
-             if (lead.recommendations === null) return "검색 중...";
-             if (lead.recommendations.length === 0) return "없음";
-             return <span className="text-blue-500 font-medium cursor-pointer">{lead.recommendations.length}건 매칭</span>;
-        }
-    },
+    
 ];
 
 function formatDate(dateString: string): string {

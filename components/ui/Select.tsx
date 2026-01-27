@@ -86,7 +86,7 @@ export function Select({
                     className={`
                                 flex items-center justify-between
                                 w-full px-3 py-2
-                                bg-(--background-subtle) border border-(--border-subtle)
+                                bg-(--background-surface) border border-(--border-subtle)
                                 text-sm text-(--foreground) rounded-md
                                 select-none
                                 focus:outline-none focus:ring-1 focus:ring-(--teal-1)
@@ -108,7 +108,7 @@ export function Select({
                     />
                 </div>
                 {isOpen && (
-                    <div className="absolute z-(--z-dropdown)  w-full mt-1 p-1 bg-(--background-subtle) border border-(--border-subtle) rounded-md ">
+                    <div className="absolute z-(--z-dropdown)  w-full mt-1 p-1 bg-(--background-subtle)  border border-(--border-subtle) rounded-md ">
                         <div className="max-h-60 overflow-auto flex flex-col gap-0.5 scrollbar-hide-vertical">
                             {children}
                         </div>

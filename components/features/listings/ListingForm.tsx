@@ -8,7 +8,7 @@ import FormTextArea from "@/components/ui/FormTextArea";
 import Button from "@/components/ui/Button";
 import { useListingMutations } from "@/hooks/queries/listings";
 import { Listing } from "@/types/listing";
-import Form from "@/components/ui/BaseForm";
+
 
 // Helper for phone formatting
 const formatPhoneNumber = (value: string) => {
@@ -201,215 +201,228 @@ export default function ListingForm({
     };
 
     return (
-        <Form
+        <form
+            className="flex flex-col h-full bg-(--background) overflow-hidden"
             onSubmit={(e) => {
                 e.preventDefault();
                 handleSubmit();
             }}
         >
-            <FormSection title="기본 정보">
-                <FormInput
-                    label="주소"
-                    readOnly
-                    disabled={!!initialAddress}
-                    value={formData.address || ""}
-                    onChange={(e) => handleChange("address", e.target.value)}
-                    placeholder="예: 은마아파트"
-                    button={
-                        <Button
-                            variant="primary"
-                            onClick={handleAddressSearch}
-                            disabled={!!initialAddress}
-                            type="button"
-                        >
-                            검색
-                        </Button>
-                    }
-                />
-                <FormInput
-                    label="건물명"
-                    disabled={!!initialAddress}
-                    value={formData.name || ""}
-                    onChange={(e) => handleChange("name", e.target.value)}
-                    placeholder="예: 은마아파트"
-                />
-                <FormInput
-                    label="상세 주소"
-                    value={formData.address_detail || ""}
-                    onChange={(e) =>
-                        handleChange("address_detail", e.target.value)
-                    }
-                    placeholder="예: 101동 101호"
-                />
-            </FormSection>
+            {/* Header */}
+            <div className="flex-none p-6 border-b border-(--border)">
+                <h2 className="text-xl font-semibold">
+                    {isEditing ? "매물 정보 수정" : "신규 매물 등록"}
+                </h2>
+                <p className="text-sm text-(--foreground-muted) mt-1">
+                    매물의 상세 정보를 입력해 주세요. 필수 항목(*)을 확인하세요.
+                </p>
+            </div>
 
-            <FormSection title="매물 상세">
-                <FormSelect
-                    label="매물 종류"
-                    value={formData.property_type || "APARTMENT"}
-                    onChange={(val) => handleChange("property_type", val)}
-                >
-                    <SelectOption value="APARTMENT">아파트</SelectOption>
-                    <SelectOption value="VILLA">빌라</SelectOption>
-                    <SelectOption value="OFFICETEL">오피스텔</SelectOption>
-                    <SelectOption value="ONEROOM">원룸</SelectOption>
-                    <SelectOption value="COMMERCIAL">상가</SelectOption>
-                    <SelectOption value="LAND">토지</SelectOption>
-                </FormSelect>
-                <FormSelect
-                    label="거래 유형"
-                    value={formData.transaction_type || "SALE"}
-                    onChange={(val) => handleChange("transaction_type", val)}
-                >
-                    <SelectOption value="SALE">매매</SelectOption>
-                    <SelectOption value="JEONSE">전세</SelectOption>
-                    <SelectOption value="WOLSE">월세</SelectOption>
-                </FormSelect>
-
-                {formData.transaction_type === "SALE" && (
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                <FormSection title="기본 정보">
                     <FormInput
-                        label="매매가"
-                        type="number"
-                        value={formData.price_selling?.toString() || ""}
+                        label="주소"
+                        readOnly
+                        disabled={!!initialAddress}
+                        value={formData.address || ""}
+                        onClick={handleAddressSearch}
+                        onChange={(e) => handleChange("address", e.target.value)}
+                        placeholder="예: 은마아파트"
+                        button={
+                            <Button
+                                variant="primary"
+                                onClick={handleAddressSearch}
+                                disabled={!!initialAddress}
+                                type="button"
+                            >
+                                검색
+                            </Button>
+                        }
+                    />
+                    <FormInput
+                        label="건물명"
+                        disabled={!!initialAddress}
+                        value={formData.name || ""}
+                        onChange={(e) => handleChange("name", e.target.value)}
+                        placeholder="예: 은마아파트"
+                    />
+                    <FormInput
+                        label="상세 주소"
+                        value={formData.address_detail || ""}
                         onChange={(e) =>
-                            handleNumberChange("price_selling", e.target.value)
+                            handleChange("address_detail", e.target.value)
+                        }
+                        placeholder="예: 101동 101호"
+                    />
+                </FormSection>
+
+                <FormSection title="매물 상세">
+                    <FormSelect
+                        label="매물 종류"
+                        value={formData.property_type || "APARTMENT"}
+                        onChange={(val) => handleChange("property_type", val)}
+                    >
+                        <SelectOption value="APARTMENT">아파트</SelectOption>
+                        <SelectOption value="VILLA">빌라</SelectOption>
+                        <SelectOption value="OFFICETEL">오피스텔</SelectOption>
+                        <SelectOption value="ONEROOM">원룸</SelectOption>
+                        <SelectOption value="COMMERCIAL">상가</SelectOption>
+                        <SelectOption value="LAND">토지</SelectOption>
+                    </FormSelect>
+                    <FormSelect
+                        label="거래 유형"
+                        value={formData.transaction_type || "SALE"}
+                        onChange={(val) => handleChange("transaction_type", val)}
+                    >
+                        <SelectOption value="SALE">매매</SelectOption>
+                        <SelectOption value="JEONSE">전세</SelectOption>
+                        <SelectOption value="WOLSE">월세</SelectOption>
+                    </FormSelect>
+
+                    {formData.transaction_type === "SALE" && (
+                        <FormInput
+                            label="매매가"
+                            type="number"
+                            value={formData.price_selling?.toString() || ""}
+                            onChange={(e) =>
+                                handleNumberChange("price_selling", e.target.value)
+                            }
+                            min={0}
+                            placeholder="0"
+                            unit="만원"
+                        />
+                    )}
+                    {(formData.transaction_type === "JEONSE" ||
+                        formData.transaction_type === "WOLSE") && (
+                        <FormInput
+                            label="보증금"
+                            type="number"
+                            value={formData.deposit?.toString() || ""}
+                            onChange={(e) =>
+                                handleNumberChange("deposit", e.target.value)
+                            }
+                            min={0}
+                            placeholder="0"
+                            unit="만원"
+                        />
+                    )}
+                    {formData.transaction_type === "WOLSE" && (
+                        <FormInput
+                            label="월세"
+                            type="number"
+                            value={formData.rent?.toString() || ""}
+                            onChange={(e) =>
+                                handleNumberChange("rent", e.target.value)
+                            }
+                            min={0}
+                            placeholder="0"
+                            unit="만원"
+                        />
+                    )}
+
+                    <FormInput
+                        label="공급면적 (m²)"
+                        type="number"
+                        value={formData.area_supply_m2?.toString() || ""}
+                        onChange={(e) =>
+                            handleNumberChange("area_supply_m2", e.target.value)
                         }
                         min={0}
                         placeholder="0"
-                        unit="만원"
                     />
-                )}
-                {(formData.transaction_type === "JEONSE" ||
-                    formData.transaction_type === "WOLSE") && (
                     <FormInput
-                        label="보증금"
+                        label="전용면적 (m²)"
                         type="number"
-                        value={formData.deposit?.toString() || ""}
+                        value={formData.area_private_m2?.toString() || ""}
                         onChange={(e) =>
-                            handleNumberChange("deposit", e.target.value)
+                            handleNumberChange("area_private_m2", e.target.value)
                         }
                         min={0}
                         placeholder="0"
-                        unit="만원"
                     />
-                )}
-                {formData.transaction_type === "WOLSE" && (
+
                     <FormInput
-                        label="월세"
+                        label="해당 층"
                         type="number"
-                        value={formData.rent?.toString() || ""}
+                        placeholder="해당 층"
+                        value={formData.floor?.toString() || ""}
                         onChange={(e) =>
-                            handleNumberChange("rent", e.target.value)
+                            handleNumberChange("floor", e.target.value)
+                        }
+                    />
+                    <FormInput
+                        label="전체 층"
+                        type="number"
+                        placeholder="전체"
+                        value={formData.total_floors?.toString() || ""}
+                        onChange={(e) =>
+                            handleNumberChange("total_floors", e.target.value)
                         }
                         min={0}
-                        placeholder="0"
-                        unit="만원"
                     />
-                )}
+                    <FormInput
+                        label="방 개수"
+                        type="number"
+                        placeholder="방"
+                        value={formData.room_count?.toString() || ""}
+                        onChange={(e) =>
+                            handleNumberChange("room_count", e.target.value)
+                        }
+                        min={0}
+                    />
+                    <FormInput
+                        label="욕실 개수"
+                        type="number"
+                        placeholder="욕실"
+                        value={formData.bathroom_count?.toString() || ""}
+                        onChange={(e) =>
+                            handleNumberChange("bathroom_count", e.target.value)
+                        }
+                        min={0}
+                    />
+                </FormSection>
 
-                <FormInput
-                    label="공급면적 (m²)"
-                    type="number"
-                    value={formData.area_supply_m2?.toString() || ""}
-                    onChange={(e) =>
-                        handleNumberChange("area_supply_m2", e.target.value)
-                    }
-                    min={0}
-                    placeholder="0"
-                />
-                <FormInput
-                    label="전용면적 (m²)"
-                    type="number"
-                    value={formData.area_private_m2?.toString() || ""}
-                    onChange={(e) =>
-                        handleNumberChange("area_private_m2", e.target.value)
-                    }
-                    min={0}
-                    placeholder="0"
-                />
+                <FormSection title="추가 정보">
+                    <FormInput
+                        label="소유자 주 연락처"
+                        value={formData.owner_contact || ""}
+                        onChange={(e) =>
+                            handleChange(
+                                "owner_contact",
+                                formatPhoneNumber(e.target.value),
+                            )
+                        }
+                        placeholder="010-1234-5678"
+                        maxLength={13}
+                    />
+                    <FormTextArea
+                        label="관리자 메모"
+                        value={formData.memo || ""}
+                        onChange={(e: any) => handleChange("memo", e.target.value)}
+                        className="h-24 resize-none"
+                        // placeholder="매물에 대한 메모를 입력하세요"
+                    />
+                </FormSection>
+            </div>
 
-                <FormInput
-                    label="해당 층"
-                    type="number"
-                    placeholder="해당 층"
-                    value={formData.floor?.toString() || ""}
-                    onChange={(e) =>
-                        handleNumberChange("floor", e.target.value)
-                    }
-                />
-                <FormInput
-                    label="전체 층"
-                    type="number"
-                    placeholder="전체"
-                    value={formData.total_floors?.toString() || ""}
-                    onChange={(e) =>
-                        handleNumberChange("total_floors", e.target.value)
-                    }
-                    min={0}
-                />
-                <FormInput
-                    label="방 개수"
-                    type="number"
-                    placeholder="방"
-                    value={formData.room_count?.toString() || ""}
-                    onChange={(e) =>
-                        handleNumberChange("room_count", e.target.value)
-                    }
-                    min={0}
-                />
-                <FormInput
-                    label="욕실 개수"
-                    type="number"
-                    placeholder="욕실"
-                    value={formData.bathroom_count?.toString() || ""}
-                    onChange={(e) =>
-                        handleNumberChange("bathroom_count", e.target.value)
-                    }
-                    min={0}
-                />
-            </FormSection>
-
-            <FormSection title="추가 정보">
-                <FormInput
-                    label="소유자 주 연락처"
-                    value={formData.owner_contact || ""}
-                    onChange={(e) =>
-                        handleChange(
-                            "owner_contact",
-                            formatPhoneNumber(e.target.value),
-                        )
-                    }
-                    placeholder="010-1234-5678"
-                    maxLength={13}
-                />
-                <FormTextArea
-                    label="관리자 메모"
-                    value={formData.memo || ""}
-                    onChange={(e: any) => handleChange("memo", e.target.value)}
-                    className="h-24 resize-none"
-                    // placeholder="매물에 대한 메모를 입력하세요"
-                />
-            </FormSection>
-
-            {/* Buttons */}
-            <div className="flex gap-2 px-4 mb-4 h-[36px] shrink-0">
+            {/* Footer */}
+            <div className="flex-none p-4 border-t border-(--border) flex justify-end gap-2">
                 <Button
                     variant="ghost"
-                    className="h-full flex-1 text-sm text-(--foreground-muted) hover:text-(--foreground) transition-colors"
                     onClick={onClose}
+                    className="text-(--foreground-muted) hover:text-(--foreground)"
                 >
                     취소
                 </Button>
                 <Button
-                    onClick={handleSubmit}
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 h-full "
-                    variant="outline"
+                    variant="primary"
                 >
                     {isSubmitting ? "저장 중" : isEditing ? "수정" : "등록"}
                 </Button>
             </div>
-        </Form>
+        </form>
     );
 }

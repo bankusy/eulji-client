@@ -19,6 +19,7 @@ interface UseLeadsParams {
     sortColumn?: string;
     sortDirection?: "asc" | "desc";
     filters?: Record<string, string[]>;
+    initialData?: LeadsResponse;
 }
 
 export const useLeads = (params: UseLeadsParams) => {
@@ -33,12 +34,19 @@ export const useLeads = (params: UseLeadsParams) => {
                 params.sortDirection,
                 params.filters,
                 pageParam,
-                20 // limit
+                20, // limit
+                true // includeRecommendations
             ),
         initialPageParam: 0,
         getNextPageParam: (lastPage) => lastPage.nextId ?? undefined,
         staleTime: 1000 * 60, // 1 minute
         enabled: !!params.agencyId,
+        initialData: params.initialData
+            ? {
+                  pages: [params.initialData],
+                  pageParams: [0],
+              }
+            : undefined,
     });
 };
 

@@ -65,7 +65,7 @@ export function TableRow<T>({
         <div
             key={row.id || rowIndex}
             className={clsx(
-                "table-row cursor-pointer group",
+                "table-row group",
                 isEditingRow && "is-editing-row",
                 isNewRow && "table-row-new",
             )}

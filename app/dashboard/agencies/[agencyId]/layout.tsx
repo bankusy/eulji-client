@@ -1,5 +1,4 @@
 import Sidebar from "@/components/features/dashboard/Sidebar";
-import SidebarToggle from "@/components/features/dashboard/SidebarToggle";
 import GlobalToolbar from "@/components/features/dashboard/GlobalToolbar";
 
 export default function AgencyDashboardLayout({

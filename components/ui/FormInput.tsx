@@ -26,7 +26,7 @@ export default function FormInput({
                 <div className="relative w-full h-full">
                     <Input
                         onChange={onChange}
-                        className={unit ? "pr-8" : ""}
+                        className={`${unit ? "pr-8" : ""} bg-(--background-surface)`}
                         {...props}
                     />
                     {unit && (

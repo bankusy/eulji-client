@@ -104,7 +104,7 @@ function SidebarHeader({
     return (
         <div
             className={clsx(
-                `flex gap-1 items-center ${isCollapsed ? "pb-2" : "py-4"} border-b border-(--border-surface)`,
+                `flex gap-1 items-center ${isCollapsed ? "pb-2 border-b border-(--border-surface)" : "py-4"} `,
             )}
         >
             <div className="w-[48px] h-[48px] flex justify-center items-center">
@@ -218,13 +218,13 @@ function SidebarBody({
     const pathname = usePathname();
     return (
         <div
-            className={`flex flex-col flex-1  min-h-0 pl-2 mt-4`}
+            className={`flex flex-col flex-1  min-h-0 ${isCollapsed ? "pl-0" : "pl-2"} `}
         >
-            {menuGroups.map((group) => (
+            {menuGroups.map((group, index) => (
                 // 메뉴 그룹 라벨
                 <div
                     key={group.label}
-                    className={`flex flex-col items-start pr-2 py-2`}
+                    className={`flex flex-col items-start  ${isCollapsed ? "pr-0" : "pr-2 py-2"} ${isCollapsed ? "border-b" : ""} ${index == menuGroups.length - 1 ? "border-none" : "border-(--border-surface)"}`}
                 >
                     <div className=" mb-2">
                         {!isCollapsed && (

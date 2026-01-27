@@ -5,8 +5,13 @@ import { useUserStore } from "@/hooks/useUserStore";
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
-import ProfileCard from "@/components/web/profile/ProfileCard";
+// import ProfileCard from "@/components/web/profile/ProfileCard"; // Removed
 import { compressImage } from "@/lib/imageUtils";
+import FormSection from "@/components/ui/FormSection";
+import FormInput from "@/components/ui/FormInput";
+import FormTextArea from "@/components/ui/FormTextArea";
+import Form from "@/components/ui/BaseForm";
+import { X } from "lucide-react";
 
 interface ProfileEditModalProps {
     isOpen: boolean;
@@ -229,7 +234,7 @@ export default function ProfileEditModal({
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} className="max-w-md" transparent={true}>
+        <Modal isOpen={isOpen} onClose={onClose} className="max-w-2xl px-0 py-0 pb-0 flex flex-col h-[80vh]">
             <input 
                 type="file" 
                 ref={fileInputRef} 
@@ -237,21 +242,89 @@ export default function ProfileEditModal({
                 className="hidden" 
                 accept="image/*"
             />
-            <ProfileCard
-                editable={true}
-                username={agencyDomain || user?.email || ""}
-                name={nickname}
-                bio={introduction}
-                avatarUrl={avatarUrl}
-                officeAddress={officeAddress}
-                agencyName={agencyName}
-                onFieldChange={handleFieldChange}
-                onAvatarClick={handleAvatarClick}
-            />
+            
+            <div className="flex-none p-4 border-b border-(--border) flex justify-between items-center bg-(--background)">
+                <h2 className="text-lg font-semibold">프로필 수정</h2>
+                <Button variant="ghost" size="sm" onClick={onClose}>
+                    <X className="w-5 h-5" />
+                </Button>
+            </div>
 
-            <div className="absolute -top-4 -right-4 flex flex-col h-[36px]">
+            <Form
+                className="flex-1 p-6"
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSave();
+                }}
+            >
+                {/* Avatar Section */}
+                <div className="flex justify-center mb-6">
+                    <div 
+                        className="relative w-24 h-24 rounded-full overflow-hidden border border-(--border-subtle) cursor-pointer hover:opacity-80 transition-opacity group"
+                        onClick={handleAvatarClick}
+                    >
+                        {avatarUrl ? (
+                            <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                            <div className="w-full h-full bg-(--background-subtle) flex items-center justify-center text-(--foreground-muted) text-xs">
+                                이미지 없음
+                            </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/30 flex items-center justify-center text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                            변경
+                        </div>
+                    </div>
+                </div>
+
+                <FormSection title="기본 정보">
+                    <FormInput
+                        label="이름 (닉네임)"
+                        value={nickname}
+                        onChange={(e) => setNickname(e.target.value)}
+                        placeholder="홍길동"
+                    />
+                    <FormTextArea
+                        label="소개"
+                        value={introduction}
+                        onChange={(e) => setIntroduction(e.target.value)}
+                        placeholder="간단한 소개를 입력해주세요"
+                        className="h-24 resize-none"
+                    />
+                </FormSection>
+
+                <FormSection title="부동산 정보">
+                    <FormInput
+                        label="상호명"
+                        value={agencyName}
+                        onChange={(e) => setAgencyName(e.target.value)}
+                        placeholder="을지 부동산"
+                    />
+                    <FormInput
+                        label="사무실 주소"
+                        value={officeAddress}
+                        onChange={(e) => setOfficeAddress(e.target.value)}
+                        placeholder="서울시 강남구..."
+                    />
+                    <FormInput
+                        label="도메인 (ID)"
+                        value={agencyDomain}
+                        onChange={(e) => setAgencyDomain(e.target.value)}
+                        placeholder="my-agency"
+                    />
+                </FormSection>
+            </Form>
+
+            <div className="flex-none p-4 border-t border-(--border) flex gap-2 bg-(--background)">
                 <Button
-                    variant="primary"
+                    variant="ghost"
+                    className="flex-1"
+                    onClick={onClose}
+                >
+                    취소
+                </Button>
+                <Button
+                    variant="primary" // Changed to primary for save action
+                    className="flex-1"
                     onClick={handleSave}
                     disabled={isSaving || isUploading}
                 >

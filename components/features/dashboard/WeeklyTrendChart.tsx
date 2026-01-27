@@ -24,7 +24,7 @@ export default function WeeklyTrendChart({ data }: WeeklyTrendChartProps) {
                 <CardDescription className="text-(--foreground-muted)">최근 7일간 등록된 신규 리드 수입니다.</CardDescription>
             </CardHeader>
             <CardContent className="pl-2">
-                <ChartContainer config={trendChartConfig} className="min-h-[300px] w-full">
+                <ChartContainer config={trendChartConfig} className="min-h-[50px] w-full">
                     <BarChart accessibilityLayer data={data}>
                         <CartesianGrid vertical={false} className="stroke-(--border-subtle)" />
                         <XAxis

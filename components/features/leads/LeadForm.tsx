@@ -11,7 +11,7 @@ import { Lead } from "@/types/lead";
 import { X } from "lucide-react"; // Import X icon
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useUserStore } from "@/hooks/useUserStore";
-import Form from "@/components/ui/BaseForm";
+
 
 interface LeadFormProps {
     initialData?: Lead | null;
@@ -75,6 +75,7 @@ export default function LeadForm({
         initialData?.transaction_type || "WOLSE",
     );
     const [source, setSource] = useState(initialData?.source || "");
+    const [preferred_region, setPreferredRegion] = useState(initialData?.preferred_region || "");
     const [assigneeId, setAssigneeId] = useState(initialData?.assigned_user_id || "");
 
     // Budget
@@ -143,6 +144,7 @@ export default function LeadForm({
                 property_type,
                 transaction_type,
                 source,
+                preferred_region, // Add to payload
                 assigned_user_id: assigneeId,
                 deposit_min: budget.deposit_min,
                 deposit_max: budget.deposit_max,
@@ -171,202 +173,234 @@ export default function LeadForm({
     };
 
     return (
-        <Form
+        <form
+            className="flex flex-col h-full bg-(--background)"
             onSubmit={(e) => {
                 e.preventDefault();
                 handleSubmit();
             }}
         >
-            <FormSection title="기본 정보">
-                <FormInput
-                    label="이름"
-                    value={name}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        setName(e.target.value)
-                    }
-                    placeholder="홍길동"
-                />
-                <FormInput
-                    label="휴대폰"
-                    type="tel"
-                    value={phone}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        setPhone(formatPhone(e.target.value))
-                    }
-                    placeholder="010-1234-5678"
-                />
-                <FormInput
-                    label="이메일"
-                    type="email"
-                    value={email}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        setEmail(e.target.value)
-                    }
-                    placeholder="example@email.com"
-                />
-            </FormSection>
-            <FormSection title="상태 및 유형">
-                <FormSelect label="상태" value={stage} onChange={setStage}>
-                    <SelectOption value="NEW">신규</SelectOption>
-                    <SelectOption value="IN_PROGRESS">진행 중</SelectOption>
-                    <SelectOption value="RESERVED">예약</SelectOption>
-                    <SelectOption value="CONTRACTED">계약 완료</SelectOption>
-                    <SelectOption value="CANCELED">계약 취소</SelectOption>
-                    <SelectOption value="FAILED">계약 실패</SelectOption>
-                </FormSelect>
-                <FormSelect
-                    label="매물 유형"
-                    value={property_type}
-                    onChange={setPropertyType}
-                >
-                    <SelectOption value="OFFICETEL">오피스텔</SelectOption>
-                    <SelectOption value="ONEROOM">원룸</SelectOption>
-                    <SelectOption value="TWOROOM">투룸</SelectOption>
-                    <SelectOption value="THREEROOM">쓰리룸</SelectOption>
-                    <SelectOption value="APARTMENT">아파트</SelectOption>
-                    <SelectOption value="FACTORY">공장</SelectOption>
-                    <SelectOption value="MALL">상가</SelectOption>
-                    <SelectOption value="LAND">토지</SelectOption>
-                </FormSelect>
-                <FormSelect
-                    label="거래 유형"
-                    value={transaction_type}
-                    onChange={setTransactionType}
-                >
-                    <SelectOption value="WOLSE">월세</SelectOption>
-                    <SelectOption value="JEONSE">전세</SelectOption>
-                    <SelectOption value="SALE">매매</SelectOption>
-                </FormSelect>
-                <FormInput
-                    label="유입 경로"
-                    value={source}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        setSource(e.target.value)
-                    }
-                    placeholder="직방, 다방, 블로그 등"
-                />
-                <FormSelect
-                    label="담당자"
-                    value={assigneeId}
-                    onChange={setAssigneeId}
-                    disabled={!isOwner}
-                >
-                    <SelectOption value="">담당자 선택</SelectOption>
-                    {members.map((member) => (
-                        <SelectOption key={member.id} value={member.id}>
-                            {member.name}
-                        </SelectOption>
-                    ))}
-                </FormSelect>
-            </FormSection>
+            {/* Header */}
+            <div className="flex-none p-6 border-b border-(--border)">
+                <h2 className="text-xl font-semibold">
+                    {initialData ? "고객 정보 수정" : "신규 고객 등록"}
+                </h2>
+                <p className="text-sm text-(--foreground-muted) mt-1">
+                    고객의 상세 정보를 입력해 주세요. 모든 항목은 필수 입력입니다.
+                </p>
+            </div>
 
-            <FormSection title="예산">
-                <div className="flex flex-col md:flex-row gap-4">
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                <FormSection title="기본 정보">
                     <FormInput
-                        label="보증금 (최소)"
-                        type="number"
-                        value={budget.deposit_min.toString()}
-                        onChange={(e) => {
-                            const val = Number(e.target.value);
-                            if (val >= 0 && val <= 1000000) {
-                                setBudget((prev) => ({ ...prev, deposit_min: val }));
-                            }
-                        }}
-                        placeholder="0"
-                        unit="만원"
-                        min="0"
-                        max="1000000"
+                        label="이름"
+                        value={name}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                            setName(e.target.value)
+                        }
+                        placeholder="홍길동"
                     />
                     <FormInput
-                        label="보증금 (최대)"
-                        type="number"
-                        value={budget.deposit_max.toString()}
-                        onChange={(e) => {
-                            const val = Number(e.target.value);
-                            if (val >= 0 && val <= 1000000) {
-                                setBudget((prev) => ({ ...prev, deposit_max: val }));
-                            }
-                        }}
-                        placeholder="0"
-                        unit="만원"
-                        min="0"
-                        max="1000000"
-                    />
-                </div>
-                <div className="flex flex-col md:flex-row gap-4">
-                    <FormInput
-                        label="월세/매매가 (최소)"
-                        type="number"
-                        value={budget.price_min.toString()}
-                        onChange={(e) => {
-                            const val = Number(e.target.value);
-                            if (val >= 0 && val <= 5000000) {
-                                setBudget((prev) => ({ ...prev, price_min: val }));
-                            }
-                        }}
-                        placeholder="0"
-                        unit="만원"
-                        min="0"
-                        max="5000000"
+                        label="휴대폰"
+                        type="tel"
+                        value={phone}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                            setPhone(formatPhone(e.target.value))
+                        }
+                        placeholder="010-1234-5678"
                     />
                     <FormInput
-                        label="월세/매매가 (최대)"
-                        type="number"
-                        value={budget.price_max.toString()}
-                        onChange={(e) => {
-                            const val = Number(e.target.value);
-                            if (val >= 0 && val <= 5000000) {
-                                setBudget((prev) => ({ ...prev, price_max: val }));
-                            }
-                        }}
-                        placeholder="0"
-                        unit="만원"
-                        min="0"
-                        max="5000000"
+                        label="이메일"
+                        type="email"
+                        value={email}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                            setEmail(e.target.value)
+                        }
+                        placeholder="example@email.com"
                     />
-                </div>
-            </FormSection>
+                </FormSection>
+                <FormSection title="상태 및 유형">
+                    <FormSelect label="상태" value={stage} onChange={setStage}>
+                        <SelectOption value="NEW">신규</SelectOption>
+                        <SelectOption value="IN_PROGRESS">진행 중</SelectOption>
+                        <SelectOption value="RESERVED">예약</SelectOption>
+                        <SelectOption value="CONTRACTED">계약 완료</SelectOption>
+                        <SelectOption value="CANCELED">계약 취소</SelectOption>
+                        <SelectOption value="FAILED">계약 실패</SelectOption>
+                    </FormSelect>
+                    <FormSelect
+                        label="매물 유형"
+                        value={property_type}
+                        onChange={setPropertyType}
+                    >
+                        <SelectOption value="OFFICETEL">오피스텔</SelectOption>
+                        <SelectOption value="ONEROOM">원룸</SelectOption>
+                        <SelectOption value="TWOROOM">투룸</SelectOption>
+                        <SelectOption value="THREEROOM">쓰리룸</SelectOption>
+                        <SelectOption value="APARTMENT">아파트</SelectOption>
+                        <SelectOption value="FACTORY">공장</SelectOption>
+                        <SelectOption value="MALL">상가</SelectOption>
+                        <SelectOption value="LAND">토지</SelectOption>
+                    </FormSelect>
+                    <FormSelect
+                        label="거래 유형"
+                        value={transaction_type}
+                        onChange={setTransactionType}
+                    >
+                        <SelectOption value="WOLSE">월세</SelectOption>
+                        <SelectOption value="JEONSE">전세</SelectOption>
+                        <SelectOption value="SALE">매매</SelectOption>
+                    </FormSelect>
+                    <FormInput
+                        label="희망 지역"
+                        value={preferred_region}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                            setPreferredRegion(e.target.value)
+                        }
+                        placeholder="예: 강남구, 역삼동 (동 이름 추천)"
+                    />
+                    <FormInput
+                        label="유입 경로"
+                        value={source}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                            setSource(e.target.value)
+                        }
+                        placeholder="직방, 다방, 블로그 등"
+                    />
+                    <FormSelect
+                        label="담당자"
+                        value={assigneeId}
+                        onChange={setAssigneeId}
+                        disabled={!isOwner}
+                    >
+                        <SelectOption value="">담당자 선택</SelectOption>
+                        {members.map((member) => (
+                            <SelectOption key={member.id} value={member.id}>
+                                {member.name}
+                            </SelectOption>
+                        ))}
+                    </FormSelect>
+                </FormSection>
 
-            <FormSection title="추가 정보">
-                <FormTextArea
-                    label="문의 내용"
-                    value={message}
-                    onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-                        setMessage(e.target.value)
-                    }
-                    className="h-24 resize-none"
-                    // placeholder="고객 문의 내용을 입력하세요"
-                />
-                <FormTextArea
-                    label="메모"
-                    value={memo}
-                    onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-                        setMemo(e.target.value)
-                    }
-                    className="h-24 resize-none"
-                    // placeholder="관리자용 메모"
-                />
-            </FormSection>
+                <FormSection title="예산">
+                    <div className="flex flex-col md:flex-row gap-4">
+                        <FormInput
+                            label="보증금 (최소)"
+                            type="number"
+                            value={budget.deposit_min.toString()}
+                            onChange={(e) => {
+                                const val = Number(e.target.value);
+                                if (val >= 0 && val <= 1000000) {
+                                    setBudget((prev) => ({
+                                        ...prev,
+                                        deposit_min: val,
+                                    }));
+                                }
+                            }}
+                            placeholder="0"
+                            unit="만원"
+                            min="0"
+                            max="1000000"
+                        />
+                        <FormInput
+                            label="보증금 (최대)"
+                            type="number"
+                            value={budget.deposit_max.toString()}
+                            onChange={(e) => {
+                                const val = Number(e.target.value);
+                                if (val >= 0 && val <= 1000000) {
+                                    setBudget((prev) => ({
+                                        ...prev,
+                                        deposit_max: val,
+                                    }));
+                                }
+                            }}
+                            placeholder="0"
+                            unit="만원"
+                            min="0"
+                            max="1000000"
+                        />
+                    </div>
+                    <div className="flex flex-col md:flex-row gap-4">
+                        <FormInput
+                            label="월세/매매가 (최소)"
+                            type="number"
+                            value={budget.price_min.toString()}
+                            onChange={(e) => {
+                                const val = Number(e.target.value);
+                                if (val >= 0 && val <= 5000000) {
+                                    setBudget((prev) => ({
+                                        ...prev,
+                                        price_min: val,
+                                    }));
+                                }
+                            }}
+                            placeholder="0"
+                            unit="만원"
+                            min="0"
+                            max="5000000"
+                        />
+                        <FormInput
+                            label="월세/매매가 (최대)"
+                            type="number"
+                            value={budget.price_max.toString()}
+                            onChange={(e) => {
+                                const val = Number(e.target.value);
+                                if (val >= 0 && val <= 5000000) {
+                                    setBudget((prev) => ({
+                                        ...prev,
+                                        price_max: val,
+                                    }));
+                                }
+                            }}
+                            placeholder="0"
+                            unit="만원"
+                            min="0"
+                            max="5000000"
+                        />
+                    </div>
+                </FormSection>
 
-            {/* Buttons */}
-            <div className="flex gap-2 px-4 mb-4 h-[36px] shrink-0">
+                <FormSection title="추가 정보">
+                    <FormTextArea
+                        label="문의 내용"
+                        value={message}
+                        onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                            setMessage(e.target.value)
+                        }
+                        className="h-24 resize-none"
+                        // placeholder="고객 문의 내용을 입력하세요"
+                    />
+                    <FormTextArea
+                        label="메모"
+                        value={memo}
+                        onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                            setMemo(e.target.value)
+                        }
+                        className="h-24 resize-none"
+                        // placeholder="관리자용 메모"
+                    />
+                </FormSection>
+            </div>
+
+            {/* Footer */}
+            <div className="flex-none p-4 border-t border-(--border) flex justify-end gap-2">
                 <Button
                     variant="ghost"
-                    className="h-full flex-1 text-sm text-(--foreground-muted) hover:text-(--foreground) transition-colors"
                     onClick={onClose}
+                    className="text-(--foreground-muted) hover:text-(--foreground)"
                 >
                     취소
                 </Button>
                 <Button
-                    onClick={handleSubmit}
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 h-full "
-                    variant="outline"
+                    variant="primary"
                 >
-                    {isSubmitting ? "저장 중" : initialData ? "수정" : "등록"}
+                    {isSubmitting ? "저장 중" : "저장"}
                 </Button>
             </div>
-        </Form>
+        </form>
     );
 }
