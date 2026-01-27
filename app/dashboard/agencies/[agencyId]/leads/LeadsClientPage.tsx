@@ -14,9 +14,9 @@ import IconWrapper from "@/components/ui/IconWrapper";
 import Modal from "@/components/ui/Modal";
 import LeadForm from "@/components/features/leads/LeadForm";
 import MenuBar from "@/components/ui/table/MenuBar";
-import { useParams } from "next/navigation";
 import { useLeadMutations, useLeads } from "@/hooks/queries/leads";
 import LeadsToolbar from "@/components/features/leads/LeadsToolbar";
+import { useDataTable } from "@/hooks/useDataTable";
 import { getAgencyMembers } from "../actions";
 import { getRecommendedListings } from "./actions";
 import RecommendationListModal from "@/components/features/leads/RecommendationListModal"; // Import modal
@@ -24,6 +24,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useUserStore } from "@/hooks/useUserStore";
 import GlobalLoader from "@/components/ui/GlobalLoader";
+import { DashboardTableLayout } from "@/components/ui/table/DashboardTableLayout";
 
 interface LeadsClientPageProps {
     initialData: {
@@ -44,17 +45,74 @@ export default function LeadsClientPage({
     // const params = useParams();
     // const agencyId = params.agencyId as string;
 
-    const [selectedLeadIds, setSelectedLeadIds] = useState<string[] | null>([]);
-    const [isAllCheck, setAllCheck] = useState(false);
-    const [editingLead, setEditingLead] = useState<Lead | null>(null);
-    const [columnWidths, setColumnWidths] = useLocalStorage<{
-        [key: string]: number;
-    }>("leads_column_widths", {});
-    const [isColumnPopupOpen, setIsColumnPopupOpen] = useState(false);
+    // --- DataTable Hook ---
+    const {
+        // Search
+        searchQuery,
+        setSearchQuery,
+        activeSearchQuery,
+        setActiveSearchQuery,
+        searchColumns,
+        activeSearchColumns,
+        isSearchFilterOpen,
+        setIsSearchFilterOpen,
+        handleSearchQueryChange,
+        handleSearchSubmit,
+        toggleSearchColumn,
+
+        // Sort
+        sortConfig,
+        handleSort,
+
+        // Filter
+        filters,
+        setFilters,
+
+        // Selection
+        selectedIds: selectedLeadIds,
+        setSelectedIds: setSelectedLeadIds,
+        isAllCheck,
+        setAllCheck,
+        handleAllCheck,
+        handleRowSelect,
+
+        // Columns
+        columnWidths,
+        isColumnPopupOpen,
+        setIsColumnPopupOpen,
+        visibleColumns,
+        setVisibleColumns,
+        columnOrder,
+        setColumnOrder,
+        stickyColumns,
+        setStickyColumns,
+        handleColumnResize,
+        resetColumns
+    } = useDataTable<Lead>({
+        storageKeyPrefix: "leads",
+        defaultVisibleColumns: useMemo(() => {
+             const initial: Record<string, boolean> = {};
+             columnsConfiguration.forEach((col) => { initial[col.key] = true; });
+             return initial;
+        }, []),
+        defaultSearchColumns: {
+            name: true,
+            phone: true,
+            email: true,
+            source: true,
+            message: true,
+        },
+        defaultSort: { column: "created_at", direction: "desc" },
+        columnsConfiguration: columnsConfiguration.map(c => ({ key: c.key, sticky: c.sticky }))
+    });
+    
+    // Additional Page State (Not covered by useDataTable)
     const [isAddPanelOpen, setIsAddPanelOpen] = useState(false);
-    const [newlyCreatedId, setNewlyCreatedId] = useState<string | null>(null);
+    const [editingLead, setEditingLead] = useState<Lead | null>(null);
     const [tempLead, setTempLead] = useState<Lead | null>(null);
+    const [newlyCreatedId, setNewlyCreatedId] = useState<string | null>(null);
     const [selectedLeadForReco, setSelectedLeadForReco] = useState<Lead | null>(null);
+
     const { user } = useUserStore();
     const queryClient = useQueryClient();
 
@@ -82,48 +140,8 @@ export default function LeadsClientPage({
     });
 
     const isOwner = agencyInfo?.role === "OWNER";
-    const defaultVisibleColumns = useMemo(() => {
-        const initial: Record<string, boolean> = {};
-        columnsConfiguration.forEach((col) => {
-            initial[col.key] = true;
-        });
-        return initial;
-    }, []);
-
-    const [visibleColumns, setVisibleColumns] = useLocalStorage<
-        Record<string, boolean>
-    >("leads_visible_columns", defaultVisibleColumns);
-
-    // Search State
-    const [searchQuery, setSearchQuery] = useState("");
-    const [activeSearchQuery, setActiveSearchQuery] = useState("");
-    const [searchColumns, setSearchColumns] = useLocalStorage<
-        Record<string, boolean>
-    >("leads_search_columns", {
-        name: true,
-        phone: true,
-        email: true,
-        source: true,
-        message: true,
-    });
-    const [isSearchFilterOpen, setIsSearchFilterOpen] = useState(false);
-
-    // Sort State
-    const [sortConfig, setSortConfig] = useLocalStorage<{
-        column: string;
-        direction: "asc" | "desc";
-    } | null>("leads_sort_config", {
-        column: "created_at",
-        direction: "desc",
-    });
-
-    // Filter State
-    const [filters, setFilters] = useState<Record<string, string[]>>({});
 
     // Data Fetching via React Query
-    const activeSearchColumns = Object.keys(searchColumns).filter(
-        (k) => searchColumns[k],
-    );
 
     const {
         createLead: createLeadMutation,
@@ -305,65 +323,8 @@ export default function LeadsClientPage({
         });
     };
 
-    const [columnOrder, setColumnOrder] = useLocalStorage<string[]>(
-        "leads_column_order",
-        columnsConfiguration.map((c) => c.key),
-    );
+    // Sync changes from hook if needed or side effects. The hook handles syncing.
 
-    const [stickyColumns, setStickyColumns] = useLocalStorage<
-        Record<string, boolean>
-    >(
-        "leads_sticky_columns",
-        columnsConfiguration.reduce(
-            (acc, col) => {
-                if (col.sticky) acc[col.key] = true;
-                return acc;
-            },
-            {} as Record<string, boolean>,
-        ),
-    );
-
-    useEffect(() => {
-        // Enforce sticky columns to be at the start
-        const stickyKeys: string[] = [];
-        const nonStickyKeys: string[] = [];
-
-        columnOrder.forEach((key) => {
-            if (stickyColumns[key]) {
-                stickyKeys.push(key);
-            } else {
-                nonStickyKeys.push(key);
-            }
-        });
-
-        // Also handle any missing keys from config if needed
-        const configKeys = columnsConfiguration.map((c) => c.key);
-        const currentKeys = new Set(columnOrder);
-        const missingKeys = configKeys.filter((key) => !currentKeys.has(key));
-
-        let newOrder = [...stickyKeys, ...nonStickyKeys];
-
-        if (missingKeys.length > 0) {
-            newOrder = [...newOrder, ...missingKeys];
-
-            // Update visibility for new keys
-            setVisibleColumns((prev) => {
-                const next = { ...prev };
-                let changed = false;
-                missingKeys.forEach((key) => {
-                    if (next[key] === undefined) {
-                        next[key] = true;
-                        changed = true;
-                    }
-                });
-                return changed ? next : prev;
-            });
-        }
-
-        if (JSON.stringify(newOrder) !== JSON.stringify(columnOrder)) {
-            setColumnOrder(newOrder);
-        }
-    }, [stickyColumns, columnsConfiguration]); // Depend on stickyColumns and config
 
     const visibleColumnConfig = useMemo(() => {
         const colMap = new Map(columnsConfiguration.map((c) => [c.key, c]));
@@ -467,12 +428,7 @@ export default function LeadsClientPage({
         }
     };
 
-    const handleColumnResize = (key: string, newWidth: number) => {
-        setColumnWidths((prev) => ({
-            ...prev,
-            [key]: newWidth,
-        }));
-    };
+
 
     const handleDelete = async () => {
         if (!selectedLeadIds || selectedLeadIds.length === 0) return;
@@ -489,135 +445,98 @@ export default function LeadsClientPage({
     };
 
     return (
-        <div className="flex flex-col w-full h-full">
+        <div className="h-full w-full relative">
             {isLoading && <GlobalLoader />}
-            <LeadsToolbar
-                onOpenAddPanel={handleCreateEmptyRow}
-                onToggleColumnPopup={() =>
-                    setIsColumnPopupOpen(!isColumnPopupOpen)
-                }
-                isSearchFilterOpen={isSearchFilterOpen}
-                onToggleSearchFilter={() =>
-                    setIsSearchFilterOpen(!isSearchFilterOpen)
-                }
-                searchColumns={searchColumns}
-                onToggleSearchColumn={(key) =>
-                    setSearchColumns((prev) => ({
-                        ...prev,
-                        [key]: !prev[key],
-                    }))
-                }
-                searchQuery={searchQuery}
-                onSearchQueryChange={setSearchQuery}
-                onSearchSubmit={() => setActiveSearchQuery(searchQuery)}
-                getSearchLabel={getSearchLabel}
-            />
-
-            <ColumnVisibilityPopup
-                className={`${isColumnPopupOpen ? "mb-2" : ""}`}
-                isOpen={isColumnPopupOpen}
-                columnLabels={columnLabels}
-                visibleColumns={visibleColumns}
-                setVisibleColumns={setVisibleColumns}
-                stickyColumns={stickyColumns}
-                setStickyColumns={setStickyColumns}
-                defaultColumns={columnsConfiguration.map((c) => c.key)}
-                onReset={() => {
-                    const initialVisible: Record<string, boolean> = {};
-                    const initialSticky: Record<string, boolean> = {};
-                    columnsConfiguration.forEach((col) => {
-                        initialVisible[col.key] = true;
-                        if (col.sticky) initialSticky[col.key] = true;
-                    });
-                    setVisibleColumns(initialVisible);
-                    setStickyColumns(initialSticky);
-                }}
-            />
-
-            <MenuBar isOpen={!!selectedLeadIds && selectedLeadIds.length > 0}>
-                <div className="flex items-center gap-2 text-sm">
-                    <span className="font-semibold text-(--primary)">
-                        {selectedLeadIds?.length}
-                    </span>
-                    <span className="text-(--foreground-muted)">개 선택됨</span>
-                </div>
-                <div className="w-px h-4 bg-(--border) mx-2"></div>
-                <IconWrapper
-                    className="border border-(--border-surface)"
-                    src={`/icons/delete/${systemTheme}.svg`}
-                    onClick={handleDelete}
-                    isVisibleDescription={true}
-                    description="삭제"
-                ></IconWrapper>
-            </MenuBar>
-            <DataTable
-                data={leads}
-                columns={visibleColumnConfig}
-                columnWidths={columnWidths}
-                allCheck={
-                    leads.length > 0 && selectedLeadIds?.length === leads.length
-                }
-                isEditing={false}
-                onColumnResize={handleColumnResize}
-                onAllCheck={() => {
-                    if (selectedLeadIds?.length === leads.length) {
-                        setSelectedLeadIds([]);
-                        setAllCheck(false);
-                    } else {
-                        setSelectedLeadIds(leads.map((d) => d.id));
-                        setAllCheck(true);
-                    }
-                }}
-                selectedIds={selectedLeadIds}
-                onRowSelect={(id) => {
-                    setSelectedLeadIds((prev) => {
-                        const safetyPrev = prev || [];
-                        const isSelected = safetyPrev.includes(id);
-                        if (isSelected) {
-                            const next = safetyPrev.filter((pid) => pid !== id);
-                            setAllCheck(false);
-                            return next;
-                        } else {
-                            const next = [...safetyPrev, id];
-                            if (next.length === leads.length) {
-                                setAllCheck(true);
-                            }
-                            return next;
+            <DashboardTableLayout
+                toolbar={
+                    <LeadsToolbar
+                        onOpenAddPanel={handleCreateEmptyRow}
+                        onToggleColumnPopup={() =>
+                            setIsColumnPopupOpen(!isColumnPopupOpen)
                         }
-                    });
-                }}
-                onRowClick={undefined}
-                onSort={(column, direction) => {
-                    // 이미 선택된 정렬을 다시 클릭하면 해제
-                    if (
-                        sortConfig?.column === column &&
-                        sortConfig?.direction === direction
-                    ) {
-                        setSortConfig(null);
-                    } else {
-                        setSortConfig({ column, direction });
-                    }
-                }}
-                sortConfig={
-                    sortConfig
-                        ? {
-                              key: sortConfig.column,
-                              direction: sortConfig.direction,
-                          }
-                        : null
+                        isSearchFilterOpen={isSearchFilterOpen}
+                        onToggleSearchFilter={() =>
+                            setIsSearchFilterOpen(!isSearchFilterOpen)
+                        }
+                        searchColumns={searchColumns}
+                        onToggleSearchColumn={(key) => toggleSearchColumn(key)}
+                        searchQuery={searchQuery}
+                        onSearchQueryChange={setSearchQuery}
+                        onSearchSubmit={() => setActiveSearchQuery(searchQuery)}
+                        getSearchLabel={getSearchLabel}
+                    />
                 }
-                filters={filters}
-                onFilterChange={(columnKey, values) => {
-                    setFilters((prev) => ({ ...prev, [columnKey]: values }));
-                }}
-                onColumnReorder={setColumnOrder}
-                onLoadMore={() => fetchNextPage()}
-                hasMore={!!hasNextPage}
-                isLoading={isFetchingNextPage}
-                isInitialLoading={isLoading}
-                onCellUpdate={handleCellUpdate}
-                newlyCreatedId={newlyCreatedId}
+                columnVisibilityPopup={
+                    <ColumnVisibilityPopup
+                        className={isColumnPopupOpen ? "mb-2" : ""}
+                        isOpen={isColumnPopupOpen}
+                        columnLabels={columnLabels}
+                        visibleColumns={visibleColumns}
+                        setVisibleColumns={setVisibleColumns}
+                        stickyColumns={stickyColumns}
+                        setStickyColumns={setStickyColumns}
+                        defaultColumns={columnsConfiguration.map((c) => c.key)}
+                        onReset={() => {
+                            const initialVisible: Record<string, boolean> = {};
+                            const initialSticky: Record<string, boolean> = {};
+                            columnsConfiguration.forEach((col) => {
+                                initialVisible[col.key] = true;
+                                if (col.sticky) initialSticky[col.key] = true;
+                            });
+                            setVisibleColumns(initialVisible);
+                            setStickyColumns(initialSticky);
+                        }}
+                    />
+                }
+                menuBar={
+                    <MenuBar isOpen={!!selectedLeadIds && selectedLeadIds.length > 0}>
+                        <div className="flex items-center gap-2 text-sm">
+                            <span className="font-semibold text-(--primary)">
+                                {selectedLeadIds?.length}
+                            </span>
+                            <span className="text-(--foreground-muted)">개 선택됨</span>
+                        </div>
+                        <div className="w-px h-4 bg-(--border) mx-2"></div>
+                        <IconWrapper
+                            className="border border-(--border-surface)"
+                            src={`/icons/delete/${systemTheme}.svg`}
+                            onClick={handleDelete}
+                            isVisibleDescription={true}
+                            description="삭제"
+                        ></IconWrapper>
+                    </MenuBar>
+                }
+                table={
+                    <DataTable
+                        data={leads}
+                        columns={visibleColumnConfig}
+                        columnWidths={columnWidths}
+                        allCheck={
+                            leads.length > 0 && selectedLeadIds?.length === leads.length
+                        }
+                        isEditing={false}
+                        onColumnResize={handleColumnResize}
+                        onAllCheck={() => handleAllCheck(leads)}
+                        selectedIds={selectedLeadIds}
+                        onRowSelect={(id) => handleRowSelect(id, leads)}
+                        onRowClick={undefined}
+                        onSort={handleSort}
+                        sortConfig={sortConfig ? { key: sortConfig.column, direction: sortConfig.direction } : null}
+                        filters={filters}
+                        onFilterChange={(columnKey, values) => {
+                            setFilters((prev) => ({ ...prev, [columnKey]: values }));
+                        }}
+                        onColumnReorder={setColumnOrder}
+                        onLoadMore={() => fetchNextPage()}
+                        hasMore={!!hasNextPage}
+                        isLoading={isFetchingNextPage}
+                        isInitialLoading={isLoading}
+                        onCellUpdate={handleCellUpdate}
+                        newlyCreatedId={newlyCreatedId}
+                    />
+                }
             />
+
             <Modal
                 isOpen={isAddPanelOpen}
                 onClose={() => {

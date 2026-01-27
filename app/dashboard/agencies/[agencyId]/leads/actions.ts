@@ -328,6 +328,11 @@ export async function getRecommendedListings(agencyId: string, lead: Lead, optio
         query = query.or(`address.ilike.%${lead.preferred_region}%,address_detail.ilike.%${lead.preferred_region}%`);
     }
 
+    // Debug Log
+    if (!options.minimal) {
+        console.log(`[getRecommendedListings] Full fetch for lead: ${lead.id}, region: ${lead.preferred_region}, tx: ${lead.transaction_type}`);
+    }
+
     // 3. Budget Match
     if (lead.transaction_type === "WOLSE") {
         if (lead.deposit_max > 0) {

@@ -16,7 +16,7 @@ import {
     useListings,
     useListingMutations,
 } from "@/hooks/queries/listings";
-
+import { useDataTable } from "@/hooks/useDataTable";
 import { Listing, listingColumns } from "@/types/listing";
 import { ColumnVisibilityPopup } from "@/components/ui/table/ColumnsFilter";
 import ListingGroupList from "@/components/features/listings/ListingGroupList";
@@ -25,35 +25,77 @@ import MenuBar from "@/components/ui/table/MenuBar";
 import IconWrapper from "@/components/ui/IconWrapper";
 import { useParams } from "next/navigation";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { DashboardTableLayout } from "@/components/ui/table/DashboardTableLayout";
 
 export default function ListingsPage() {
     const { systemTheme, isThemeReady } = ThemeHook();
     const params = useParams();
     const agencyId = params.agencyId as string;
 
-    const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
-    const [selectedListingIds, setSelectedListingIds] = useState<string[]>([]);
-    const [editingListing, setEditingListing] = useState<Listing | undefined>(
-        undefined,
-    );
-    const [targetAddress, setTargetAddress] = useState<string | undefined>(
-        undefined,
-    );
-    const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
+    // --- DataTable Hook ---
+    const {
+        // Search
+        searchQuery,
+        setSearchQuery,
+        activeSearchQuery,
+        setActiveSearchQuery,
+        searchColumns,
+        activeSearchColumns,
+        isSearchFilterOpen,
+        setIsSearchFilterOpen,
+        handleSearchQueryChange,
+        handleSearchSubmit,
+        toggleSearchColumn,
 
-    const [searchQuery, setSearchQuery] = useState("");
-    const [activeSearchQuery, setActiveSearchQuery] = useState("");
-    const [isSearchFilterOpen, setIsSearchFilterOpen] = useState(false);
+        // Sort
+        sortConfig,
+        handleSort,
 
-    const [searchColumns, setSearchColumns] = useLocalStorage<Record<string, boolean>>(
-        "listings_search_columns",
-        {
+        // Filter
+        filters,
+        setFilters,
+
+        // Selection
+        selectedIds: selectedListingIds,
+        setSelectedIds: setSelectedListingIds,
+        isAllCheck,
+        setAllCheck,
+        handleAllCheck,
+        handleRowSelect,
+
+        // Columns
+        columnWidths,
+        isColumnPopupOpen,
+        setIsColumnPopupOpen,
+        visibleColumns,
+        setVisibleColumns,
+        columnOrder,
+        setColumnOrder,
+        stickyColumns,
+        setStickyColumns,
+        handleColumnResize,
+        resetColumns
+    } = useDataTable<Listing>({
+        storageKeyPrefix: "listings",
+        defaultVisibleColumns: useMemo(() => {
+             return listingColumns.reduce((acc, col) => ({ ...acc, [col.key]: true }), {});
+        }, []),
+        defaultSearchColumns: {
             name: true,
             address_detail: true,
             owner_contact: true,
             memo: true,
-        }
-    );
+        },
+        defaultSort: { column: "created_at", direction: "desc" },
+        columnsConfiguration: listingColumns.map(c => ({ key: c.key, sticky: c.sticky }))
+    });
+
+    const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
+    const [editingListing, setEditingListing] = useState<Listing | undefined>(undefined);
+    const [targetAddress, setTargetAddress] = useState<string | undefined>(undefined);
+    const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
+    
+    // Additional Page State
     const [newlyCreatedId, setNewlyCreatedId] = useState<string | null>(null);
     const [tempListing, setTempListing] = useState<Listing | null>(null);
     const [isNewBuildingModalOpen, setIsNewBuildingModalOpen] = useState(false);
@@ -68,69 +110,6 @@ export default function ListingsPage() {
         }
     };
 
-    const activeSearchColumns = useMemo(() => {
-        return Object.keys(searchColumns).filter((k) => searchColumns[k]);
-    }, [searchColumns]);
-
-    // Sort State
-    const [sortConfig, setSortConfig] = useLocalStorage<{
-        key: string;
-        direction: "asc" | "desc";
-    } | null>("listings_sort_config", {
-        key: "created_at",
-        direction: "desc",
-    });
-
-    const [filters, setFilters] = useState<Record<string, string[]>>({});
-
-    const [columnWidths, setColumnWidths] = useState<Record<string, number>>(
-        {},
-    );
-    const [isColumnPopupOpen, setIsColumnPopupOpen] = useState(false);
-    const [visibleColumns, setVisibleColumns] = useLocalStorage<
-        Record<string, boolean>
-    >(
-        "listings_visible_columns",
-        listingColumns.reduce((acc, col) => ({ ...acc, [col.key]: true }), {}),
-    );
-
-    const [columnOrder, setColumnOrder] = useState<string[]>(
-        listingColumns.map((c) => c.key),
-    );
-
-    // Sticky Columns State
-    const [stickyColumns, setStickyColumns] = useLocalStorage<
-        Record<string, boolean>
-    >(
-        "listings_sticky_columns",
-        listingColumns.reduce(
-            (acc, col) => {
-                if (col.sticky) acc[col.key] = true;
-                return acc;
-            },
-            {} as Record<string, boolean>,
-        ),
-    );
-
-    useEffect(() => {
-        const stickyKeys: string[] = [];
-        const nonStickyKeys: string[] = [];
-
-        columnOrder.forEach((key) => {
-            if (stickyColumns[key]) {
-                stickyKeys.push(key);
-            } else {
-                nonStickyKeys.push(key);
-            }
-        });
-
-        const newOrder = [...stickyKeys, ...nonStickyKeys];
-
-        if (JSON.stringify(newOrder) !== JSON.stringify(columnOrder)) {
-            setColumnOrder(newOrder);
-        }
-    }, [stickyColumns, columnOrder]);
-
     const { data: groups = [], isLoading: isGroupsLoading } =
         useListingGroups(agencyId);
 
@@ -143,7 +122,7 @@ export default function ListingsPage() {
     } = useListings({
         agencyId,
         address: selectedAddress,
-        sortConfig,
+        sortConfig: sortConfig ? { key: sortConfig.column, direction: sortConfig.direction } : null,
         searchQuery: activeSearchQuery,
         searchColumns: activeSearchColumns,
         filters,
@@ -172,11 +151,13 @@ export default function ListingsPage() {
         const newId = crypto.randomUUID();
         const now = new Date().toISOString();
 
+        const currentGroup = groups.find(g => g.address === address);
+
         const emptyListing: Listing = {
             id: newId,
             agency_id: agencyId,
-            assigned_user_id: "", // TODO: Set to current user if needed, or leave empty
-            name: "신규 매물",
+            assigned_user_id: "", 
+            name: currentGroup?.name || "신규 매물",
             address: address || "새 건물",
             address_detail: "",
             property_type: "OFFICETEL", // Default
@@ -208,14 +189,8 @@ export default function ListingsPage() {
         setSearchQuery("");
         setActiveSearchQuery("");
         setFilters({});
-        setSortConfig({
-            key: "created_at",
-            direction: "desc",
-        });
-    };
-
-    const handleColumnResize = (key: string, width: number) => {
-        setColumnWidths((prev) => ({ ...prev, [key]: width }));
+        // Use the proper setter if you want to reset, or maybe provide a reset capability in the hook
+        handleSort("created_at", "desc");
     };
 
     const handleRowClick = (listing: Listing) => {
@@ -305,14 +280,7 @@ export default function ListingsPage() {
         }
     };
 
-    const handleSort = (key: string, direction: "asc" | "desc") => {
-        // direction이 이미 선택된 것과 같으면 정렬 해제
-        if (sortConfig?.key === key && sortConfig?.direction === direction) {
-            setSortConfig(null);
-        } else {
-            setSortConfig({ key, direction });
-        }
-    };
+
 
     const visibleColumnConfig = useMemo(() => {
         const mergeSticky = (c: (typeof listingColumns)[0]) => ({
@@ -357,164 +325,145 @@ export default function ListingsPage() {
                 )}
             >
                 {selectedAddress && (
-                    <div className="flex flex-col w-full h-full min-w-0">
-                        <div className="flex flex-col gap-2 items-end bg-(--background) mb-2">
-                            {/* Mobile Back Button & Header */}
-                            <div className="flex md:hidden w-full items-center gap-2 mb-1">
-                                <Button 
-                                    variant="ghost" 
-                                    size="sm" 
-                                    className="p-0 h-auto hover:bg-transparent"
-                                    onClick={() => setSelectedAddress(null)}
-                                >
-                                    <div className="flex items-center gap-1 text-(--foreground-muted)">
-                                        <ArrowLeft size={16} />
-                                        <span>목록으로</span>
+                    <DashboardTableLayout
+                        toolbar={
+                            <div className="flex flex-col w-full gap-2">
+                                {/* Mobile Back Button & Header */}
+                                <div className="flex md:hidden w-full items-center gap-2 mb-1">
+                                    <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        className="p-0 h-auto hover:bg-transparent"
+                                        onClick={() => setSelectedAddress(null)}
+                                    >
+                                        <div className="flex items-center gap-1 text-(--foreground-muted)">
+                                            <ArrowLeft size={16} />
+                                            <span>목록으로</span>
+                                        </div>
+                                    </Button>
+                                </div>
+
+                                <div className="flex flex-col gap-2 items-end w-full">
+                                    {/* Tools for this view */}
+                                    <ListingsToolbar
+                                        className="w-full"
+                                        onOpenAddPanel={() => {
+                                            if (selectedAddress) {
+                                                handleCreateEmptyRow(selectedAddress);
+                                            } else {
+                                                setIsNewBuildingModalOpen(true);
+                                            }
+                                        }}
+                                        onToggleColumnPopup={() =>
+                                            setIsColumnPopupOpen(!isColumnPopupOpen)
+                                        }
+                                        isSearchFilterOpen={isSearchFilterOpen}
+                                        onToggleSearchFilter={() =>
+                                            setIsSearchFilterOpen(!isSearchFilterOpen)
+                                        }
+                                        searchColumns={searchColumns}
+                                        onToggleSearchColumn={(key) => toggleSearchColumn(key)}
+                                        searchQuery={searchQuery}
+                                        onSearch={setSearchQuery}
+                                        onSearchSubmit={() => setActiveSearchQuery(searchQuery)}
+                                        getSearchLabel={getSearchLabel}
+                                        placeholder="매물 내 검색"
+                                        onReset={handleReset}
+                                    />
+                                    <div className="flex gap-2 items-center">
+                                        <h2 className="text-xs font-semibold truncate">
+                                            {selectedAddress}
+                                        </h2>
+                                        <p className="text-xs text-(--foreground-muted)">
+                                            총 {listings.length}개의 매물
+                                        </p>
                                     </div>
-                                </Button>
+                                </div>
                             </div>
-
-                            {/* Tools for this view */}
-                            <ListingsToolbar
-                                className="flex-1"
-                                onOpenAddPanel={() => {
-                                    if (selectedAddress) {
-                                        handleCreateEmptyRow(selectedAddress);
-                                    } else {
-                                        setIsNewBuildingModalOpen(true);
-                                    }
+                        }
+                        columnVisibilityPopup={
+                            <ColumnVisibilityPopup
+                                className={isColumnPopupOpen ? "mb-2" : ""}
+                                isOpen={isColumnPopupOpen}
+                                columnLabels={listingColumns.reduce(
+                                    (acc, col) => ({ ...acc, [col.key]: col.name }),
+                                    {},
+                                )}
+                                visibleColumns={visibleColumns}
+                                setVisibleColumns={setVisibleColumns}
+                                stickyColumns={stickyColumns}
+                                setStickyColumns={setStickyColumns}
+                                defaultColumns={listingColumns.map((c) => c.key)}
+                                onReset={() => {
+                                    const initialVisible: Record<string, boolean> =
+                                        {};
+                                    const initialSticky: Record<string, boolean> =
+                                        {};
+                                    listingColumns.forEach((col) => {
+                                        initialVisible[col.key] = true;
+                                        if (col.sticky)
+                                            initialSticky[col.key] = true;
+                                    });
+                                    setVisibleColumns(initialVisible);
+                                    setStickyColumns(initialSticky);
                                 }}
-                                onToggleColumnPopup={() =>
-                                    setIsColumnPopupOpen(!isColumnPopupOpen)
-                                }
-                                isSearchFilterOpen={isSearchFilterOpen}
-                                onToggleSearchFilter={() =>
-                                    setIsSearchFilterOpen(!isSearchFilterOpen)
-                                }
-                                searchColumns={searchColumns}
-                                onToggleSearchColumn={(key) =>
-                                    setSearchColumns((prev) => ({
-                                        ...prev,
-                                        [key]: !prev[key],
-                                    }))
-                                }
-                                searchQuery={searchQuery}
-                                onSearch={setSearchQuery}
-                                onSearchSubmit={() => setActiveSearchQuery(searchQuery)}
-                                getSearchLabel={getSearchLabel}
-                                placeholder="매물 내 검색"
-                                onReset={handleReset}
                             />
-                            <div className="flex gap-2 items-center">
-                                <h2 className="text-xs font-semibold truncate">
-                                    {selectedAddress}
-                                </h2>
-                                <p className="text-xs text-(--foreground-muted)">
-                                    총 {listings.length}개의 매물
-                                </p>
-                            </div>
-                        </div>
-
-                        <ColumnVisibilityPopup
-                            className={isColumnPopupOpen ? "mb-2" : ""}
-                            isOpen={isColumnPopupOpen}
-                            columnLabels={listingColumns.reduce(
-                                (acc, col) => ({ ...acc, [col.key]: col.name }),
-                                {},
-                            )}
-                            visibleColumns={visibleColumns}
-                            setVisibleColumns={setVisibleColumns}
-                            stickyColumns={stickyColumns}
-                            setStickyColumns={setStickyColumns}
-                            defaultColumns={listingColumns.map((c) => c.key)}
-                            onReset={() => {
-                                const initialVisible: Record<string, boolean> =
-                                    {};
-                                const initialSticky: Record<string, boolean> =
-                                    {};
-                                listingColumns.forEach((col) => {
-                                    initialVisible[col.key] = true;
-                                    if (col.sticky)
-                                        initialSticky[col.key] = true;
-                                });
-                                setVisibleColumns(initialVisible);
-                                setStickyColumns(initialSticky);
-                            }}
-                        />
-
-                        <MenuBar
-                            isOpen={selectedListingIds.length > 0}
-                            className={
-                                selectedListingIds.length > 0 ? "mb-2" : ""
-                            }
-                        >
-                            <div className="flex items-center gap-2 text-sm">
-                                <span className="font-semibold text-(--primary)">
-                                    {selectedListingIds.length}
-                                </span>
-                                <span className="text-(--foreground-muted)">
-                                    개 선택됨
-                                </span>
-                            </div>
-                            <div className="w-px h-4 bg-(--border) mx-2"></div>
-                            <IconWrapper
-                                src={`/icons/delete/${systemTheme}.svg`}
-                                onClick={handleDelete}
-                                isVisibleDescription={true}
-                                description="삭제"
-                            ></IconWrapper>
-                        </MenuBar>
-
-                        {/* Table */}
-                        <DataTable
-                            data={listings}
-                            columns={visibleColumnConfig as any}
-                            columnWidths={columnWidths}
-                            isEditing={false}
-                            allCheck={
-                                listings.length > 0 &&
-                                selectedListingIds.length === listings.length
-                            }
-                            selectedIds={selectedListingIds}
-                            onColumnResize={handleColumnResize}
-                            onAllCheck={() => {
-                                if (
-                                    selectedListingIds.length ===
-                                    listings.length
-                                ) {
-                                    setSelectedListingIds([]);
-                                } else {
-                                    setSelectedListingIds(
-                                        listings.map((l) => l.id),
-                                    );
+                        }
+                        menuBar={
+                            <MenuBar
+                                isOpen={selectedListingIds.length > 0}
+                            >
+                                <div className="flex items-center gap-2 text-sm">
+                                    <span className="font-semibold text-(--primary)">
+                                        {selectedListingIds.length}
+                                    </span>
+                                    <span className="text-(--foreground-muted)">
+                                        개 선택됨
+                                    </span>
+                                </div>
+                                <div className="w-px h-4 bg-(--border) mx-2"></div>
+                                <IconWrapper
+                                    src={`/icons/delete/${systemTheme}.svg`}
+                                    onClick={handleDelete}
+                                    isVisibleDescription={true}
+                                    description="삭제"
+                                ></IconWrapper>
+                            </MenuBar>
+                        }
+                        table={
+                            <DataTable
+                                data={listings}
+                                columns={visibleColumnConfig as any}
+                                columnWidths={columnWidths}
+                                isEditing={false}
+                                allCheck={
+                                    listings.length > 0 &&
+                                    selectedListingIds.length === listings.length
                                 }
-                            }}
-                            onRowSelect={(id) => {
-                                setSelectedListingIds((prev) =>
-                                    prev.includes(id)
-                                        ? prev.filter((x) => x !== id)
-                                        : [...prev, id],
-                                );
-                            }}
-                            onRowClick={handleRowClick}
-                            onSort={handleSort}
-                            sortConfig={sortConfig}
-                            filters={filters}
-                            onFilterChange={(columnKey, values) => {
-                                setFilters((prev) => ({
-                                    ...prev,
-                                    [columnKey]: values,
-                                }));
-                            }}
-                            onColumnReorder={setColumnOrder}
-                            onLoadMore={() => fetchNextPage()}
-                            hasMore={!!hasNextPage}
-                            isLoading={isFetchingNextPage}
-                            isInitialLoading={isListingsLoading}
-                            onCellUpdate={handleCellUpdate}
-                            newlyCreatedId={newlyCreatedId}
-                        />
-                    </div>
+                                selectedIds={selectedListingIds}
+                                onColumnResize={handleColumnResize}
+                                onAllCheck={() => handleAllCheck(listings)}
+                                onRowSelect={(id) => handleRowSelect(id, listings)}
+                                onRowClick={handleRowClick}
+                                onSort={handleSort}
+                                sortConfig={sortConfig ? { key: sortConfig.column, direction: sortConfig.direction } : null}
+                                filters={filters}
+                                onFilterChange={(columnKey, values) => {
+                                    setFilters((prev) => ({
+                                        ...prev,
+                                        [columnKey]: values,
+                                    }));
+                                }}
+                                onColumnReorder={setColumnOrder}
+                                onLoadMore={() => fetchNextPage()}
+                                hasMore={!!hasNextPage}
+                                isLoading={isFetchingNextPage}
+                                isInitialLoading={isListingsLoading}
+                                onCellUpdate={handleCellUpdate}
+                                newlyCreatedId={newlyCreatedId}
+                            />
+                        }
+                    />
                 )}
                 {!selectedAddress && !isGroupsLoading && (
                     <div className="flex flex-col items-center justify-center w-full h-full text-(--foreground-muted) text-sm gap-4 text-center">

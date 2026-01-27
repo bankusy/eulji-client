@@ -26,17 +26,15 @@ export default function RecommendationListModal({
     const queryClient = useQueryClient();
     const [proposedIds, setProposedIds] = useState<Set<string>>(new Set());
 
-    if (!lead || !lead.recommendations) return null;
-
-
     // Fetch detailed recommendations when modal is open
     const { data: recommendations, isLoading } = useQuery({
-        queryKey: ["recommendations", lead.id, agencyId],
-        queryFn: () => getRecommendedListings(agencyId, lead),
+        queryKey: ["recommendations", lead?.id, agencyId],
+        queryFn: () => (lead ? getRecommendedListings(agencyId, lead) : Promise.resolve([])),
         enabled: isOpen && !!lead,
-        initialData: lead.recommendations || [], // Use passed data (likely just IDs or partial) as placeholder if structure matches
-        staleTime: 1000 * 60 * 5, // Cache for 5 mins
+        staleTime: 1000 * 60 * 2, // 2 minutes short cache
     });
+
+    if (!lead || !lead.recommendations) return null;
 
     const displayList = recommendations && recommendations.length > 0 ? recommendations : (lead.recommendations || []);
     // Note: if lead.recommendations only has IDs, we might fallback to empty, but useQuery should be fast.
@@ -48,8 +46,10 @@ export default function RecommendationListModal({
     // If not, and we are loading, show loader.
     // If not loading and no data, show empty.
 
-    const hasFullData = (list: any[]) => list.length > 0 && list[0].property_type; // Check for a property that minimal mode doesn't have
-    const finalRecommendations = hasFullData(recommendations) ? recommendations : [];
+    const hasFullData = (list: any[] | undefined) => !!list && list.length > 0 && !!list[0].property_type;
+    const finalRecommendations = hasFullData(recommendations) ? recommendations! : [];
+
+    console.log("[RecommendationListModal] finalRecommendations:", finalRecommendations.length, "Source recs:", recommendations?.length);
 
     const handlePropose = async (listingId: string) => {
         try {
@@ -94,60 +94,54 @@ export default function RecommendationListModal({
                         return (
                             <div
                                 key={listing.id}
-                                className="flex gap-4 p-4 border border-(--border-surface) rounded-lg hover:bg-(--background-subtle) transition-colors"
+                                className="relative flex gap-4 p-4 border border-(--border-surface) rounded-lg hover:bg-(--background-subtle) transition-colors"
                             >
-                                {/* Image / Thumbnail */}
-                                <div className="w-32 h-24 bg-gray-100 rounded-md shrink-0 overflow-hidden relative">
-                                    {/* Placeholder if no image logic yet, assuming listing might have images array */}
-                                    <div className="absolute inset-0 flex items-center justify-center text-xs text-gray-400">
-                                        No Image
-                                    </div>
-                                </div>
+
 
                                 {/* Info */}
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-start justify-between">
-                                        <div>
-                                            <div className="font-medium text-lg leading-tight mb-1">
-                                                {listing.property_type === "OFFICETEL" ? "오피스텔" : 
-                                                 listing.property_type === "APARTMENT" ? "아파트" : listing.property_type}
-                                                {" · "}
-                                                {listing.transaction_type === "WOLSE" ? "월세" : 
-                                                 listing.transaction_type === "JEONSE" ? "전세" : "매매"}
-                                            </div>
-                                            <div className="text-xl font-bold text-(--primary) mb-2">
-                                                {listing.transaction_type === "WOLSE" 
-                                                    ? `${listing.deposit}/${listing.rent}`
-                                                    : listing.transaction_type === "JEONSE" 
-                                                    ? listing.deposit 
-                                                    : listing.price_selling}
-                                                <span className="text-sm font-normal text-(--foreground-muted) ml-1">만원</span>
-                                            </div>
-                                            <div className="text-sm text-(--foreground-muted) truncate">
-                                                {listing.address} {listing.address_detail}
+                                    <Button
+                                        size="sm"
+                                        variant={isProposed ? "outline" : "primary"}
+                                        disabled={isProposed}
+                                        onClick={() => handlePropose(listing.id)}
+                                        className="absolute top-4 right-4"
+                                    >
+                                        {isProposed ? (
+                                            <>
+                                                <Check className="w-4 h-4 mr-1.5" />
+                                                제안됨
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Send className="w-4 h-4 mr-1.5" />
+                                                제안하기
+                                            </>
+                                        )}
+                                    </Button>
+
+                                    <div className="flex-1 min-w-0 pr-24">
+                                        <div className="flex flex-col">
+                                            <div>
+                                                <div className="font-medium text-lg leading-tight mb-1 truncate">
+                                                    {listing.property_type === "OFFICETEL" ? "오피스텔" : 
+                                                     listing.property_type === "APARTMENT" ? "아파트" : listing.property_type}
+                                                    {" · "}
+                                                    {listing.transaction_type === "WOLSE" ? "월세" : 
+                                                     listing.transaction_type === "JEONSE" ? "전세" : "매매"}
+                                                </div>
+                                                <div className="text-xl font-bold text-(--primary) mb-2">
+                                                    {listing.transaction_type === "WOLSE" 
+                                                        ? `${listing.deposit}/${listing.rent}`
+                                                        : listing.transaction_type === "JEONSE" 
+                                                        ? listing.deposit 
+                                                        : listing.price_selling}
+                                                    <span className="text-sm font-normal text-(--foreground-muted) ml-1">만원</span>
+                                                </div>
+                                                <div className="text-sm text-(--foreground-muted) truncate">
+                                                    {listing.address} {listing.address_detail}
+                                                </div>
                                             </div>
                                         </div>
-
-                                        <Button
-                                            size="sm"
-                                            variant={isProposed ? "outline" : "primary"}
-                                            disabled={isProposed}
-                                            onClick={() => handlePropose(listing.id)}
-                                            className="ml-4 shrink-0"
-                                        >
-                                            {isProposed ? (
-                                                <>
-                                                    <Check className="w-4 h-4 mr-1.5" />
-                                                    제안됨
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Send className="w-4 h-4 mr-1.5" />
-                                                    제안하기
-                                                </>
-                                            )}
-                                        </Button>
-                                    </div>
                                     <div className="mt-3 flex gap-2">
                                         <div className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs text-gray-600 dark:text-gray-400">
                                             {listing.room_count}룸

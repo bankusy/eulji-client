@@ -129,7 +129,7 @@ export const listingColumns: ListingColumn[] = [
                 case "SALE": return "매매";
                 case "JEONSE": return "전세";
                 case "WOLSE": return "월세";
-                default: return "-";
+                default: return "";
             }
         }
     },
@@ -153,7 +153,7 @@ export const listingColumns: ListingColumn[] = [
              if (item.transaction_type === "SALE") return `${(item.price_selling || 0).toLocaleString()}만원`;
              if (item.transaction_type === "JEONSE") return `${(item.deposit || 0).toLocaleString()}만원`;
              if (item.transaction_type === "WOLSE") return `${(item.deposit || 0).toLocaleString()}/${(item.rent || 0).toLocaleString()}만원`;
-             return "-";
+             return "";
         }
     },
     {
@@ -201,7 +201,7 @@ export const listingColumns: ListingColumn[] = [
              // 0 check might hide valid 0, but unlikely for area.
              const supply = item.area_supply_m2 ? `${item.area_supply_m2}㎡` : "-";
              const priv = item.area_private_m2 ? `${item.area_private_m2}㎡` : "-";
-             return `${supply}/${priv}`;
+             return `${supply} / ${priv}`;
         }
     },
     {
@@ -232,7 +232,7 @@ export const listingColumns: ListingColumn[] = [
         editable: true,
         render: (item: Listing) => {
              const phone = item.owner_contact;
-             if (!phone) return "-";
+             if (!phone) return "";
              if (phone.length === 11) {
                  return `${phone.slice(0, 3)}-${phone.slice(3, 7)}-${phone.slice(7)}`;
              }
@@ -249,7 +249,7 @@ export const listingColumns: ListingColumn[] = [
         cellAlign: "start",
         type: "text",
         editable: true,
-        render: (item: Listing) => item.memo || "-"
+        render: (item: Listing) => item.memo || ""
     },
     {
         key: "created_at",
