@@ -75,7 +75,7 @@ export default function LeadsToolbar({
                                 className="fixed inset-0 z-(--z-dropdown-backdrop)"
                                 onClick={onToggleSearchFilter}
                             />
-                            <div className="absolute top-full left-0 mt-2 w-40 bg-(--background) border border-(--border) rounded-md z-(--z-dropdown) p-1 flex flex-col gap-1">
+                            <div className="absolute top-full left-0 mt-2 w-40 bg-(--background) border border-(--border) z-(--z-dropdown) p-1 flex flex-col gap-1">
                                 <div className="text-(--foreground-muted)  border-b border-(--border) text-xs py-2 px-1">
                                     검색 조건
                                 </div>

@@ -332,12 +332,12 @@ export default function SettingsPage() {
                                 <p className="text-sm text-(--foreground-muted) mb-4">
                                     이 링크를 블로그, SNS, 명함 등에 공유하면 문의가 자동으로 나에게 배정됩니다.
                                 </p>
-                                <div className="bg-(--background-subtle) p-4 rounded-lg border border-(--border-subtle)">
+                                <div className="bg-(--background-subtle) p-4 border border-(--border-subtle)">
                                     <label className="text-xs font-medium text-(--foreground-muted) mb-2 block">
                                         내 문의 폼 URL
                                     </label>
                                     <div className="flex items-center gap-2">
-                                        <code className="flex-1 bg-(--background) px-4 py-3 rounded-lg border border-(--border) text-sm font-mono break-all text-(--foreground)">
+                                        <code className="flex-1 bg-(--background) px-4 py-3 border border-(--border) text-sm font-mono break-all text-(--foreground)">
                                             {typeof window !== 'undefined' 
                                                 ? `${window.location.origin}/contact/${agencyId}/${user?.id}`
                                                 : `https://your-domain.com/contact/${agencyId}/${user?.id}`
@@ -454,12 +454,12 @@ export default function SettingsPage() {
                             {/* 팀원 초대 */}
                             <div className="rounded-xl border border-(--border-surface) bg-(--background-surface) p-6">
                                 <h3 className="font-semibold text-(--foreground) mb-4">팀원 초대</h3>
-                                <div className="bg-(--background-subtle) p-4 rounded-lg border border-(--border-subtle)">
+                                <div className="bg-(--background-subtle) p-4 border border-(--border-subtle)">
                                     <label className="text-xs font-medium text-(--foreground-muted) mb-2 block">
                                         초대 코드
                                     </label>
                                     <div className="flex items-center gap-2">
-                                        <code className="flex-1 bg-(--background) px-4 py-3 rounded-lg border border-(--border) text-lg font-mono tracking-wider font-bold text-(--foreground)">
+                                        <code className="flex-1 bg-(--background) px-4 py-3 border border-(--border) text-lg font-mono tracking-wider font-bold text-(--foreground)">
                                             {agency?.invite_code || "코드 없음"}
                                         </code>
                                         <Button 

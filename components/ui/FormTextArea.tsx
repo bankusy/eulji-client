@@ -3,10 +3,11 @@ import Text from "./Text";
 import TextArea from "@/components/ui/TextArea";
 
 interface FormTextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+    className?: string;
     label?: string;
 }
 
-export default function FormTextArea({ label, ...props }: FormTextAreaProps) {
+export default function FormTextArea({ className, label, ...props }: FormTextAreaProps) {
     return (
         <div className="flex flex-col gap-1 w-full">
             {label && (
@@ -14,8 +15,8 @@ export default function FormTextArea({ label, ...props }: FormTextAreaProps) {
                     {label}
                 </Text>
             )}
-            <div className="flex flex-col gap-1 w-full bg-(--background-surface) border border-(--border-subtle) rounded-md">
-                <TextArea {...props} />
+            <div className="flex flex-col gap-1 w-full bg-(--background-surface) border border-(--border-subtle)">
+                <TextArea className={className} {...props} />
             </div>
         </div>
     );

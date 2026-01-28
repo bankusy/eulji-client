@@ -7,7 +7,8 @@ import FormTextArea from "@/components/ui/FormTextArea";
 import Button from "@/components/ui/Button";
 import { useLeadMutations } from "@/hooks/queries/leads";
 import { getAgencyMembers } from "@/app/dashboard/agencies/[agencyId]/actions"; // Import added
-import { Lead } from "@/types/lead";
+import { Lead, LeadStage, LeadSource } from "@/types/lead";
+import { PropertyType, TransactionType } from "@/types/listing";
 import { X } from "lucide-react"; // Import X icon
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useUserStore } from "@/hooks/useUserStore";
@@ -67,14 +68,14 @@ export default function LeadForm({
     const [email, setEmail] = useState(initialData?.email || "");
 
     // Status & Type
-    const [stage, setStage] = useState(initialData?.stage || "NEW");
+    const [stage, setStage] = useState<LeadStage>(initialData?.stage || "NEW");
     const [property_type, setPropertyType] = useState(
         initialData?.property_type || "OFFICETEL",
     );
-    const [transaction_type, setTransactionType] = useState(
+    const [transaction_type, setTransactionType] = useState<TransactionType>(
         initialData?.transaction_type || "WOLSE",
     );
-    const [source, setSource] = useState(initialData?.source || "");
+    const [source, setSource] = useState<LeadSource>((initialData?.source as LeadSource) || "NAVER");
     const [preferred_region, setPreferredRegion] = useState(initialData?.preferred_region || "");
     const [assigneeId, setAssigneeId] = useState(initialData?.assigned_user_id || "");
 
@@ -221,7 +222,7 @@ export default function LeadForm({
                     />
                 </FormSection>
                 <FormSection title="상태 및 유형">
-                    <FormSelect label="상태" value={stage} onChange={setStage}>
+                    <FormSelect label="상태" value={stage} onChange={(val) => setStage(val as LeadStage)}>
                         <SelectOption value="NEW">신규</SelectOption>
                         <SelectOption value="IN_PROGRESS">진행 중</SelectOption>
                         <SelectOption value="RESERVED">예약</SelectOption>
@@ -240,13 +241,13 @@ export default function LeadForm({
                         <SelectOption value="THREEROOM">쓰리룸</SelectOption>
                         <SelectOption value="APARTMENT">아파트</SelectOption>
                         <SelectOption value="FACTORY">공장</SelectOption>
-                        <SelectOption value="MALL">상가</SelectOption>
+                        <SelectOption value="COMMERCIAL">상가</SelectOption>
                         <SelectOption value="LAND">토지</SelectOption>
                     </FormSelect>
                     <FormSelect
                         label="거래 유형"
                         value={transaction_type}
-                        onChange={setTransactionType}
+                        onChange={(val) => setTransactionType(val as TransactionType)}
                     >
                         <SelectOption value="WOLSE">월세</SelectOption>
                         <SelectOption value="JEONSE">전세</SelectOption>
@@ -260,14 +261,23 @@ export default function LeadForm({
                         }
                         placeholder="예: 강남구, 역삼동 (동 이름 추천)"
                     />
-                    <FormInput
+                    <FormSelect
                         label="유입 경로"
                         value={source}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                            setSource(e.target.value)
-                        }
-                        placeholder="직방, 다방, 블로그 등"
-                    />
+                        onChange={(val) => setSource(val as LeadSource)}
+                    >
+                        <SelectOption value="NAVER">네이버부동산</SelectOption>
+                        <SelectOption value="ZIGBANG">직방</SelectOption>
+                        <SelectOption value="DABANG">다방</SelectOption>
+                        <SelectOption value="BLOG">블로그</SelectOption>
+                        <SelectOption value="INSTAGRAM">인스타그램</SelectOption>
+                        <SelectOption value="WEB_FORM">문의 폼</SelectOption>
+                        <SelectOption value="YOUTUBE">유튜브</SelectOption>
+                        <SelectOption value="KAKAO">카카오</SelectOption>
+                        <SelectOption value="WALKIN">워크인</SelectOption>
+                        <SelectOption value="REFERRAL">지인소개</SelectOption>
+                        <SelectOption value="ETC">기타</SelectOption>
+                    </FormSelect>
                     <FormSelect
                         label="담당자"
                         value={assigneeId}

@@ -87,7 +87,7 @@ export function Select({
                                 flex items-center justify-between
                                 w-full px-3 py-2
                                 bg-(--background-surface) border border-(--border-subtle)
-                                text-sm text-(--foreground) rounded-md
+                                text-sm text-(--foreground)
                                 select-none
                                 focus:outline-none focus:ring-1 focus:ring-(--teal-1)
                                 ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}
@@ -108,7 +108,7 @@ export function Select({
                     />
                 </div>
                 {isOpen && (
-                    <div className="absolute z-(--z-dropdown)  w-full mt-1 p-1 bg-(--background-subtle)  border border-(--border-subtle) rounded-md ">
+                    <div className="absolute z-(--z-dropdown)  w-full mt-1 p-1 bg-(--background-subtle)  border border-(--border-subtle) ">
                         <div className="max-h-60 overflow-auto flex flex-col gap-0.5 scrollbar-hide-vertical">
                             {children}
                         </div>
@@ -140,7 +140,7 @@ export function SelectOption({ value, children }: SelectOptionProps) {
                 e.stopPropagation();
                 handleSelect(value);
             }}
-            className={`px-2 py-1.5 rounded-sm text-sm cursor-pointer flex items-center justify-between hover:bg-(--background-subtle-hover)`}
+            className={`px-2 py-1.5 text-sm cursor-pointer flex items-center justify-between hover:bg-(--background-subtle-hover)`}
         >
             {children}
             {isSelected && (

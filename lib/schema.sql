@@ -100,6 +100,12 @@ EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
+DO $$ BEGIN
+    CREATE TYPE lead_source AS ENUM ('NAVER','ZIGBANG','DABANG','PETERPAN','BLOG','INSTAGRAM','WEB_FORM','YOUTUBE','KAKAO','CAFE','WALKIN','REFERRAL','ETC');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
 CREATE TABLE if not exists leads (
   id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   agency_id         uuid NOT NULL REFERENCES agencies(id) ON DELETE CASCADE,
@@ -108,7 +114,7 @@ CREATE TABLE if not exists leads (
   phone             varchar(50),
   email             varchar(100),
   stage             lead_stage NOT NULL DEFAULT 'NEW',
-  source            varchar(100),
+  source            lead_source NOT NULL DEFAULT 'ETC',
   channel_meta      jsonb NOT NULL DEFAULT '{}'::jsonb,
   preferred_type    text, -- Using text instead of enum to avoid coupling issues or 'public.property_type'
   preferred_budget  jsonb NOT NULL DEFAULT '{}'::jsonb,

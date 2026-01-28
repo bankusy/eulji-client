@@ -168,7 +168,7 @@ export default function Header() {
                         
                         {/* Mobile Menu Button */}
                         <button 
-                            className="md:hidden p-2 text-(--foreground) hover:bg-(--gray-3) rounded-md transition-colors"
+                            className="md:hidden p-2 text-(--foreground) hover:bg-(--gray-3) transition-colors"
                             onClick={toggleMobileMenu}
                         >
                             {isMobileMenuOpen ? <X size={24} /> : <MenuIcon size={24} />}
@@ -199,7 +199,7 @@ export default function Header() {
                                         {item.subMenu.map((sub) => (
                                             <div
                                                 key={sub.id}
-                                                className="text-md text-(--foreground-muted) p-2 hover:bg-(--gray-3) rounded-md"
+                                                className="text-md text-(--foreground-muted) p-2 hover:bg-(--gray-3)"
                                                 onClick={() => {
                                                     if (sub.onClick) sub.onClick();
                                                     else if (sub.path) router.push(sub.path);
@@ -217,7 +217,7 @@ export default function Header() {
                         {menu2.map((item) => (
                             <div
                                 key={item.id}
-                                className="text-lg font-semibold p-2 hover:bg-(--gray-3) rounded-md cursor-pointer"
+                                className="text-lg font-semibold p-2 hover:bg-(--gray-3) cursor-pointer"
                                 onClick={() => {
                                     if (item.onClick) item.onClick();
                                     else if (item.basePath) router.push(item.basePath);

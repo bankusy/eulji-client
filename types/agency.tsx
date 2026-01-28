@@ -1,5 +1,8 @@
-export type AgencyUserRole = "OWNER" | "MEMBER";
+export type AgencyUserRole = "OWNER" | "ADMIN" | "MEMBER";
 export type AgencyUserStatus = "ACTIVE" | "INVITED" | "LEFT";
+
+export type TeamMode = "SOLO" | "TEAM_WITH_ADMIN" | "TEAM_NO_ADMIN";
+export type SubscriptionStatus = "TRIAL" | "ACTIVE" | "PAST_DUE" | "CANCELED";
 
 export interface Agency {
     id: string;

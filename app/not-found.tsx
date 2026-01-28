@@ -8,7 +8,7 @@ export default function NotFound() {
             <p className="text-xl mb-8 text-(--foreground-muted)">페이지를 찾을 수 없습니다.</p>
             <Link
                 href="/"
-                className="px-6 py-3 bg-(--foreground) text-(--background) rounded-lg hover:opacity-90 transition-opacity"
+                className="px-6 py-3 bg-(--foreground) text-(--background) hover:opacity-90 transition-opacity"
             >
                 홈으로 돌아가기
             </Link>

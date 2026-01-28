@@ -19,7 +19,7 @@ function mapLeadToDb(lead: Partial<Lead>) {
         id, // 별도 처리
         phone, // 전화번호 별도 처리 (숫자만 저장)
         assigned_user_id,
-        assigned_user, 
+        assigned_user,
         deposit_min,
         deposit_max,
         price_min,
@@ -40,11 +40,17 @@ function mapLeadToDb(lead: Partial<Lead>) {
         message,
         phone: phone?.replace(/[^0-9]/g, ""), // 숫자만 추출하여 저장
         // undefined인 경우 업데이트 객체에 포함하지 않아 기존 값 유지 (PATCH), 값이 있으면 업데이트
-        assigned_user_id: assigned_user_id === undefined ? undefined : (assigned_user_id || null),
+        assigned_user_id:
+            assigned_user_id === undefined
+                ? undefined
+                : assigned_user_id || null,
     };
 }
 
-export async function createLead(agencyId: string, leadData: Omit<Lead, "created_at" | "updated_at">) {
+export async function createLead(
+    agencyId: string,
+    leadData: Omit<Lead, "created_at" | "updated_at">,
+) {
     const auth = await verifyAgencyAccess(agencyId);
     if (!auth) throw new Error("Unauthorized");
 
@@ -52,13 +58,13 @@ export async function createLead(agencyId: string, leadData: Omit<Lead, "created
     // if (!leadData.name || !leadData.name.trim()) {
     //    throw new Error("이름은 필수 항목입니다.");
     // }
-    
+
     // Budget check
     if (
-        (leadData.deposit_min < 0) || 
-        (leadData.deposit_max < 0) || 
-        (leadData.price_min < 0) || 
-        (leadData.price_max < 0)
+        leadData.deposit_min < 0 ||
+        leadData.deposit_max < 0 ||
+        leadData.price_min < 0 ||
+        leadData.price_max < 0
     ) {
         throw new Error("예산은 0보다 작을 수 없습니다.");
     }
@@ -74,7 +80,7 @@ export async function createLead(agencyId: string, leadData: Omit<Lead, "created
             ...dbData,
             id: leadData.id, // Explicitly use provided ID if exists
             agency_id: agencyId, // Enforce agency scoping
-            assigned_user_id: auth.userId // Optional: use verified user as creator/assignee if logic dictates
+            assigned_user_id: auth.userId, // Optional: use verified user as creator/assignee if logic dictates
         })
         .select();
 
@@ -90,7 +96,7 @@ export async function createLead(agencyId: string, leadData: Omit<Lead, "created
         // We probably don't want to throw here if the lead was created?
         // But for now let's log it.
     }
-    
+
     return { success: true, data };
 }
 
@@ -130,7 +136,7 @@ export async function deleteLeads(agencyId: string, ids: string[]) {
     if (!auth) throw new Error("Unauthorized");
 
     const supabase = await createClient();
-    
+
     const { error } = await supabase
         .from("leads")
         .delete()
@@ -159,7 +165,7 @@ export async function getLeads(
     filters?: Record<string, string[]>,
     page: number = 0,
     limit: number = 20,
-    includeRecommendations: boolean = false
+    includeRecommendations: boolean = false,
 ) {
     if (!agencyId) return { data: [], nextId: null, count: 0 };
     const auth = await verifyAgencyAccess(agencyId);
@@ -171,19 +177,23 @@ export async function getLeads(
 
     let queryBuilder = supabase
         .from("leads")
-        .select("*, assigned_user:users!assigned_user_id(name, nickname)", { count: "exact" })
+        .select("*, assigned_user:users!assigned_user_id(name, nickname)", {
+            count: "exact",
+        })
         .eq("agency_id", agencyId);
 
     if (query && searchColumns && searchColumns.length > 0) {
         const mappedColumns = searchColumns.map((col) => {
             if (col === "message") return "message";
-            if (col === "property_type") return "property_type"; 
+            if (col === "property_type") return "property_type";
             if (col === "transaction_type") return "transaction_type";
             return col;
         });
 
         const orFilter = mappedColumns
-            .filter(col => ["name", "phone", "email", "source", "message"].includes(col)) 
+            .filter((col) =>
+                ["name", "phone", "email", "source", "message"].includes(col),
+            )
             .map((col) => {
                 if (col === "phone") {
                     const cleanQuery = query.replace(/[^0-9]/g, "");
@@ -207,7 +217,7 @@ export async function getLeads(
                 if (key === "property_type") dbKey = "property_type";
                 if (key === "transaction_type") dbKey = "transaction_type";
                 if (key === "message") dbKey = "message";
-                
+
                 queryBuilder = queryBuilder.in(dbKey, values);
             }
         });
@@ -215,18 +225,32 @@ export async function getLeads(
 
     // Map sort column
     const allowedSortColumns = [
-        "created_at", "updated_at", "name", "phone", "email", "source",
-        "stage", "message", "property_type", "transaction_type", "deposit_min",
-        "deposit_max", "price_min", "price_max"
+        "created_at",
+        "updated_at",
+        "name",
+        "phone",
+        "email",
+        "source",
+        "stage",
+        "message",
+        "property_type",
+        "transaction_type",
+        "deposit_min",
+        "deposit_max",
+        "price_min",
+        "price_max",
     ];
-    
+
     // Validate and fallback to default if invalid
-    const validSortColumn = allowedSortColumns.includes(sortColumn) ? sortColumn : "created_at";
-    
+    const validSortColumn = allowedSortColumns.includes(sortColumn)
+        ? sortColumn
+        : "created_at";
+
     let dbSortColumn = validSortColumn;
     if (validSortColumn === "message") dbSortColumn = "message";
     if (validSortColumn === "property_type") dbSortColumn = "property_type";
-    if (validSortColumn === "transaction_type") dbSortColumn = "transaction_type";
+    if (validSortColumn === "transaction_type")
+        dbSortColumn = "transaction_type";
     // created_at, updated_at은 이미 snake_case
     if (validSortColumn === "created_at") dbSortColumn = "created_at";
     if (validSortColumn === "updated_at") dbSortColumn = "updated_at";
@@ -241,18 +265,21 @@ export async function getLeads(
         console.error("Error fetching leads:", error);
         return { data: [], nextId: null, count: 0 };
     }
-    
+
     // 중복 제거: ID 기준으로 unique한 데이터만 유지
-    const uniqueData = data?.reduce((acc: any[], row: any) => {
-        if (!acc.find(item => item.id === row.id)) {
-            acc.push(row);
-        }
-        return acc;
-    }, []) || [];
-    
+    const uniqueData =
+        data?.reduce((acc: any[], row: any) => {
+            if (!acc.find((item) => item.id === row.id)) {
+                acc.push(row);
+            }
+            return acc;
+        }, []) || [];
+
     // DB 데이터를 Lead 타입으로 변환 (필드명 매핑 필요)
     const mappedData = uniqueData.map((row: any) => {
-        const userObj = Array.isArray(row.assigned_user) ? row.assigned_user[0] : row.assigned_user;
+        const userObj = Array.isArray(row.assigned_user)
+            ? row.assigned_user[0]
+            : row.assigned_user;
         return {
             ...row,
             property_type: row.property_type,
@@ -263,7 +290,7 @@ export async function getLeads(
             price_min: row.price_min,
             price_max: row.price_max,
             assigned_user_id: row.assigned_user_id,
-            assignee: userObj?.nickname || userObj?.name || "", 
+            assignee: userObj?.nickname || userObj?.name || "",
             created_at: row.created_at,
             updated_at: row.updated_at,
         };
@@ -271,36 +298,52 @@ export async function getLeads(
 
     // Fetch recommendations ONLY if requested (Lean Loading)
     let dataWithRecommendations = mappedData;
-    
+
     if (includeRecommendations) {
         dataWithRecommendations = await Promise.all(
             mappedData.map(async (lead) => {
                 try {
-                    const recommendations = await getRecommendedListings(agencyId, lead, { minimal: true });
+                    const recommendations = await getRecommendedListings(
+                        agencyId,
+                        lead,
+                        { minimal: true },
+                    );
                     if (recommendations.length > 0) {
-                        console.log(`[getLeads] Lead ${lead.name} has ${recommendations.length} recs`);
+                        console.log(
+                            `[getLeads] Lead ${lead.name} has ${recommendations.length} recs`,
+                        );
                     }
                     return { ...lead, recommendations };
                 } catch (err) {
-                    console.error(`Failed to fetch recommendations for lead ${lead.id}`, err);
+                    console.error(
+                        `Failed to fetch recommendations for lead ${lead.id}`,
+                        err,
+                    );
                     return { ...lead, recommendations: [] }; // Fallback to empty
                 }
-            })
+            }),
         );
     }
 
-    const nextId = (uniqueData && uniqueData.length === limit && (count ? from + limit < count : true))
-        ? page + 1
-        : null;
+    const nextId =
+        uniqueData &&
+        uniqueData.length === limit &&
+        (count ? from + limit < count : true)
+            ? page + 1
+            : null;
 
     return {
         data: dataWithRecommendations,
         nextId,
-        count: count || 0
+        count: count || 0,
     };
 }
 
-export async function getRecommendedListings(agencyId: string, lead: Lead, options: { minimal?: boolean } = {}) {
+export async function getRecommendedListings(
+    agencyId: string,
+    lead: Lead,
+    options: { minimal?: boolean } = {},
+) {
     if (!agencyId) return [];
     const auth = await verifyAgencyAccess(agencyId);
     if (!auth) return [];
@@ -325,12 +368,16 @@ export async function getRecommendedListings(agencyId: string, lead: Lead, optio
 
     // 4. Region Match (Moved up for debugging priority)
     if (lead.preferred_region) {
-        query = query.or(`address.ilike.%${lead.preferred_region}%,address_detail.ilike.%${lead.preferred_region}%`);
+        query = query.or(
+            `address.ilike.%${lead.preferred_region}%,address_detail.ilike.%${lead.preferred_region}%`,
+        );
     }
 
     // Debug Log
     if (!options.minimal) {
-        console.log(`[getRecommendedListings] Full fetch for lead: ${lead.id}, region: ${lead.preferred_region}, tx: ${lead.transaction_type}`);
+        console.log(
+            `[getRecommendedListings] Full fetch for lead: ${lead.id}, region: ${lead.preferred_region}, tx: ${lead.transaction_type}`,
+        );
     }
 
     // 3. Budget Match
@@ -353,34 +400,56 @@ export async function getRecommendedListings(agencyId: string, lead: Lead, optio
 
     // Limit candidates
     const { data } = await query.limit(10);
-    
+
     return data || [];
 }
 
-export async function saveLeadListing(agencyId: string, leadId: string, listingId: string) {
+export async function saveLeadListing(
+    agencyId: string,
+    leadId: string,
+    listingId: string,
+) {
     const auth = await verifyAgencyAccess(agencyId);
     if (!auth) throw new Error("Unauthorized");
 
     const supabase = await createClient();
 
-    const { error } = await supabase
-        .from("lead_listings")
-        .insert({
-            agency_id: agencyId,
-            lead_id: leadId,
-            listing_id: listingId,
-            relation_type: "RECOMMENDED",
-        });
+    const { error } = await supabase.from("lead_listings").insert({
+        agency_id: agencyId,
+        lead_id: leadId,
+        listing_id: listingId,
+        relation_type: "RECOMMENDED",
+    });
 
     if (error) {
         // 이미 추천된 경우 등 중복 에러 처리 (무시하거나 알림)
-        if (error.code === "23505") { // Unique violation
-             return { success: false, message: "이미 추천된 매물입니다." };
+        if (error.code === "23505") {
+            // Unique violation
+            return { success: false, message: "이미 추천된 매물입니다." };
         }
         console.error("Error saving lead listing:", error);
-        throw new Error(`Failed to save recommendation: ${error.message}`);
+        return { success: false, message: `저장 실패: ${error.message}` };
     }
 
     return { success: true };
 }
 
+export async function getProposedListings(agencyId: string, leadId: string) {
+    const auth = await verifyAgencyAccess(agencyId);
+    if (!auth) return [];
+
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+        .from("lead_listings")
+        .select("listing_id, relation_type")
+        .eq("agency_id", agencyId)
+        .eq("lead_id", leadId);
+
+    if (error) {
+        console.error("Error fetching proposed listings:", error);
+        return [];
+    }
+
+    return data || [];
+}

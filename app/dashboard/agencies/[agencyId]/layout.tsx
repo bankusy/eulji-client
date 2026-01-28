@@ -34,7 +34,7 @@ function DashboardInnerLayout({ children }: { children: React.ReactNode }) {
 function ContentLayout({ children }: { children: React.ReactNode }) {
     return (
         <div className="flex-1 w-full min-h-0">
-            <div className="w-full h-full bg-(--background) border border-(--border-surface) rounded-md p-2 flex flex-col overflow-hidden">
+            <div className="w-full h-full bg-(--background) flex flex-col overflow-hidden">
                 {children}
             </div>
         </div>

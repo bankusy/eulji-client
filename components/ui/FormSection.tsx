@@ -15,7 +15,7 @@ export default function FormSection({
     children,
 }: FormSectionProps) {
     return (
-        <div className="flex flex-col gap-2 pt-4 px-4 rounded-md min-h-max min-w-max">
+        <div className="flex flex-col gap-2 pt-4 px-4 min-h-max min-w-max">
             <div className="mb-4">
             {title && <Text className="text-lg" type="default">{title}</Text>}
             {subtitle && <Text className="text-sm" type="muted">{subtitle}</Text>}

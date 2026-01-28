@@ -50,7 +50,7 @@ export default function SidePanel({
             />
             <div
                 className={clsx(
-                    "fixed top-2 right-2 bottom-2 w-[400px] bg-(--background) border border-(--border) rounded-md overflow-hidden transition-all duration-300 ease-out flex flex-col z-(--z-modal)",
+                    "fixed top-2 right-2 bottom-2 w-[400px] bg-(--background) border border-(--border) overflow-hidden transition-all duration-300 ease-out flex flex-col z-(--z-modal)",
                     isVisible ? "translate-x-0" : "translate-x-[120%]",
                     className
                 )}

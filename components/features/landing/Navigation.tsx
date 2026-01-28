@@ -43,7 +43,7 @@ export default function Navigation({ menu }: NavigationProps) {
                         }}
                         className="group relative"
                     >
-                        <div className="flex gap-1 items-center rounded-md px-2 py-1 hover:bg-(--navigation-hover-background) cursor-pointer transition-colors">
+                        <div className="flex gap-1 items-center px-2 py-1 hover:bg-(--navigation-hover-background) cursor-pointer transition-colors">
                             <div>{menuItem.name}</div>
                             {menuItem.subMenu && (
                                 <div>
@@ -56,11 +56,11 @@ export default function Navigation({ menu }: NavigationProps) {
                             )}
                         </div>
                         {menuItem.subMenu && (
-                            <div className="grid grid-cols-2 absolute bg-(--navigation-submenu-background) opacity-0 invisible group-hover:opacity-100 group-hover:visible -bottom-1 left-0 translate-y-full rounded-md min-w-[360px] z-(--z-dropdown) transition-all duration-200 border border-(--navigation-submenu-border) p-2">
+                            <div className="grid grid-cols-2 absolute bg-(--navigation-submenu-background) opacity-0 invisible group-hover:opacity-100 group-hover:visible -bottom-1 left-0 translate-y-full min-w-[360px] z-(--z-dropdown) transition-all duration-200 border border-(--navigation-submenu-border) p-2">
                                 {menuItem.subMenu?.map((subItem, subIndex) => (
                                     <div
                                         key={subIndex}
-                                        className="rounded-md px-3 py-2 hover:bg-(--navigation-hover-background) cursor-pointer"
+                                        className="px-3 py-2 hover:bg-(--navigation-hover-background) cursor-pointer"
                                     >
                                         {subItem.onClick ? (
                                             <div>

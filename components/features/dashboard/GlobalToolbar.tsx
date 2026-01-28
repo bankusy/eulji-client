@@ -31,14 +31,16 @@ export default function GlobalToolbar() {
     };
 
     return (
-        <div className="flex justify-between items-center h-[52px] border border-(--border-surface) rounded-md p-2 bg-(--background)">
+        <div className="flex justify-between items-center h-[52px] border border-(--border-surface) p-2 bg-(--background)">
             <SidebarToggle />
-
-            <div className="flex items-center gap-3">
+            <div className="flex items-center">
                 {/* 프로필 정보 (아바타 + 이메일) */}
+                <IconWrapper onClick={() => setIsProfileModalOpen(true)}>
+                    <Settings width={16} height={16}/>
+                </IconWrapper>
                 <div className="relative">
                     <div
-                        className="flex items-center gap-2 ml-2 pl-2 border-l border-(--border-surface) cursor-pointer hover:opacity-80 transition-opacity"
+                        className="flex items-center gap-2 pl-2 border-l border-(--border-surface) cursor-pointer hover:opacity-80 transition-opacity"
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
                     >
                         {user?.avatar_url ? (
@@ -67,17 +69,10 @@ export default function GlobalToolbar() {
                                 className="fixed inset-0 z-(--z-dropdown-backdrop)"
                                 onClick={() => setIsMenuOpen(false)}
                             />
-                            <div className="absolute top-full right-0 mt-2 p-2  w-40 bg-(--background) border border-(--border-surface) rounded-md z-(--z-dropdown) overflow-hidden">
-                                <button
-                                    onClick={() => setIsProfileModalOpen(true)}
-                                    className="w-full text-left p-2 hover:bg-(--background-surface-hover) text-xs flex items-center gap-2 text-(--warning) rounded-md"
-                                >
-                                    <Settings size={14} />
-                                    <span>프로필 설정</span>
-                                </button>
+                            <div className="absolute top-full right-0 mt-2 p-2  w-40 bg-(--background) border border-(--border-surface) z-(--z-dropdown) overflow-hidden">
                                 <button
                                     onClick={handleLogout}
-                                    className="w-full text-left p-2 hover:bg-(--background-surface-hover) text-xs flex items-center gap-2 text-(--warning) rounded-md"
+                                    className="w-full text-left p-2 hover:bg-(--background-surface-hover) text-xs flex items-center gap-2 text-(--warning)"
                                 >
                                     <LogOut size={14} />
                                     <span>로그아웃</span>

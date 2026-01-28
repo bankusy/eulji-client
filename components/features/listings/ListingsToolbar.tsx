@@ -55,12 +55,12 @@ export default function ListingsToolbar({
     return (
         <div
             className={clsx(
-                `flex flex-col md:flex-row justify-between items-start md:items-center bg-(--background) w-full gap-2`,
+                `flex flex-col md:flex-row justify-between items-start md:items-center bg-(--background) w-full gap-2 `,
                 className,
             )}
         >
-            <div className="flex gap-2 items-center w-full md:w-auto justify-between md:justify-start">
-                <div className="flex gap-2 items-center">
+            <div className="flex gap-2 items-center w-full md:w-auto justify-between md:justify-start ">
+                <div className="flex gap-2 items-center ">
                     <IconWrapper
                         className="border border-(--border-surface)"
                         width={16}
@@ -102,7 +102,7 @@ export default function ListingsToolbar({
                                 className="fixed inset-0 z-(--z-dropdown-backdrop)"
                                 onClick={onToggleSearchFilter}
                             />
-                            <div className="absolute top-full left-0 mt-2 w-40 bg-(--background) border border-(--border) rounded-md z-(--z-dropdown) p-1 flex flex-col gap-1">
+                            <div className="absolute top-full left-0 mt-2 w-40 bg-(--background) border border-(--border) z-(--z-dropdown) p-1 flex flex-col gap-1">
                                 <div className="text-(--foreground-muted) border-b border-(--border) text-xs py-2 px-1">
                                     검색 조건
                                 </div>

@@ -46,11 +46,11 @@ body {
 
     /* 서브 배경(주 컴포넌트) */
     --background-surface: #fafafa;
-    --background-surface-hover: rgba(var(--background-surface), 0.2);
+    --background-surface-hover: #f3f3f3;
 
     /* 기타 배경(애매한 컴포넌트) */
     --background-subtle: var(--background);
-    --background-subtle-hover: rgba(var(--background), 0.1);
+    --background-subtle-hover: #fafafa;
 
     /* 메인 경계 */
     --border: #e5e5e5;

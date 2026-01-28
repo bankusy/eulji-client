@@ -453,7 +453,7 @@ export function Profile() {
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
                                         placeholder="이름을 입력하세요"
-                                        className="text-xs w-full px-4 py-3 border border-(--border) rounded-lg bg-(--navigation-submenu-background) text-(--foreground) placeholder:text-(--foreground-muted) focus:outline-none focus:border-transparent transition-all focus:ring-1 focus:ring-(--primary) focus:outline-0"
+                                        className="text-xs w-full px-4 py-3 border border-(--border) bg-(--navigation-submenu-background) text-(--foreground) placeholder:text-(--foreground-muted) focus:outline-none focus:border-transparent transition-all focus:ring-1 focus:ring-(--primary) focus:outline-0"
                                     />
                                 </div>
 
@@ -466,7 +466,7 @@ export function Profile() {
                                         value={phone}
                                         onChange={(e) => setPhone(e.target.value)}
                                         placeholder="010-1234-5678"
-                                        className="text-xs w-full px-4 py-3 border border-(--border) rounded-lg bg-(--navigation-submenu-background) text-(--foreground) placeholder:text-(--foreground-muted) focus:outline-none focus:border-transparent transition-all focus:ring-1 focus:ring-(--primary) focus:outline-0"
+                                        className="text-xs w-full px-4 py-3 border border-(--border) bg-(--navigation-submenu-background) text-(--foreground) placeholder:text-(--foreground-muted) focus:outline-none focus:border-transparent transition-all focus:ring-1 focus:ring-(--primary) focus:outline-0"
                                         maxLength={13}
                                     />
                                 </div>
@@ -480,7 +480,7 @@ export function Profile() {
                                         onChange={(e) => setMessage(e.target.value)}
                                         placeholder="문의 내용을 입력하세요"
                                         rows={6}
-                                        className="text-xs w-full px-4 py-3 border border-(--border) rounded-lg bg-(--navigation-submenu-background) text-(--foreground) placeholder:text-(--foreground-muted) focus:outline-none focus:border-transparent transition-all resize-none focus:ring-1 focus:ring-(--primary) focus:outline-0"
+                                        className="text-xs w-full px-4 py-3 border border-(--border) bg-(--navigation-submenu-background) text-(--foreground) placeholder:text-(--foreground-muted) focus:outline-none focus:border-transparent transition-all resize-none focus:ring-1 focus:ring-(--primary) focus:outline-0"
                                     />
                                 </div>
                             </div>
@@ -489,7 +489,7 @@ export function Profile() {
                                 <button
                                     onClick={handleSubmit}
                                     disabled={isSubmitting}
-                                    className="flex justify-center w-full bg-(--foreground) text-(--background) py-3 rounded-md hover:opacity-80 active:opacity-80 transition-opacity disabled:opacity-50"
+                                    className="flex justify-center w-full bg-(--foreground) text-(--background) py-3  hover:opacity-80 active:opacity-80 transition-opacity disabled:opacity-50"
                                 >
                                     <span className="text-sm">{isSubmitting ? "접수 중..." : "문의하기"}</span>
                                 </button>

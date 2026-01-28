@@ -1,5 +1,14 @@
 import { ReactNode } from "react";
 
+// 매물 종류
+export type PropertyType = "APARTMENT" | "VILLA" | "OFFICETEL" | "ONEROOM" | "COMMERCIAL" | "LAND";
+
+// 거래 종류
+export type TransactionType = "SALE" | "JEONSE" | "WOLSE";
+
+// 매물 상태
+export type ListingStatus = "AVAILABLE" | "CONTRACTED" | "CANCELED";
+
 export interface Listing {
     id: string; // UUID
     agency_id: string; // UUID
@@ -25,10 +34,10 @@ export interface Listing {
     user_selected_type?: "R" | "J";
 
     // 매물 종류
-    property_type: "APARTMENT" | "VILLA" | "OFFICETEL" | "ONEROOM" | "COMMERCIAL" | "LAND";
+    property_type: PropertyType;
 
     // 거래 종류 & 가격
-    transaction_type: "SALE" | "JEONSE" | "WOLSE";
+    transaction_type: TransactionType;
     price_selling?: number; // 매매가 (만원)
     deposit?: number; // 보증금 (만원)
     rent?: number; // 월세 (만원)
@@ -46,7 +55,7 @@ export interface Listing {
     direction?: string;
 
     // 관리
-    status: "AVAILABLE" | "CONTRACTED" | "CANCELED";
+    status: ListingStatus;
     owner_contact?: string; // 연락처
     memo?: string; // 관리자 메모
 

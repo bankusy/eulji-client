@@ -42,7 +42,7 @@ export default function ListingGroupList({
     }, [groups, searchQuery]);
 
     return (
-        <div className="flex flex-col h-full border border-(--border-surface) rounded-md bg-(--background)">
+        <div className="flex flex-col h-full border border-(--border-surface) bg-(--background)">
             {/* Header / Search */}
             <div className="p-2 border-b border-(--border-surface) space-y-2">
                 <div className="flex items-center justify-between">

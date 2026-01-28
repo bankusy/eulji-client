@@ -8,7 +8,7 @@ interface FormProps extends React.FormHTMLAttributes<HTMLFormElement> {
 
 export default function Form({ children, className, ...props }: FormProps) {
     return (
-        <form className={clsx("flex flex-col gap-6 bg-(--background) overflow-y-auto scrollbar-hide-vertical p-4 rounded-md", className)} {...props} onSubmit={(e) => e.preventDefault()}>
+        <form className={clsx("flex flex-col gap-6 bg-(--background) overflow-y-auto scrollbar-hide-vertical p-4", className)} {...props} onSubmit={(e) => e.preventDefault()}>
             {children}
         </form>
     );

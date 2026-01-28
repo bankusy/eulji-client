@@ -46,7 +46,7 @@ export function DataTable<T extends { id: string }>({
         return (
             <div
                 className={clsx(
-                    "border border-(--border-surface) rounded-md text-sm overflow-auto relative scrollbar-hide-vertical",
+                    "border border-(--border-surface) text-sm overflow-auto relative scrollbar-hide-vertical",
                     className,
                 )}
             />
@@ -56,7 +56,7 @@ export function DataTable<T extends { id: string }>({
     return (
         <div
             className={clsx(
-                "border border-(--border-surface) rounded-md text-sm relative h-full overflow-hidden",
+                "border border-(--border-surface) text-sm relative h-full overflow-hidden",
                 className,
             )}
         >

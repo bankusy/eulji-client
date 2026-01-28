@@ -11,21 +11,66 @@ interface SourceDistributionChartProps {
 }
 
 export default function SourceDistributionChart({ data, totalCount }: SourceDistributionChartProps) {
+    // 1. Sort data by value desc
+    const sortedData = [...data].sort((a, b) => b.value - a.value);
+
+    // 2. Group into Top 4 + Others
+    const MAX_ITEMS = 4;
+    let finalData = sortedData;
+
+    if (sortedData.length > MAX_ITEMS) {
+        const topItems = sortedData.slice(0, MAX_ITEMS);
+        const otherItems = sortedData.slice(MAX_ITEMS);
+        const otherSum = otherItems.reduce((sum, item) => sum + item.value, 0);
+
+        finalData = [
+            ...topItems,
+            { name: "기타", value: otherSum }
+        ];
+    }
+
+    const SOURCE_LABEL_MAP: Record<string, string> = {
+        NAVER: "네이버부동산",
+        ZIGBANG: "직방",
+        DABANG: "다방",
+        BLOG: "블로그",
+        INSTAGRAM: "인스타그램",
+        WEB_FORM: "문의 폼",
+        YOUTUBE: "유튜브",
+        KAKAO: "카카오",
+        WALKIN: "워크인",
+        REFERRAL: "지인소개",
+        ETC: "기타",
+    };
+
+    const COLORS = [
+        "var(--primary)",
+        "var(--ring)",
+        "var(--foreground)",
+        "var(--foreground-muted)",
+        "var(--outline)",
+        "var(--muted)", // Color for 'Other' or extra
+    ];
+
     const sourceChartConfig = {
         count: {
             label: "유입 수",
         },
         ...Object.fromEntries(
-            data.map((item, index) => [
-                item.name,
-                { label: item.name, color: `hsl(var(--chart-${(index % 5) + 1}))` },
-            ])
+            finalData.map((item, index) => {
+                const label = SOURCE_LABEL_MAP[item.name] || item.name;
+                return [
+                    item.name,
+                    { label: label, color: item.name === "기타" ? "var(--muted-foreground)" : COLORS[index % COLORS.length] },
+                ];
+            })
         ),
     };
 
-    const pieData = data.map((item, index) => ({
+    const pieData = finalData.map((item, index) => ({
         ...item,
-        fill: `hsl(var(--chart-${(index % 5) + 1}))`,
+        name: SOURCE_LABEL_MAP[item.name] || item.name, // Map name to label for Pie segment
+        fill: item.name === "기타" ? "var(--muted-foreground)" : COLORS[index % COLORS.length],
     }));
 
     return (

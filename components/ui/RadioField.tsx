@@ -46,7 +46,7 @@ export function RadioFieldValue({
     const selected = radioFieldContext?.selectedValue == value;
     return (
         <div
-            className={`text-xs relative p-2 flex gap-2 border ${selected ? "bg-(--background-surface) border-(--ring)" : "bg-(--background-surface) border-(--border-surface)"} rounded-md`}
+            className={`text-xs relative p-2 flex gap-2 border ${selected ? "bg-(--background-surface) border-(--ring)" : "bg-(--background-surface) border-(--border-surface)"}`}
             onClick={() => {
                 radioFieldContext?.handleSelect(value);
             }}

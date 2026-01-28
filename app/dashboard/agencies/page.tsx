@@ -173,7 +173,7 @@ export default function AgencySelectPage() {
                 </div>
 
                 {isCreatingAgency ? (
-                    <div className="flex flex-col w-full max-w-md mx-auto bg-(--background) p-4 rounded-lg border border-(--border) space-y-3">
+                    <div className="flex flex-col w-full max-w-md mx-auto bg-(--background) p-4 border border-(--border) space-y-3">
                         <h3 className="text-sm font-semibold text-(--foreground)">
                             새 에이전시 정보
                         </h3>
@@ -212,7 +212,7 @@ export default function AgencySelectPage() {
                             {agencies?.map((agency) => (
                                 <div
                                     key={agency.id}
-                                    className="aspect-video p-4 border border-(--border-subtle) rounded-lg hover:bg-(--background-subtle-hover) cursor-pointer flex flex-col justify-between transition-all bg-(--background-subtle) group"
+                                    className="aspect-video p-4 border border-(--border-subtle) hover:bg-(--background-subtle-hover) cursor-pointer flex flex-col justify-between transition-all bg-(--background-subtle) group"
                                     onClick={() => handleSelect(agency.id)}
                                 >
                                     <div className="flex flex-col gap-2 items-start w-full">
@@ -239,7 +239,7 @@ export default function AgencySelectPage() {
 
                             <button
                                 onClick={() => setIsCreatingAgency(true)}
-                                className="aspect-video p-4 border border-dashed border-(--border-surface) rounded-lg hover:bg-(--background-surface-hover) cursor-pointer flex flex-col items-center justify-center gap-2 transition-all bg-(--background-surface)"
+                                className="aspect-video p-4 border border-dashed border-(--border-surface) hover:bg-(--background-surface-hover) cursor-pointer flex flex-col items-center justify-center gap-2 transition-all bg-(--background-surface)"
                             >
                                 <span className="text-2xl text-(--foreground-muted)">
                                     +

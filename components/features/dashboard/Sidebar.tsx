@@ -68,7 +68,7 @@ export default function Sidebar() {
                 isCollapsed ? "overflow-hidden" : "overflow-auto",
             )}
         >
-            <div className={`rounded-md p-2 h-full flex flex-col w-full`}>
+            <div className={`p-2 h-full flex flex-col w-full`}>
                 {/* Header */}
                 <SidebarHeader
                     agencyInfo={agencyInfo}
@@ -112,7 +112,7 @@ function SidebarHeader({
                     className=""
                     width={36}
                     height={36}
-                    src={`/logo-${theme}-min.svg`}
+                    src={`/logo.svg`}
                     alt="logo"
                 />
             </div>
@@ -126,13 +126,6 @@ function SidebarHeader({
                     </span>
                 </div>
             )}
-            {/* {agencyInfo && isCollapsed && (
-                <div className="w-full p-2 h-[48px] flex justify-center">
-                    <div className="w-8 h-8 rounded-full bg-(--primary)/10 flex items-center justify-center text-(--primary) font-bold text-xs">
-                        {agencyInfo.name?.substring(0, 1)}
-                    </div>
-                </div>
-            )} */}
         </div>
     );
 }
@@ -242,17 +235,17 @@ function SidebarBody({
                             <Link
                                 href={item.path}
                                 key={item.id}
-                                className={`flex py-1 w-full mb-2 items-center ${
+                                className={`flex w-full mb-2 items-center ${
                                     isActive
                                         ? "text-(--foreground) opacity-100"
-                                        : "text-(--foreground-hover) hover:text-(--foreground) opacity-20 hover:bg-(--foreground)/20 rounded-md"
-                                } ${isCollapsed && "justify-center"}`}
+                                        : "text-(--foreground-hover) hover:text-(--foreground) opacity-20 hover:bg-(--foreground)/20"
+                                } ${isCollapsed ? "justify-center py-1" : "py-3"}`}
                             >
                                 <div className="group relative flex justify-center items-center w-[32px] h-4 ">
                                     <Image
                                         src={`${item.src}/${theme}-fill.svg`}
-                                        width={16}
-                                        height={16}
+                                        width={18}
+                                        height={18}
                                         alt="icon"
                                         priority
                                         className={`absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 ${
@@ -275,7 +268,7 @@ function SidebarBody({
                                     />
                                     {isCollapsed && isTooltipVisible && (
                                         <div
-                                            className={`absolute flex justify-center items-center left-full ml-4 top-0 opacity-0 group-hover:opacity-100 border border-(--border-surface) p-2 rounded-sm transition-opacity bg-(--foreground) z-(--z-tooltip)`}
+                                            className={`absolute flex justify-center items-center left-full ml-4 top-0 opacity-0 group-hover:opacity-100 border border-(--border-surface) p-2 transition-opacity bg-(--foreground) z-(--z-tooltip)`}
                                         >
                                             {item.name}
                                         </div>

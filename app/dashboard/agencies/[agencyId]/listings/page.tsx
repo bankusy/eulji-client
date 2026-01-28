@@ -23,13 +23,14 @@ import ListingGroupList from "@/components/features/listings/ListingGroupList";
 import { Button } from "@/components/ui/Button";
 import MenuBar from "@/components/ui/table/MenuBar";
 import IconWrapper from "@/components/ui/IconWrapper";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { DashboardTableLayout } from "@/components/ui/table/DashboardTableLayout";
 
 export default function ListingsPage() {
     const { systemTheme, isThemeReady } = ThemeHook();
     const params = useParams();
+    const searchParams = useSearchParams();
     const agencyId = params.agencyId as string;
 
     // --- DataTable Hook ---
@@ -109,6 +110,14 @@ export default function ListingsPage() {
             default: return key;
         }
     };
+
+    // Sync URL param with state
+    useEffect(() => {
+        const addressParam = searchParams.get("address");
+        if (addressParam) {
+            setSelectedAddress(addressParam);
+        }
+    }, [searchParams]);
 
     const { data: groups = [], isLoading: isGroupsLoading } =
         useListingGroups(agencyId);
@@ -343,7 +352,7 @@ export default function ListingsPage() {
                                     </Button>
                                 </div>
 
-                                <div className="flex flex-col gap-2 items-end w-full">
+                                <div className="flex flex-col gap-2 items-end w-full mb-2">
                                     {/* Tools for this view */}
                                     <ListingsToolbar
                                         className="w-full"
@@ -476,7 +485,7 @@ export default function ListingsPage() {
                                     등록하세요.
                                 </p>
                                 <button
-                                    className="bg-(--background-surface) hover:bg-(--background-surface-hover) px-3 py-2 rounded-md border border-(--border)"
+                                    className="bg-(--background-surface) hover:bg-(--background-surface-hover) px-3 py-2  border border-(--border)"
                                     onClick={() => setIsNewBuildingModalOpen(true)}
                                 >
                                     새 건물 등록하기
@@ -486,7 +495,7 @@ export default function ListingsPage() {
                             <>
                                 <p>좌측 목록에서 주소(건물)를 선택하거나</p>
                                 <button
-                                    className="bg-(--background-surface) hover:bg-(--background-surface-hover) px-2 py-2 rounded-md border border-(--border)"
+                                    className="bg-(--background-surface) hover:bg-(--background-surface-hover) px-2 py-2  border border-(--border)"
                                     onClick={() => setIsNewBuildingModalOpen(true)}
                                 >
                                     새 건물 등록하기

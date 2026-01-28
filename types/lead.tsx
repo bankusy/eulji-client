@@ -1,22 +1,32 @@
 import { Tooltip } from "@/components/ui/Tooltip";
 import { HelpCircle } from "lucide-react";
+import { PropertyType, TransactionType } from "@/types/listing";
+
+// 리드 상태
+export type LeadStage = "NEW" | "IN_PROGRESS" | "RESERVED" | "CONTRACTED" | "CANCELED" | "FAILED";
+
+// 리드-매물 관계
+export type LeadListingRelation = "RECOMMENDED" | "VIEWED" | "CONTRACT";
+
+// 유입 경로
+export type LeadSource = "NAVER" | "ZIGBANG" | "DABANG" | "PETERPAN" | "BLOG" | "INSTAGRAM" | "WALKIN" | "REFERRAL" | "WEB_FORM" | "YOUTUBE" | "KAKAO" | "CAFE" | "ETC";
 
 export interface Lead {
     id: string;
     name: string;
     phone: string;
     email: string;
-    stage: string;
+    stage: LeadStage;
     assignee: string; // 담당자 (표시용)
     property_type: string;
-    transaction_type: string; // 월세, 전세, 매매
+    transaction_type: TransactionType; // 월세, 전세, 매매
     deposit_min: number;
     deposit_max: number;
     price_min: number;
     price_max: number;
     message: string; // 문의 내용
     memo: string; // 메모
-    source: string; // 유입 경로
+    source: LeadSource; // 유입 경로
     preferred_region?: string; // 희망 지역
     move_in_date?: string; // 입주 시기
     channel_meta?: Record<string, any>; // 채널 메타데이터
@@ -228,10 +238,12 @@ export const columnsConfiguration: TableColumn[] = [
             { label: "다방", value: "DABANG" },
             { label: "네이버", value: "NAVER" },
             { label: "블로그", value: "BLOG" },
+            { label: "인스타그램", value: "INSTAGRAM" },
             { label: "문의 폼", value: "WEB_FORM" },
             { label: "유튜브", value: "YOUTUBE" },
-            { label: "지인 추천", value: "REFERRAL" },
             { label: "카카오", value: "KAKAO" },
+            { label: "워크인", value: "WALKIN" },
+            { label: "지인 추천", value: "REFERRAL" },
             { label: "기타", value: "ETC" },
         ],
         render: (lead: Lead) => {
@@ -240,13 +252,16 @@ export const columnsConfiguration: TableColumn[] = [
                 DABANG: "다방",
                 NAVER: "네이버",
                 BLOG: "블로그",
+                INSTAGRAM: "인스타그램",
                 WEB_FORM: "문의 폼",
                 YOUTUBE: "유튜브",
-                REFERRAL: "지인 추천",
                 KAKAO: "카카오",
+                WALKIN: "워크인",
+                REFERRAL: "지인 추천",
                 ETC: "기타",
             };
-            return map[lead.source] || lead.source;
+            // cast source to string key to avoid strict enum checking if dirty data exists
+            return map[lead.source as string] || lead.source;
         },
     },
     {

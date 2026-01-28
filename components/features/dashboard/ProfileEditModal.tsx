@@ -12,6 +12,7 @@ import FormInput from "@/components/ui/FormInput";
 import FormTextArea from "@/components/ui/FormTextArea";
 import Form from "@/components/ui/BaseForm";
 import { X } from "lucide-react";
+import IconWrapper from "@/components/ui/IconWrapper";
 
 interface ProfileEditModalProps {
     isOpen: boolean;
@@ -33,7 +34,7 @@ export default function ProfileEditModal({
     const [agencyDomain, setAgencyDomain] = useState("");
     const [isSaving, setIsSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
-    
+
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -56,9 +57,9 @@ export default function ProfileEditModal({
 
     const fetchAgencyDomain = async () => {
         if (!user) return;
-        
+
         const supabase = createSupabaseBrowserClient();
-        
+
         // 사용자의 agency 조회
         const { data: agencyUser } = await supabase
             .from("agency_users")
@@ -77,7 +78,7 @@ export default function ProfileEditModal({
         if (!user) return;
         setIsSaving(true);
         const supabase = createSupabaseBrowserClient();
-        
+
         // Keep track of the old avatar URL
         const previousAvatarUrl = user.avatar_url;
 
@@ -118,7 +119,9 @@ export default function ProfileEditModal({
                         .single();
 
                     if (existingAgency) {
-                        alert("이미 사용 중인 도메인입니다. 다른 도메인을 입력해주세요.");
+                        alert(
+                            "이미 사용 중인 도메인입니다. 다른 도메인을 입력해주세요.",
+                        );
                         setIsSaving(false);
                         return;
                     }
@@ -160,7 +163,9 @@ export default function ProfileEditModal({
         fileInputRef.current?.click();
     };
 
-    const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageUpload = async (
+        event: React.ChangeEvent<HTMLInputElement>,
+    ) => {
         const file = event.target.files?.[0];
         if (!file || !user || isUploading) return;
 
@@ -168,7 +173,7 @@ export default function ProfileEditModal({
         try {
             // Use custom compressor instead of library
             const compressedBlob = await compressImage(file, 1024, 0.8);
-            
+
             // 1. Get Presigned URL from our API
             const response = await fetch("/api/upload/presigned-url", {
                 method: "POST",
@@ -187,7 +192,7 @@ export default function ProfileEditModal({
             const { uploadUrl, publicUrl } = await response.json();
 
             console.log(uploadUrl);
-            
+
             // 2. Upload directly to R2 using PUT
             const uploadResponse = await fetch(uploadUrl, {
                 method: "PUT",
@@ -234,20 +239,26 @@ export default function ProfileEditModal({
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} className="max-w-2xl px-0 py-0 pb-0 flex flex-col h-[80vh]">
-            <input 
-                type="file" 
-                ref={fileInputRef} 
-                onChange={handleImageUpload} 
-                className="hidden" 
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            className="max-w-2xl px-0 py-0 pb-0 flex flex-col h-[80vh]"
+        >
+            <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+                className="hidden"
                 accept="image/*"
             />
-            
-            <div className="flex-none p-4 border-b border-(--border) flex justify-between items-center bg-(--background)">
-                <h2 className="text-lg font-semibold">프로필 수정</h2>
-                <Button variant="ghost" size="sm" onClick={onClose}>
-                    <X className="w-5 h-5" />
-                </Button>
+
+            <div className="flex-none p-6 border-b border-(--border)">
+                <h2 className="text-xl font-semibold">
+                    프로필 수정
+                </h2>
+                <p className="text-sm text-(--foreground-muted) mt-1">
+                    프로필 정보를 입력해 주세요.
+                </p>
             </div>
 
             <Form
@@ -259,12 +270,16 @@ export default function ProfileEditModal({
             >
                 {/* Avatar Section */}
                 <div className="flex justify-center mb-6">
-                    <div 
+                    <div
                         className="relative w-24 h-24 rounded-full overflow-hidden border border-(--border-subtle) cursor-pointer hover:opacity-80 transition-opacity group"
                         onClick={handleAvatarClick}
                     >
                         {avatarUrl ? (
-                            <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                            <img
+                                src={avatarUrl}
+                                alt="Avatar"
+                                className="w-full h-full object-cover"
+                            />
                         ) : (
                             <div className="w-full h-full bg-(--background-subtle) flex items-center justify-center text-(--foreground-muted) text-xs">
                                 이미지 없음
@@ -288,7 +303,7 @@ export default function ProfileEditModal({
                         value={introduction}
                         onChange={(e) => setIntroduction(e.target.value)}
                         placeholder="간단한 소개를 입력해주세요"
-                        className="h-24 resize-none"
+                        className="h-24 text-sm p-2 resize-none"
                     />
                 </FormSection>
 
@@ -305,30 +320,27 @@ export default function ProfileEditModal({
                         onChange={(e) => setOfficeAddress(e.target.value)}
                         placeholder="서울시 강남구..."
                     />
-                    <FormInput
-                        label="도메인 (ID)"
-                        value={agencyDomain}
-                        onChange={(e) => setAgencyDomain(e.target.value)}
-                        placeholder="my-agency"
-                    />
                 </FormSection>
             </Form>
-
-            <div className="flex-none p-4 border-t border-(--border) flex gap-2 bg-(--background)">
+            <div className="flex-none p-4 border-t border-(--border) flex justify-end gap-2">
                 <Button
                     variant="ghost"
-                    className="flex-1"
                     onClick={onClose}
+                    className="text-(--foreground-muted) hover:text-(--foreground)"
                 >
                     취소
                 </Button>
                 <Button
                     variant="primary" // Changed to primary for save action
-                    className="flex-1"
+                    type="submit"
                     onClick={handleSave}
                     disabled={isSaving || isUploading}
                 >
-                    {isSaving ? "저장 중..." : isUploading ? "업로드 중..." : "저장하기"}
+                    {isSaving
+                        ? "저장 중..."
+                        : isUploading
+                          ? "업로드 중..."
+                          : "저장"}
                 </Button>
             </div>
         </Modal>

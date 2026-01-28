@@ -5,10 +5,11 @@ import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import { Lead } from "@/types/lead";
 import { Listing } from "@/types/listing";
-import { saveLeadListing, getRecommendedListings } from "@/app/dashboard/agencies/[agencyId]/leads/actions";
+import { saveLeadListing, getRecommendedListings, getProposedListings } from "@/app/dashboard/agencies/[agencyId]/leads/actions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Send } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface RecommendationListModalProps {
     isOpen: boolean;
@@ -24,7 +25,22 @@ export default function RecommendationListModal({
     agencyId,
 }: RecommendationListModalProps) {
     const queryClient = useQueryClient();
-    const [proposedIds, setProposedIds] = useState<Set<string>>(new Set());
+    const router = useRouter();
+    const [proposedListingIds, setProposedListingIds] = useState<Set<string>>(new Set());
+    const [isLoadingProposals, setIsLoadingProposals] = useState(false);
+
+    // Fetch proposed listings
+    React.useEffect(() => {
+        if (isOpen && lead && agencyId) {
+            setIsLoadingProposals(true);
+            getProposedListings(agencyId, lead.id)
+                .then(data => {
+                    const ids = new Set(data?.map((item: any) => item.listing_id) || []);
+                    setProposedListingIds(ids);
+                })
+                .finally(() => setIsLoadingProposals(false));
+        }
+    }, [isOpen, lead, agencyId]);
 
     // Fetch detailed recommendations when modal is open
     const { data: recommendations, isLoading } = useQuery({
@@ -37,25 +53,21 @@ export default function RecommendationListModal({
     if (!lead || !lead.recommendations) return null;
 
     const displayList = recommendations && recommendations.length > 0 ? recommendations : (lead.recommendations || []);
-    // Note: if lead.recommendations only has IDs, we might fallback to empty, but useQuery should be fast.
-    // Actually, if we are in minimal mode, lead.recommendations has [{id: ...}], so we need to be careful not to render that as full listing.
-    // Let's rely on isLoading for the switch or check if properties exist.
     
-    // Improved logic:
-    // If we have full data from useQuery, use it.
-    // If not, and we are loading, show loader.
-    // If not loading and no data, show empty.
-
     const hasFullData = (list: any[] | undefined) => !!list && list.length > 0 && !!list[0].property_type;
     const finalRecommendations = hasFullData(recommendations) ? recommendations! : [];
 
-    console.log("[RecommendationListModal] finalRecommendations:", finalRecommendations.length, "Source recs:", recommendations?.length);
-
-    const handlePropose = async (listingId: string) => {
+    const handlePropose = async (listingId: string, event: React.MouseEvent) => {
+        event.stopPropagation();
+        if (!lead) return;
+        
         try {
             const res = await saveLeadListing(agencyId, lead.id, listingId);
+            console.log(res);
+            
             if (res.success) {
-                setProposedIds((prev) => new Set(prev).add(listingId));
+                setProposedListingIds((prev) => new Set(prev).add(listingId));
+                alert("제안 완료! (테스트)");
             } else {
                 alert(res.message || "추천 실패");
             }
@@ -89,45 +101,83 @@ export default function RecommendationListModal({
                     </div>
                 ) : (
                     finalRecommendations.map((listing: any) => {
-                        const isProposed = proposedIds.has(listing.id);
+
 
                         return (
                             <div
                                 key={listing.id}
-                                className="relative flex gap-2 p-2 border border-(--border-surface) rounded-lg hover:bg-(--background-subtle) transition-colors"
+                                onClick={() => {
+                                    router.push(`/dashboard/agencies/${agencyId}/listings?address=${encodeURIComponent(listing.address)}`);
+                                    onClose();
+                                }}
+                                className="relative flex gap-2 p-2 border border-(--border-surface) rounded-lg hover:bg-(--background-surface-hover) transition-colors cursor-pointer"
                             >
 
 
                                 {/* Info */}
-                                    {/* <Button
+
+                                {/* Info */}
+                                <div className="flex items-center h-[36px]">
+                                    <Button
                                         size="sm"
-                                        variant={isProposed ? "outline" : "primary"}
-                                        disabled={isProposed}
-                                        onClick={() => handlePropose(listing.id)}
-                                        className="absolute top-4 right-4"
+                                        variant={"outline"}
+                                        disabled={proposedListingIds.has(listing.id)}
+                                        onClick={(e) => handlePropose(listing.id, e)}
+                                        className="absolute top-4 right-4 z-10"
                                     >
-                                        {isProposed ? (
+                                        {proposedListingIds.has(listing.id) ? (
                                             <>
-                                                <Check className="w-4 h-4 mr-1.5" />
-                                                제안됨
+                                                <Check width={16} height={16} className="w-4 h-4 mr-1.5" />
+                                                제안 완료
                                             </>
                                         ) : (
                                             <>
-                                                <Send className="w-4 h-4 mr-1.5" />
-                                                제안하기
+                                                <Send width={16} height={16} className="mr-1.5" />
+                                                제안 요청
                                             </>
                                         )}
-                                    </Button> */}
-
+                                    </Button>
+</div>
                                     <div className="flex-1 min-w-0 pr-24">
                                         <div className="flex flex-col">
                                             <div>
-                                                <div className="font-medium text-lg leading-tight mb-1 truncate">
-                                                    {listing.property_type === "OFFICETEL" ? "오피스텔" : 
-                                                     listing.property_type === "APARTMENT" ? "아파트" : listing.property_type}
-                                                    {" · "}
-                                                    {listing.transaction_type === "WOLSE" ? "월세" : 
-                                                     listing.transaction_type === "JEONSE" ? "전세" : "매매"}
+                                                <div className="font-medium text-lg leading-tight mb-1 truncate flex items-center gap-2">
+                                                    <span>
+{(() => {
+                                                        switch (listing.property_type) {
+                                                            case "APARTMENT": return "아파트";
+                                                            case "VILLA": return "빌라";
+                                                            case "OFFICETEL": return "오피스텔";
+                                                            case "ONEROOM": return "원룸";
+                                                            case "COMMERCIAL": return "상가";
+                                                            case "LAND": return "토지";
+                                                            default: return listing.property_type;
+                                                        }
+                                                    })()}
+                                                        {" · "}
+                                                        {(() => {
+                                                        switch (listing.transaction_type) {
+                                                            case "WOLSE": return "월세";
+                                                            case "JEONSE": return "전세";
+                                                            case "SALE": return "매매";
+                                                            default: return listing.transaction_type;
+                                                        }
+                                                    })()}
+                                                    </span>
+                                                    <span className={`text-[10px] px-1.5 py-0.5 rounded border ${
+                                                        listing.status === 'AVAILABLE' 
+                                                            ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800'
+                                                            : 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
+                                                    }`}>
+                                                        {(() => {
+                                                            switch (listing.status) {
+                                                                case 'AVAILABLE': return '진행가능';
+                                                                case 'CONTRACTED': return '계약완료';
+                                                                case 'CANCELED': return '취소됨';
+                                                                default: return listing.status;
+                                                            }
+                                                        })()}
+                                                    </span>
                                                 </div>
                                                 <div className="text-xl font-bold text-(--primary) mb-2">
                                                     {listing.transaction_type === "WOLSE" 
@@ -165,3 +215,5 @@ export default function RecommendationListModal({
         </Modal>
     );
 }
+
+

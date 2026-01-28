@@ -37,7 +37,7 @@ export default function HeroSection() {
                             무료로 시작하기
                         </button>
                     </div>
-                    <div className="h-[400px] rounded-md flex justify-center items-center">
+                    <div className="h-[400px] flex justify-center items-center">
                         <RippleGrid />
                     </div>
                 </div>

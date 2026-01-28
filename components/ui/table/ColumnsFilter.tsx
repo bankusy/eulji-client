@@ -66,7 +66,7 @@ export function ColumnVisibilityPopup({
             className={clsx(
                 "overflow-auto transition-all duration-200",
                 isOpen
-                    ? "min-h-max p-2 bg-(--background) border border-(--border-surface) rounded-md"
+                    ? "min-h-max p-2 bg-(--background) border border-(--border-surface)"
                     : "max-h-0 p-0 border-transparent invisible",
                 className
             )}
@@ -128,14 +128,14 @@ export function ColumnVisibilityPopup({
             <div className="mt-3 flex gap-2">
                 <button
                     onClick={handleSelectAll}
-                    className="px-3 py-2 text-xs text-(--foreground) border border-(--border-surface) rounded-md hover:bg-(--bg-hover) transition-colors"
+                    className="px-3 py-2 text-xs text-(--foreground) border border-(--border-surface) hover:bg-(--bg-hover) transition-colors"
                 >
                     {isAllSelected ? "전체 해제" : "전체 선택"}
                 </button>
                 {(defaultColumns || onReset) && (
                     <button
                         onClick={handleReset}
-                        className="px-3 py-2 text-xs text-(--foreground) border border-(--border-surface) rounded-md hover:bg-(--bg-hover) transition-colors"
+                        className="px-3 py-2 text-xs text-(--foreground) border border-(--border-surface) hover:bg-(--bg-hover) transition-colors"
                     >
                         기본 선택
                     </button>

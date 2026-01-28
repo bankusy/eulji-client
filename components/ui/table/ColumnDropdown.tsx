@@ -89,7 +89,7 @@ export function ColumnDropdown({
                                 return (
                                     <div
                                         key={option.value}
-                                        className="flex items-center gap-2 px-2 py-1.5 hover:bg-(--background-surface) rounded-md cursor-pointer"
+                                        className="flex items-center gap-2 px-2 py-1.5 hover:bg-(--background-surface) cursor-pointer"
                                         onClick={(e) => {
                                             e.stopPropagation();
 

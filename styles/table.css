@@ -62,14 +62,12 @@
     width: 100%;
     min-width: fit-content; /* max-content 대신 fit-content 사용 */
     flex-grow: 1;
-    height: 36px;
-
-    
-    
+    height: 42px;
+    border-bottom: 1px solid var(--border-surface);
 }
 
 .table-body .table-row:last-child {
-    border-bottom: 1px solid var(--border-surface);
+    
 }
 
 .table-cell {
