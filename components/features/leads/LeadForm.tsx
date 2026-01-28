@@ -268,6 +268,7 @@ export default function LeadForm({
                     >
                         <SelectOption value="NAVER">네이버부동산</SelectOption>
                         <SelectOption value="ZIGBANG">직방</SelectOption>
+                        <SelectOption value="PETERPAN">피터팬</SelectOption>
                         <SelectOption value="DABANG">다방</SelectOption>
                         <SelectOption value="BLOG">블로그</SelectOption>
                         <SelectOption value="INSTAGRAM">인스타그램</SelectOption>
@@ -275,6 +276,7 @@ export default function LeadForm({
                         <SelectOption value="YOUTUBE">유튜브</SelectOption>
                         <SelectOption value="KAKAO">카카오</SelectOption>
                         <SelectOption value="WALKIN">워크인</SelectOption>
+                        <SelectOption value="CAFE">카페</SelectOption>
                         <SelectOption value="REFERRAL">지인소개</SelectOption>
                         <SelectOption value="ETC">기타</SelectOption>
                     </FormSelect>

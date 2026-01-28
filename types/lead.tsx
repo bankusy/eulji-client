@@ -235,6 +235,7 @@ export const columnsConfiguration: TableColumn[] = [
         editable: true,
         options: [
             { label: "직방", value: "ZIGBANG" },
+            { label: "피터팬", value: "PETERPAN" },
             { label: "다방", value: "DABANG" },
             { label: "네이버", value: "NAVER" },
             { label: "블로그", value: "BLOG" },
@@ -243,12 +244,14 @@ export const columnsConfiguration: TableColumn[] = [
             { label: "유튜브", value: "YOUTUBE" },
             { label: "카카오", value: "KAKAO" },
             { label: "워크인", value: "WALKIN" },
+            { label: "카페", value: "CAFE" },
             { label: "지인 추천", value: "REFERRAL" },
             { label: "기타", value: "ETC" },
         ],
         render: (lead: Lead) => {
             const map: Record<string, string> = {
                 ZIGBANG: "직방",
+                PETERPAN: "피터팬",
                 DABANG: "다방",
                 NAVER: "네이버",
                 BLOG: "블로그",
@@ -257,6 +260,7 @@ export const columnsConfiguration: TableColumn[] = [
                 YOUTUBE: "유튜브",
                 KAKAO: "카카오",
                 WALKIN: "워크인",
+                CAFE: "카페",
                 REFERRAL: "지인 추천",
                 ETC: "기타",
             };
