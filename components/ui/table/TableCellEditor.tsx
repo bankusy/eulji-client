@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import Input from "@/components/ui/Input";
+import Input from "@/components/ui/v1/Input";
 import { Check, X } from "lucide-react";
 
 interface TableCellEditorProps {

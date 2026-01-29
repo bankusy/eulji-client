@@ -1,6 +1,7 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { SupabaseClient, User } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+import { cache } from "react";
 
 export type AuthenticatedUser = {
     authUserId: string;
@@ -11,7 +12,10 @@ export type AuthenticatedUser = {
     fullUserData: any;
 }
 
-export async function getAuthenticatedUser(prefetchedUser?: User | null): Promise<AuthenticatedUser | null> {
+export const getAuthenticatedUser = cache(async (
+    prefetchedUser?: User | null,
+    options?: { requiredAgencyId?: string }
+): Promise<AuthenticatedUser | null> => {
     const supabase = await createSupabaseServerClient();
     
     let user: User | null = prefetchedUser || null;
@@ -72,28 +76,82 @@ export async function getAuthenticatedUser(prefetchedUser?: User | null): Promis
     // --- Agency Resolution Logic ---
     let agencyId: string | null = null;
     let role: string | null = null;
+    let status: string | null = null;
 
-    const cookieStore = await cookies();
-    const selectedAgencyId = cookieStore.get("selected_agency_id")?.value;
-
-    if (selectedAgencyId) {
-        // Verify membership
+    // A. Priority: Required Agency ID (Contextual Fetching for Strict Access)
+    if (options?.requiredAgencyId) {
         const { data: membership } = await supabase
             .from("agency_users")
-            .select("role")
+            .select("role, status")
             .eq("user_id", publicUserId)
-            .eq("agency_id", selectedAgencyId)
-            .eq("status", "ACTIVE")
+            .eq("agency_id", options.requiredAgencyId)
+            // We fetch the status to decide, but we might filter here if we only want ACTIVE?
+            // Usually we return everything and let caller decide, BUT `agencyId` in return object usually implies "Active Context".
+            // Let's fetch it regardless.
             .single();
         
         if (membership) {
-            agencyId = selectedAgencyId;
+            // Note: If status is INVITED, we still return the ID, but the caller (layout) handles the denial.
+            // OR: We only set agencyId if ACTIVE?
+            // Let's set it, and let caller check role/status. 
+            // Wait, the return type doesn't have `status`.
+            // We should probably check if status is ACTIVE here to be safe for "Context".
+            
+            // If we are strictly "Selecting" this agency, we usually want to know if we are a member.
+            agencyId = options.requiredAgencyId;
             role = membership.role;
+            // We might need to expose status if we want Layout to redirect.
+            // For now, let's stick to existing type, but if status is !ACTIVE, maybe we return null for agencyId?
+            // The existing `getAuthenticatedUser` filtered for `status=ACTIVE` in cookie logic.
+            // So we should probably do the same here to match behavior.
+            
+            if (membership.status === 'ACTIVE') {
+                 // All good
+            } else {
+                 // User exists but not active. 
+                 // If we return agencyId, the caller assumes valid context.
+                 // But wait, `AgencyDashboardLayout` needs to distinguish "Not Member" vs "Invited".
+                 // Currently it does a separate query. 
+                 // If we want to optimize, we should trust this query.
+                 // But the return type implies "Current Active Agency".
+                 // Let's stick to: If not ACTIVE, we don't set agencyId (it acts as if not selected).
+                 // CALLER (Layout) can checking explicit agencyId needs to know failure reason.
+                 // This function returns `AuthenticatedUser`.
+                 // Maybe we shouldn't mix "Verification" with "Comparison".
+                 
+                 // If `requiredAgencyId` is passed, we populate `agencyId` ONLY if valid. 
+                 // If invalid/invited, `agencyId` will be null, and Layout will see `null` vs `requiredAgencyId` mismatch.
+                 if (membership.status !== 'ACTIVE') {
+                     agencyId = null; 
+                     role = null;
+                 }
+            }
+        }
+    } 
+    // B. Cookie Selection
+    else {
+        const cookieStore = await cookies();
+        const selectedAgencyId = cookieStore.get("selected_agency_id")?.value;
+
+        if (selectedAgencyId) {
+            // Verify membership
+            const { data: membership } = await supabase
+                .from("agency_users")
+                .select("role")
+                .eq("user_id", publicUserId)
+                .eq("agency_id", selectedAgencyId)
+                .eq("status", "ACTIVE")
+                .single();
+            
+            if (membership) {
+                agencyId = selectedAgencyId;
+                role = membership.role;
+            }
         }
     }
 
-    // If no valid cookie, try auto-select if only 1 agency
-    if (!agencyId) {
+    // C. Auto Select (if no agency determined yet)
+    if (!agencyId && !options?.requiredAgencyId) { // Only auto-select if we weren't forced to check a specific one
         const { data: memberships } = await supabase
             .from("agency_users")
             .select("agency_id, role")
@@ -103,12 +161,6 @@ export async function getAuthenticatedUser(prefetchedUser?: User | null): Promis
         if (memberships && memberships.length === 1) {
             agencyId = memberships[0].agency_id;
             role = memberships[0].role;
-            // Optionally set cookie here? Not easy in Server Component without middleware/route handler.
-            // But we render with this ID.
-        } else if (memberships && memberships.length === 0) {
-            // No agencies at all
-        } else {
-            // Multiple agencies, but none selected -> force selection (agencyId stays null)
         }
     }
 
@@ -120,7 +172,7 @@ export async function getAuthenticatedUser(prefetchedUser?: User | null): Promis
         role: role,
         fullUserData: userData
     };
-}
+});
 
 /**
  * Synchronizes the authenticated user with the public.users table.

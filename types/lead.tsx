@@ -126,7 +126,7 @@ export const leadColumns: DataTableColumn[] = [
         headerAlign: "center",
         cellAlign: "center",
         editable: true,
-        render: (lead: any) => <div className="font-semibold">{lead.name}</div>,
+        render: (lead: any) => <div>{lead.name}</div>,
     },
     {
         key: "phone",

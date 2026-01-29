@@ -5,7 +5,7 @@ import Image from "next/image";
 import ThemeHook from "@/hooks/ThemeHook";
 import clsx from "clsx";
 import IconWrapper from "@/components/ui/IconWrapper";
-import Input from "@/components/ui/Input";
+import Input from "@/components/ui/v1/Input";
 
 interface ListingGroup {
     address: string;
@@ -58,12 +58,13 @@ export default function ListingGroupList({
                         alt="add"
                     />
                 </div>
+                <div className="h-[36px]">
                 <Input
                     className="w-full text-xs"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={"주소 또는 건물명 검색"}
-                />
+                /></div>
             </div>
 
             {/* List */}

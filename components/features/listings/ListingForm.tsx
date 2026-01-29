@@ -5,7 +5,7 @@ import FormSection from "@/components/ui/FormSection";
 import FormInput from "@/components/ui/FormInput";
 import { FormSelect, SelectOption } from "@/components/ui/FormSelect";
 import FormTextArea from "@/components/ui/FormTextArea";
-import Button from "@/components/ui/Button";
+import {Button} from "@/components/ui/v1/Button";
 import { useListingMutations } from "@/hooks/queries/listings";
 import { Listing } from "@/types/listing";
 
@@ -231,7 +231,7 @@ export default function ListingForm({
                         placeholder="예: 은마아파트"
                         button={
                             <Button
-                                variant="primary"
+                                variant="default"
                                 onClick={handleAddressSearch}
                                 disabled={!!initialAddress}
                                 type="button"
@@ -418,7 +418,7 @@ export default function ListingForm({
                 <Button
                     type="submit"
                     disabled={isSubmitting}
-                    variant="primary"
+                    variant="default"
                 >
                     {isSubmitting ? "저장 중" : isEditing ? "수정" : "등록"}
                 </Button>

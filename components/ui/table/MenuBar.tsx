@@ -10,7 +10,7 @@ export default function MenuBar({ className, isOpen, children }: MenuBarProps) {
     return (
         <div
             className={clsx(
-                "transition-all duration-200 flex items-center gap-2",
+                "transition-all duration-200 flex items-center gap-2 rounded-md",
                 isOpen
                     ? "h-[52px] border border-(--border) p-2 opacity-100 mb-2 min-h-max"
                     : "h-0 border-transparent opacity-0",

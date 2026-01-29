@@ -4,7 +4,7 @@ import FormSection from "@/components/ui/FormSection";
 import FormInput from "@/components/ui/FormInput";
 import { FormSelect, SelectOption } from "@/components/ui/FormSelect";
 import FormTextArea from "@/components/ui/FormTextArea";
-import Button from "@/components/ui/Button";
+import {Button} from "@/components/ui/v1/Button";
 import { useLeadMutations } from "@/hooks/queries/leads";
 import { getAgencyMembers } from "@/app/dashboard/agencies/[agencyId]/actions"; // Import added
 import { Lead, LeadStage, LeadSource } from "@/types/lead";
@@ -408,7 +408,7 @@ export default function LeadForm({
                 <Button
                     type="submit"
                     disabled={isSubmitting}
-                    variant="primary"
+                    variant="default"
                 >
                     {isSubmitting ? "저장 중" : "저장"}
                 </Button>

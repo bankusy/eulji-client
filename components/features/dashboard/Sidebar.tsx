@@ -233,7 +233,7 @@ function SidebarBody({
                             <Link
                                 href={item.path}
                                 key={item.id}
-                                className={`flex w-full mb-2 items-center ${
+                                className={`flex w-full mb-2 items-center rounded-md ${
                                     isActive
                                         ? "text-(--foreground) opacity-100"
                                         : "text-(--foreground-hover) hover:text-(--foreground) opacity-20 hover:bg-(--foreground)/20"

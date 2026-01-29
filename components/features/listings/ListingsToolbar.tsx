@@ -5,8 +5,8 @@ import { Check } from "lucide-react";
 import ThemeHook from "@/hooks/ThemeHook";
 import clsx from "clsx";
 import Image from "next/image";
-import { Button } from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
+import { Button } from "@/components/ui/v1/Button";
+import Input from "@/components/ui/v1/Input";
 
 
 interface ListingsToolbarProps {

@@ -4,8 +4,8 @@ import { Check, RotateCcw } from "lucide-react";
 import ThemeHook from "@/hooks/ThemeHook";
 import clsx from "clsx";
 import Image from "next/image";
-import Input from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
+import Input from "@/components/ui/v1/Input";
+import { Button } from "@/components/ui/v1/Button";
 
 interface LeadsToolbarProps {
     onOpenAddPanel: () => void;
@@ -119,7 +119,7 @@ export default function LeadsToolbar({
                         />
                     </div>
                     <Button
-                        size="sm"
+                        size="default"
                         variant="outline"
                         onClick={onSearchSubmit}
                         className="h-full px-4 text-xs whitespace-nowrap"

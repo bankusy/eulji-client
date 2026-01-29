@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import Modal from "@/components/ui/Modal";
-import Button from "@/components/ui/Button";
+import Modal from "@/components/ui/v1/Modal";
+import {Button} from "@/components/ui/v1/Button";
 import { Lead } from "@/types/lead";
 import { Listing } from "@/types/listing";
 import { saveLeadListing, getRecommendedListings, getProposedListings } from "@/app/dashboard/agencies/[agencyId]/leads/actions";

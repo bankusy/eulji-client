@@ -1,7 +1,9 @@
 import clsx from "clsx";
 import React from "react";
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+    className?: string;
+}
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
     ({ className, ...props }, ref) => {
@@ -9,7 +11,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             <input
                 ref={ref}
                 className={clsx(
-                    `w-full text-sm text-(--foreground) truncate p-2 border border-(--border-subtle) bg-(--background-subtle)`,
+                    `text-(--foreground) text-sm`,
+                    `bg-(--input-background) border border-(--border-surface) rounded-md px-2 py-1`,
+                    `w-full h-full`,
                     className
                 )}
                 {...props}

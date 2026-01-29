@@ -33,7 +33,7 @@ export default function IconWrapper({
                     height: height ? `${height}px` : "36px",
                 }}
                 className={clsx(
-                    `flex justify-center items-center group-hover:bg-(--background-surface-hover) select-none z-(--z-tooltip)`,
+                    `flex justify-center items-center group-hover:bg-(--background-surface-hover) select-none z-(--z-tooltip) rounded-md`,
                     className,
                 )}
                 onClick={onClick}
@@ -45,14 +45,14 @@ export default function IconWrapper({
         return (
             <div
                 className={clsx(
-                    `group relative flex justify-center items-center w-[36px] h-[36px] select-none hover:bg-(--background-surface-hover) ${isVisibleDescription && "group-hover:z-(--z-tooltip)"}`,
+                    `group relative flex justify-center items-center w-[36px] h-[36px] select-none hover:bg-(--background-surface-hover) ${isVisibleDescription && "group-hover:z-(--z-tooltip)"} rounded-md`,
                     className,
                 )}
                 onClick={onClick}
             >
                 <Image src={src ?? ""} alt={alt ?? ""} width={18} height={18} />
                 <div
-                    className={`-z-10 absolute top-full mt-1 -left-[1px] p-2 min-w-max text-xs border border-(--border-surface) bg-(--background) opacity-0 ${isVisibleDescription && "group-hover:opacity-100 group-hover:z-(--z-tooltip)"}`}
+                    className={`rounded-sm -z-10 absolute top-full mt-1 -left-[1px] p-2 min-w-max text-xs border border-(--border-surface) bg-(--background) opacity-0 ${isVisibleDescription && "group-hover:opacity-100 group-hover:z-(--z-tooltip)"}`}
                 >
                     {description}
                 </div>

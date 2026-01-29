@@ -145,7 +145,7 @@ export default function Header() {
 
     return (
         <>
-            <div className="opacity-95 backdrop-blur-2xl fixed top-0 left-0 right-0 flex items-center w-full h-(--header-height) py-2 px-4 md:px-16 bg-(--background) z-50 border-b border-(--border-surface)/50">
+            <div className="opacity-95 backdrop-blur-2xl fixed top-0 left-0 right-0 flex items-center w-full h-(--header-height) py-2 px-4 md:px-16 z-50">
                 <div className="flex justify-between items-center w-full max-w-7xl mx-auto">
                     <div className="flex items-center gap-4 md:gap-12">
                         <Image

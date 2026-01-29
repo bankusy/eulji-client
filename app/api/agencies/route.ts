@@ -46,17 +46,18 @@ export async function POST(req: NextRequest) {
              return NextResponse.json({ error: "Public user profile not found" }, { status: 404 });
         }
 
-        // 2a. Check ownership limit
-        const { data: existingOwnership } = await supabase
+        // 2a. Check ownership limit (Max 5)
+        const { count, error: countError } = await supabase
             .from("agency_users")
-            .select("id")
+            .select("*", { count: 'exact', head: true })
             .eq("user_id", publicUser.id)
             .eq("role", "OWNER")
-            .eq("status", "ACTIVE")
-            .maybeSingle();
+            .eq("status", "ACTIVE");
+        
+        if (countError) throw new Error("Failed to check agency limit");
 
-        if (existingOwnership) {
-             return NextResponse.json({ error: "이미 소유한 에이전시가 있습니다. (계정당 1개 제한)" }, { status: 400 });
+        if ((count || 0) >= 5) {
+             return NextResponse.json({ error: "에이전시 생성 제한을 초과했습니다. (계정당 최대 5개)" }, { status: 400 });
         }
 
         // 3. Create Agency
@@ -81,8 +82,21 @@ export async function POST(req: NextRequest) {
                 status: "ACTIVE"
             });
 
-
         if (linkError) throw new Error("Failed to link user to agency");
+        
+        // 5. Create Default Subscription (Plan: Free)
+        const { error: subError } = await supabase
+            .from("agency_subscriptions")
+            .insert({
+                agency_id: agency.id,
+                plan_id: 'free',
+                status: 'ACTIVE',
+                current_period_start: new Date().toISOString(),
+                current_period_end: new Date(new Date().setFullYear(new Date().getFullYear() + 100)).toISOString() // Indefinite for free? Or monthly? Let's say indefinite for now or Handle standard logic
+            });
+            
+        // Note: If subscription fails, we might want to rollback agency creation, but for MVP let's just log.
+        if (subError) console.error("Failed to create default subscription", subError);
 
         // Log the activity (fire and forget)
         logActivity(

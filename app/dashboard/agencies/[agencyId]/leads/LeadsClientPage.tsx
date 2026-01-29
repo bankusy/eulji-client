@@ -8,7 +8,7 @@ import { useState, useMemo } from "react";
 import { ColumnVisibilityPopup } from "@/components/ui/table/ColumnsFilter";
 import { DataTable } from "@/components/ui/table/DataTable";
 import IconWrapper from "@/components/ui/IconWrapper";
-import Modal from "@/components/ui/Modal";
+import Modal from "@/components/ui/v1/Modal";
 import LeadForm from "@/components/features/leads/LeadForm";
 import MenuBar from "@/components/ui/table/MenuBar";
 import { useLeadMutations, useLeads } from "@/hooks/queries/leads";
@@ -147,9 +147,6 @@ export default function LeadsClientPage({
         deleteLeads: deleteLeadsMutation,
         updateLead: updateLeadMutation,
     } = useLeadMutations(agencyId);
-
-    // Debug filters
-    console.log("LeadsClientPage: Current filters:", filters);
 
     const {
         data: leadsData,

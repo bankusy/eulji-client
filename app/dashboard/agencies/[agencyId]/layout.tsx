@@ -1,11 +1,31 @@
 import Sidebar from "@/components/features/dashboard/Sidebar";
 import GlobalToolbar from "@/components/features/dashboard/GlobalToolbar";
+import { getAuthenticatedUser } from "@/lib/auth/service";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { redirect, notFound } from "next/navigation";
 
-export default function AgencyDashboardLayout({
+export default async function AgencyDashboardLayout({
     children,
+    params,
 }: Readonly<{
     children: React.ReactNode;
+    params: Promise<{ agencyId: string }>;
 }>) {
+    const { agencyId } = await params;
+    const userInfo = await getAuthenticatedUser(null, { requiredAgencyId: agencyId });
+
+    if (!userInfo) {
+        redirect("/login");
+    }
+
+    // Strict Access Control:
+    // getAuthenticatedUser with requiredAgencyId will ONLY populate agencyId and role 
+    // if the user is an ACTIVE member of that agency.
+    if (userInfo.agencyId !== agencyId) {
+        // Redirection for Non-Members or Pending (Invited) Users
+        redirect("/dashboard/agencies");
+    }
+
     return (
         <DashboardOuterLayout>
             <Sidebar />

@@ -22,7 +22,7 @@ export default async function Page({ params }: PageProps) {
         {}, 
         0, 
         20, 
-        true
+        false // Lean Loading: Disable recommendations on initial load
     );
 
     return <LeadsClientPage initialData={initialData} agencyId={agencyId} />;

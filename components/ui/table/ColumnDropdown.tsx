@@ -41,7 +41,7 @@ export function ColumnDropdown({
             }}
             className={`min-h-max min-w-max flex flex-col gap-1 absolute left-0 ${
                 shouldOpenUp ? "bottom-full mb-2" : "top-full mt-2"
-            } z-(--z-dropdown) table-cell-dropdown bg-(--background-subtle) border border-(--border-subtle) p-1`}
+            } z-(--z-dropdown) table-cell-dropdown bg-(--background-subtle) border border-(--border-subtle) p-1 rounded-sm`}
         >
             <div
                 className="px-2 py-1 hover:opacity-80 hover:bg-(--background) cursor-pointer flex items-center gap-2"

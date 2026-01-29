@@ -5,9 +5,9 @@ import Image from "next/image";
 import { MapPin, Building2, Briefcase } from "lucide-react";
 import "@/styles/profile.css";
 import StarBorder from "@/components/ui/common/Starborder";
-import { ModalOverlay } from "@/components/ui/Modal";
-import Input from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
+import Modal  from "@/components/ui/v1/Modal";
+import Input from "@/components/ui/v1/Input";
+import { Button } from "@/components/ui/v1/Button";
 
 interface ProfileCardProps {
     username: string;
@@ -78,7 +78,6 @@ export default function ProfileCard({
             {/* 편집 모드일 때 오버레이 표시 */}
             {editable && isAddressPopupOpen && (
                 <div className="fixed inset-0 z-(--z-modal) flex items-center justify-center p-4">
-                    <ModalOverlay isVisible={true} onClick={handleAddressPopupCancel} />
                     <div className="relative z-10 w-full max-w-md bg-(--background) border border-(--border) rounded-lg p-6 space-y-4">
                         <h3 className="text-lg font-bold text-(--foreground)">주소 및 사무소 정보</h3>
                         
@@ -106,7 +105,7 @@ export default function ProfileCard({
                             <Button variant="outline" onClick={handleAddressPopupCancel} className="flex-1">
                                 취소
                             </Button>
-                            <Button variant="primary" onClick={handleAddressPopupSave} className="flex-1">
+                            <Button variant="default" onClick={handleAddressPopupSave} className="flex-1">
                                 저장
                             </Button>
                         </div>

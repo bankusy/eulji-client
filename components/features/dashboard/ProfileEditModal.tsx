@@ -3,8 +3,8 @@
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useUserStore } from "@/hooks/useUserStore";
 import { useEffect, useState, useRef } from "react";
-import { Button } from "@/components/ui/Button";
-import Modal from "@/components/ui/Modal";
+import { Button } from "@/components/ui/v1/Button";
+import Modal from "@/components/ui/v1/Modal";
 // import ProfileCard from "@/components/web/profile/ProfileCard"; // Removed
 import { compressImage } from "@/lib/imageUtils";
 import FormSection from "@/components/ui/FormSection";
@@ -331,7 +331,7 @@ export default function ProfileEditModal({
                     취소
                 </Button>
                 <Button
-                    variant="primary" // Changed to primary for save action
+                    variant="default" // Changed to primary for save action
                     type="submit"
                     onClick={handleSave}
                     disabled={isSaving || isUploading}

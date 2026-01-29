@@ -64,7 +64,7 @@ export function ColumnVisibilityPopup({
     return (
         <div
             className={clsx(
-                "overflow-auto transition-all duration-200",
+                "overflow-auto transition-all duration-200 rounded-md",
                 isOpen
                     ? "min-h-max p-2 bg-(--background) border border-(--border-surface)"
                     : "max-h-0 p-0 border-transparent invisible",

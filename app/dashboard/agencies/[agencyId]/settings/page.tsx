@@ -3,21 +3,23 @@
 import { useState, useEffect } from "react";
 import ThemeHook from "@/hooks/ThemeHook";
 import clsx from "clsx";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/v1/Button";
 import { useParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 import { Agency } from "@/types/agency";
-import { refreshInviteCode } from "./actions";
-import { RefreshCw, Copy } from "lucide-react";
+// import { refreshInviteCode } from "./actions"; // Deprecated
+import { RefreshCw, Copy, Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useUserStore } from "@/hooks/useUserStore";
-import Input from "@/components/ui/Input";
+import Input from "@/components/ui/v1/Input";
 
 type TabType = "profile" | "agency";
 
 export default function SettingsPage() {
     const { systemTheme } = ThemeHook();
     const params = useParams();
+    const router = useRouter();
     const agencyId = params.agencyId as string;
     const { user } = useUserStore();
 
@@ -88,6 +90,7 @@ export default function SettingsPage() {
 
     const isOwner = agencyInfo?.role === "OWNER";
 
+    /* // Deprecated logic
     const handleRefreshCode = async () => {
         if (!agencyId || !confirm("초대 코드를 재설정하시겠습니까? 기존 코드는 즉시 무효화됩니다.")) return;
         
@@ -105,13 +108,16 @@ export default function SettingsPage() {
             setIsRefreshing(false);
         }
     };
+    */
 
+    /* // Deprecated logic
     const handleCopyCode = () => {
         if (agency?.invite_code) {
             navigator.clipboard.writeText(agency.invite_code);
             alert("초대 코드가 복사되었습니다.");
         }
     };
+    */
 
     // 도메인 중복 체크
     const checkDomainAvailability = async (domainValue: string) => {
@@ -320,7 +326,7 @@ export default function SettingsPage() {
                                     </div>
                                 </div>
                                 <div className="mt-6 flex justify-end">
-                                    <Button variant="primary" onClick={handleSaveProfile} disabled={isSaving}>
+                                    <Button variant="default" onClick={handleSaveProfile} disabled={isSaving}>
                                         {isSaving ? "저장 중..." : "저장하기"}
                                     </Button>
                                 </div>
@@ -442,7 +448,7 @@ export default function SettingsPage() {
                                 </div>
                                 <div className="mt-6 flex justify-end">
                                     <Button 
-                                        variant="primary" 
+                                        variant="default" 
                                         onClick={handleSaveAgency}
                                         disabled={isSaving || isDomainChecking || !!domainError}
                                     >
@@ -451,41 +457,23 @@ export default function SettingsPage() {
                                 </div>
                             </div>
 
-                            {/* 팀원 초대 */}
+                            {/* 팀 관리 */}
                             <div className="rounded-xl border border-(--border-surface) bg-(--background-surface) p-6">
-                                <h3 className="font-semibold text-(--foreground) mb-4">팀원 초대</h3>
-                                <div className="bg-(--background-subtle) p-4 border border-(--border-subtle)">
-                                    <label className="text-xs font-medium text-(--foreground-muted) mb-2 block">
-                                        초대 코드
-                                    </label>
-                                    <div className="flex items-center gap-2">
-                                        <code className="flex-1 bg-(--background) px-4 py-3 border border-(--border) text-lg font-mono tracking-wider font-bold text-(--foreground)">
-                                            {agency?.invite_code || "코드 없음"}
-                                        </code>
-                                        <Button 
-                                            variant="outline" 
-                                            onClick={handleCopyCode}
-                                            disabled={!agency?.invite_code}
-                                        >
-                                            <Copy className="w-4 h-4 mr-2" />
-                                            복사
-                                        </Button>
-                                        <Button 
-                                            variant="outline" 
-                                            onClick={handleRefreshCode}
-                                            disabled={isRefreshing}
-                                            className="text-red-500 hover:text-red-600"
-                                        >
-                                            <RefreshCw className={clsx("w-4 h-4 mr-2", isRefreshing && "animate-spin")} />
-                                            재설정
-                                        </Button>
-                                    </div>
-                                    <p className="text-xs text-(--foreground-muted) mt-3">
-                                        이 코드를 가진 사용자는 에이전시에 '멤버' 권한으로 가입할 수 있습니다.
-                                        <br />
-                                        코드가 유출된 경우 '재설정'을 통해 기존 코드를 무효화하세요.
-                                    </p>
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="font-semibold text-(--foreground)">팀 관리</h3>
+                                    <Button 
+                                        variant="outline" 
+                                        onClick={() => router.push(`/dashboard/agencies/${agencyId}/settings/team`)}
+                                    >
+                                        <Users className="w-4 h-4 mr-2" />
+                                        팀 관리 페이지로 이동
+                                    </Button>
                                 </div>
+                                <p className="text-sm text-(--foreground-muted)">
+                                    새로운 팀원을 초대하거나 기존 팀원의 권한을 관리할 수 있습니다.
+                                    <br />
+                                    여러 개의 초대 코드를 생성하고 관리하는 기능이 추가되었습니다.
+                                </p>
                             </div>
                         </>
                     )}
