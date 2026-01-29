@@ -159,12 +159,12 @@ function SidebarBody({
                         path: `/dashboard/agencies/${agencyId}/overview`,
                         src: "/icons/dashboard",
                     },
-                    {
-                        id: 2,
-                        name: "수신함",
-                        path: `/dashboard/agencies/${agencyId}/inbox`,
-                        src: "/icons/inbox",
-                    },
+                    // {
+                    //     id: 2,
+                    //     name: "수신함",
+                    //     path: `/dashboard/agencies/${agencyId}/inbox`,
+                    //     src: "/icons/inbox",
+                    // },
                 ],
             },
             {
