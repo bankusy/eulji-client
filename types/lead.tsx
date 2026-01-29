@@ -123,7 +123,7 @@ export const leadColumns: DataTableColumn[] = [
         width: "120px",
         minWidth: "50px",
         maxWidth: "300px",
-        headerAlign: "start",
+        headerAlign: "center",
         cellAlign: "center",
         editable: true,
         render: (lead: any) => <div className="font-semibold">{lead.name}</div>,
@@ -138,7 +138,7 @@ export const leadColumns: DataTableColumn[] = [
         minWidth: "50px",
         maxWidth: "300px",
 
-        headerAlign: "start",
+        headerAlign: "center",
         cellAlign: "center",
         editable: true,
         render: (lead: Lead) => {
@@ -157,7 +157,7 @@ export const leadColumns: DataTableColumn[] = [
         width: "120px",
         minWidth: "50px",
         maxWidth: "300px",
-        headerAlign: "start",
+        headerAlign: "center",
         cellAlign: "center",
         editable: true,
         options: [
@@ -188,7 +188,7 @@ export const leadColumns: DataTableColumn[] = [
         minWidth: "50px",
         maxWidth: "300px",
 
-        headerAlign: "start",
+        headerAlign: "center",
         cellAlign: "center",
         editable: true,
         options: [
@@ -209,7 +209,7 @@ export const leadColumns: DataTableColumn[] = [
         minWidth: "50px",
         maxWidth: "300px",
 
-        headerAlign: "start",
+        headerAlign: "center",
         cellAlign: "center",
         editable: true,
         options: [
@@ -233,7 +233,7 @@ export const leadColumns: DataTableColumn[] = [
         width: "150px",
         minWidth: "50px",
         maxWidth: "300px",
-        headerAlign: "start",
+        headerAlign: "center",
         cellAlign: "center",
         editable: true,
         render: (lead: Lead) => lead.preferred_region || "",
@@ -245,7 +245,7 @@ export const leadColumns: DataTableColumn[] = [
         width: "210px",
         minWidth: "50px",
         maxWidth: "300px",
-        headerAlign: "start",
+        headerAlign: "center",
         cellAlign: "center",
         editable: true,
     },
@@ -256,7 +256,7 @@ export const leadColumns: DataTableColumn[] = [
         width: "120px",
         minWidth: "50px",
         maxWidth: "300px",
-        headerAlign: "start",
+        headerAlign: "center",
         cellAlign: "center",
         editable: true,
         options: [
@@ -286,7 +286,7 @@ export const leadColumns: DataTableColumn[] = [
         width: "240px",
         minWidth: "50px",
         maxWidth: "300px",
-        headerAlign: "start",
+        headerAlign: "center",
         cellAlign: "center",
         editable: true,
         getEditValue: (lead: Lead) => ({
@@ -312,7 +312,7 @@ export const leadColumns: DataTableColumn[] = [
         width: "240px",
         minWidth: "50px",
         maxWidth: "300px",
-        headerAlign: "start",
+        headerAlign: "center",
         cellAlign: "center",
         editable: true,
         getEditValue: (lead: Lead) => ({
@@ -338,7 +338,7 @@ export const leadColumns: DataTableColumn[] = [
         width: "120px",
         minWidth: "50px",
         maxWidth: "300px",
-        headerAlign: "start",
+        headerAlign: "center",
         cellAlign: "center",
         editable: true,
         render: (lead: Lead) => lead.assignee,
@@ -379,7 +379,7 @@ export const leadColumns: DataTableColumn[] = [
         width: "150px",
         minWidth: "100px",
         maxWidth: "300px",
-        headerAlign: "center",
+        headerAlign: "start",
         cellAlign: "start",
         editable: false,
         render: (lead: Lead) => {

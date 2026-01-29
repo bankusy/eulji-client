@@ -88,11 +88,12 @@ export function TableHeaderCell({
                 minWidth: column.minWidth,
                 maxWidth: column.maxWidth,
                 left: column.sticky ? left : undefined,
+                justifyContent: column.headerAlign,
             }}
         >
             <div
                 className={clsx(
-                    "flex items-center gap-1",
+                    "relaitve flex items-center gap-1",
                     sortConfig?.key === column.key &&
                         "font-bold text-(--primary)",
                 )}
@@ -107,23 +108,23 @@ export function TableHeaderCell({
                         )}
                     </div>
                 )}
+                <IconWrapper
+                    className="absolute right-2 top-1/2 -translate-y-1/2"
+                    onClick={onToggleDropdown}
+                    width={24}
+                    height={24}
+                >
+                    <ChevronDown
+                        className={`${
+                            dropdownOpen && "-rotate-180"
+                        } duration-200 transition-all`}
+                        width={12}
+                        height={12}
+                    />
+                </IconWrapper>
             </div>
-            <IconWrapper
-                className=""
-                onClick={onToggleDropdown}
-                width={24}
-                height={24}
-            >
-                <ChevronDown
-                    className={`${
-                        dropdownOpen && "-rotate-180"
-                    } duration-200 transition-all`}
-                    width={12}
-                    height={12}
-                />
-            </IconWrapper>
             <div
-                className="absolute right-0 top-0 w-[2.5px] h-full cursor-col-resize opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute right-0 top-0 w-[2.5px] h-full cursor-col-resize opacity-0 hover:opacity-100 transition-opacity"
                 onMouseDown={onMouseDown}
                 onClick={(e) => e.stopPropagation()}
             />
