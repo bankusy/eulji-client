@@ -1,4 +1,4 @@
-import { Tooltip } from "@/components/ui/Tooltip";
+import { Tooltip } from "@/components/ui/v1/Tooltip";
 import { HelpCircle } from "lucide-react";
 import { PropertyType, TransactionType } from "@/types/listing";
 

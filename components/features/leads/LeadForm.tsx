@@ -2,7 +2,7 @@ import React, { useState, ChangeEvent } from "react";
 
 import FormSection from "@/components/ui/FormSection";
 import FormInput from "@/components/ui/FormInput";
-import { FormSelect, SelectOption } from "@/components/ui/FormSelect";
+import { FormSelect, SelectItem } from "@/components/ui/FormSelect";
 import FormTextArea from "@/components/ui/FormTextArea";
 import {Button} from "@/components/ui/v1/Button";
 import { useLeadMutations } from "@/hooks/queries/leads";
@@ -223,35 +223,35 @@ export default function LeadForm({
                 </FormSection>
                 <FormSection title="상태 및 유형">
                     <FormSelect label="상태" value={stage} onChange={(val) => setStage(val as LeadStage)}>
-                        <SelectOption value="NEW">신규</SelectOption>
-                        <SelectOption value="IN_PROGRESS">진행 중</SelectOption>
-                        <SelectOption value="RESERVED">예약</SelectOption>
-                        <SelectOption value="CONTRACTED">계약 완료</SelectOption>
-                        <SelectOption value="CANCELED">계약 취소</SelectOption>
-                        <SelectOption value="FAILED">계약 실패</SelectOption>
+                        <SelectItem value="NEW">신규</SelectItem>
+                        <SelectItem value="IN_PROGRESS">진행 중</SelectItem>
+                        <SelectItem value="RESERVED">예약</SelectItem>
+                        <SelectItem value="CONTRACTED">계약 완료</SelectItem>
+                        <SelectItem value="CANCELED">계약 취소</SelectItem>
+                        <SelectItem value="FAILED">계약 실패</SelectItem>
                     </FormSelect>
                     <FormSelect
                         label="매물 유형"
                         value={property_type}
                         onChange={setPropertyType}
                     >
-                        <SelectOption value="OFFICETEL">오피스텔</SelectOption>
-                        <SelectOption value="ONEROOM">원룸</SelectOption>
-                        <SelectOption value="TWOROOM">투룸</SelectOption>
-                        <SelectOption value="THREEROOM">쓰리룸</SelectOption>
-                        <SelectOption value="APARTMENT">아파트</SelectOption>
-                        <SelectOption value="FACTORY">공장</SelectOption>
-                        <SelectOption value="COMMERCIAL">상가</SelectOption>
-                        <SelectOption value="LAND">토지</SelectOption>
+                        <SelectItem value="OFFICETEL">오피스텔</SelectItem>
+                        <SelectItem value="ONEROOM">원룸</SelectItem>
+                        <SelectItem value="TWOROOM">투룸</SelectItem>
+                        <SelectItem value="THREEROOM">쓰리룸</SelectItem>
+                        <SelectItem value="APARTMENT">아파트</SelectItem>
+                        <SelectItem value="FACTORY">공장</SelectItem>
+                        <SelectItem value="COMMERCIAL">상가</SelectItem>
+                        <SelectItem value="LAND">토지</SelectItem>
                     </FormSelect>
                     <FormSelect
                         label="거래 유형"
                         value={transaction_type}
                         onChange={(val) => setTransactionType(val as TransactionType)}
                     >
-                        <SelectOption value="WOLSE">월세</SelectOption>
-                        <SelectOption value="JEONSE">전세</SelectOption>
-                        <SelectOption value="SALE">매매</SelectOption>
+                        <SelectItem value="WOLSE">월세</SelectItem>
+                        <SelectItem value="JEONSE">전세</SelectItem>
+                        <SelectItem value="SALE">매매</SelectItem>
                     </FormSelect>
                     <FormInput
                         label="희망 지역"
@@ -266,19 +266,19 @@ export default function LeadForm({
                         value={source}
                         onChange={(val) => setSource(val as LeadSource)}
                     >
-                        <SelectOption value="NAVER">네이버부동산</SelectOption>
-                        <SelectOption value="ZIGBANG">직방</SelectOption>
-                        <SelectOption value="PETERPAN">피터팬</SelectOption>
-                        <SelectOption value="DABANG">다방</SelectOption>
-                        <SelectOption value="BLOG">블로그</SelectOption>
-                        <SelectOption value="INSTAGRAM">인스타그램</SelectOption>
-                        <SelectOption value="WEB_FORM">문의 폼</SelectOption>
-                        <SelectOption value="YOUTUBE">유튜브</SelectOption>
-                        <SelectOption value="KAKAO">카카오</SelectOption>
-                        <SelectOption value="WALKIN">워크인</SelectOption>
-                        <SelectOption value="CAFE">카페</SelectOption>
-                        <SelectOption value="REFERRAL">지인소개</SelectOption>
-                        <SelectOption value="ETC">기타</SelectOption>
+                        <SelectItem value="NAVER">네이버부동산</SelectItem>
+                        <SelectItem value="ZIGBANG">직방</SelectItem>
+                        <SelectItem value="PETERPAN">피터팬</SelectItem>
+                        <SelectItem value="DABANG">다방</SelectItem>
+                        <SelectItem value="BLOG">블로그</SelectItem>
+                        <SelectItem value="INSTAGRAM">인스타그램</SelectItem>
+                        <SelectItem value="WEB_FORM">문의 폼</SelectItem>
+                        <SelectItem value="YOUTUBE">유튜브</SelectItem>
+                        <SelectItem value="KAKAO">카카오</SelectItem>
+                        <SelectItem value="WALKIN">워크인</SelectItem>
+                        <SelectItem value="CAFE">카페</SelectItem>
+                        <SelectItem value="REFERRAL">지인소개</SelectItem>
+                        <SelectItem value="ETC">기타</SelectItem>
                     </FormSelect>
                     <FormSelect
                         label="담당자"
@@ -286,11 +286,11 @@ export default function LeadForm({
                         onChange={setAssigneeId}
                         disabled={!isOwner}
                     >
-                        <SelectOption value="">담당자 선택</SelectOption>
+                        <SelectItem value="">담당자 선택</SelectItem>
                         {members.map((member) => (
-                            <SelectOption key={member.id} value={member.id}>
+                            <SelectItem key={member.id} value={member.id}>
                                 {member.name}
-                            </SelectOption>
+                            </SelectItem>
                         ))}
                     </FormSelect>
                 </FormSection>

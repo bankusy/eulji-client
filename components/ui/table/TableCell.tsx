@@ -2,7 +2,6 @@ import React from "react";
 import clsx from "clsx";
 import { DataTableColumn } from "./types";
 import TableCellEditor from "./TableCellEditor";
-import { Skeleton } from "../Skeleton";
 
 interface TableCellProps<T> {
     row: T & { id: string };

@@ -1,6 +1,6 @@
 import React from "react";
-import Text from "./Text";
-import { Select, SelectOption } from "@/components/ui/Select";
+
+import { Select, SelectItem } from "@/components/ui/v1/Select";
 
 interface FormSelectProps {
     label?: string;
@@ -24,16 +24,12 @@ export function FormSelect({
     return (
         <div className="flex flex-col gap-1 w-full">
             {label && (
-                <Text type="muted" size="sm">
-                    {label}
-                </Text>
+                <div className="text-sm text-(--foreground-muted)">{label}</div>
             )}
             <div className="h-[36px] w-full">
                 <Select
-                    className={className}
                     value={value}
-                    onChange={onChange}
-                    placeholder={placeholder}
+                    onValueChange={onChange}
                     disabled={disabled}
                 >
                     {children}
@@ -43,4 +39,4 @@ export function FormSelect({
     );
 }
 
-export { SelectOption };
+export { SelectItem };

@@ -1,5 +1,4 @@
 import React from "react";
-import Text from "./Text";
 import Input from "@/components/ui/v1/Input";
 
 interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -18,9 +17,9 @@ export default function FormInput({
     return (
         <div className="flex flex-col gap-1 w-full">
             {label && (
-                <Text type="muted" size="sm">
+                <div className="text-sm text-(--foreground-muted)">
                     {label}
-                </Text>
+                </div>
             )}
             <div className="flex gap-2 h-[36px] w-full">
                 <div className="relative w-full h-full">

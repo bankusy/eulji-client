@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import React, { useState } from "react";
 import FormSection from "@/components/ui/FormSection";
 import FormInput from "@/components/ui/FormInput";
-import { FormSelect, SelectOption } from "@/components/ui/FormSelect";
+import { FormSelect, SelectItem } from "@/components/ui/FormSelect";
 import FormTextArea from "@/components/ui/FormTextArea";
 import {Button} from "@/components/ui/v1/Button";
 import { useListingMutations } from "@/hooks/queries/listings";
@@ -263,21 +263,21 @@ export default function ListingForm({
                         value={formData.property_type || "APARTMENT"}
                         onChange={(val) => handleChange("property_type", val)}
                     >
-                        <SelectOption value="APARTMENT">아파트</SelectOption>
-                        <SelectOption value="VILLA">빌라</SelectOption>
-                        <SelectOption value="OFFICETEL">오피스텔</SelectOption>
-                        <SelectOption value="ONEROOM">원룸</SelectOption>
-                        <SelectOption value="COMMERCIAL">상가</SelectOption>
-                        <SelectOption value="LAND">토지</SelectOption>
+                        <SelectItem value="APARTMENT">아파트</SelectItem>
+                        <SelectItem value="VILLA">빌라</SelectItem>
+                        <SelectItem value="OFFICETEL">오피스텔</SelectItem>
+                        <SelectItem value="ONEROOM">원룸</SelectItem>
+                        <SelectItem value="COMMERCIAL">상가</SelectItem>
+                        <SelectItem value="LAND">토지</SelectItem>
                     </FormSelect>
                     <FormSelect
                         label="거래 유형"
                         value={formData.transaction_type || "SALE"}
                         onChange={(val) => handleChange("transaction_type", val)}
                     >
-                        <SelectOption value="SALE">매매</SelectOption>
-                        <SelectOption value="JEONSE">전세</SelectOption>
-                        <SelectOption value="WOLSE">월세</SelectOption>
+                        <SelectItem value="SALE">매매</SelectItem>
+                        <SelectItem value="JEONSE">전세</SelectItem>
+                        <SelectItem value="WOLSE">월세</SelectItem>
                     </FormSelect>
 
                     {formData.transaction_type === "SALE" && (

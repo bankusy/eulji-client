@@ -9,7 +9,7 @@ import { AgencyUser } from "@/types/agency";
 import { Invitation } from "@/types/invitation";
 import { createInvitation, revokeInvitation, updateMemberRole, approveMember, rejectMember } from "./actions";
 import { Button } from "@/components/ui/v1/Button";
-import { Badge } from "@/components/ui/Badge";
+import { Badge } from "@/components/ui/v1/Badge";
 import GlobalLoader from "@/components/ui/GlobalLoader";
 import { Trash2, Copy, Plus, MoreHorizontal, Check, X } from "lucide-react";
 import clsx from "clsx";

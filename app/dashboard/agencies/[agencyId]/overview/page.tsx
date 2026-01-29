@@ -1,7 +1,7 @@
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/v1/Card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/Badge";
+import { Badge } from "@/components/ui/v1/Badge";
 import { Users, UserPlus, Zap, CheckCircle2 } from "lucide-react";
 import { getDashboardStats } from "../actions";
 import WeeklyTrendChart from "@/components/features/dashboard/WeeklyTrendChart";
