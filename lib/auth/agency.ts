@@ -15,7 +15,24 @@ export async function verifyAgencyAccess(agencyId: string) {
         return null;
     }
 
-    // 1. Get Public User ID via identities
+    // 1. Optimistic Check: Try using Auth ID directly as User ID
+    // This covers the standard case where auth.users.id === public.users.id
+    const { data: directMembership } = await supabase
+        .from("agency_users")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("agency_id", agencyId)
+        .eq("status", "ACTIVE")
+        .maybeSingle(); // Use maybeSingle to avoid error if not found
+
+    if (directMembership) {
+        return {
+            userId: user.id,
+            role: directMembership.role
+        };
+    }
+
+    // 2. Fallback: Lookup Public User ID via identities (Legacy/Complex Auth)
     let publicUserId: string | null = null;
     const identities = user.identities || [];
 
@@ -34,8 +51,11 @@ export async function verifyAgencyAccess(agencyId: string) {
     }
 
     if (!publicUserId) return null;
+    
+    // Avoid re-checking if publicUserId is same as user.id (already checked above)
+    if (publicUserId === user.id) return null; 
 
-    // 2. Check Membership
+    // 3. Check Membership with resolved Public ID
     const { data: membership } = await supabase
         .from("agency_users")
         .select("role")
