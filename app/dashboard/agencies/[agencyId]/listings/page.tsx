@@ -309,7 +309,8 @@ export default function ListingsPage() {
 
     return (
         <div className="flex h-full w-full relative gap-2">
-            {(isGroupsLoading || isListingsLoading) && <GlobalLoader />}
+            {/* {(isGroupsLoading || isListingsLoading) && <GlobalLoader />} */}
+            {(isGroupsLoading) && <GlobalLoader />}
             {/* Left: Groups */}
             <div 
                 className={clsx(

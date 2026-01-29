@@ -25,6 +25,11 @@ export function useDataTable<T extends { id: string }>(options: DataTableStateOp
         `${storageKeyPrefix}_search_columns`,
         defaultSearchColumns
     );
+    // Active search columns state (synced with searchColumns only on submit)
+    const [activeSearchColumns, setActiveSearchColumns] = useState<string[]>(
+        Object.keys(searchColumns || defaultSearchColumns).filter(k => (searchColumns || defaultSearchColumns)[k])
+    );
+
     const [isSearchFilterOpen, setIsSearchFilterOpen] = useState(false);
 
     // --- Sort State ---
@@ -72,7 +77,11 @@ export function useDataTable<T extends { id: string }>(options: DataTableStateOp
 
     // Search
     const handleSearchQueryChange = (val: string) => setSearchQuery(val);
-    const handleSearchSubmit = () => setActiveSearchQuery(searchQuery);
+    const handleSearchSubmit = () => {
+        setActiveSearchQuery(searchQuery);
+        // Sync search columns on submit
+        setActiveSearchColumns(Object.keys(searchColumns).filter(k => searchColumns[k]));
+    };
     const toggleSearchColumn = (key: string) => {
         setSearchColumns(prev => ({ ...prev, [key]: !prev[key] }));
     };
@@ -85,6 +94,7 @@ export function useDataTable<T extends { id: string }>(options: DataTableStateOp
             setSortConfig({ column, direction });
         }
     };
+    const resetSort = () => setSortConfig(null);
 
     // Selection
     const handleAllCheck = (currentData: T[]) => {
@@ -169,7 +179,6 @@ export function useDataTable<T extends { id: string }>(options: DataTableStateOp
         }
     }, [stickyColumns, columnsConfiguration, columnOrder, setColumnOrder, setVisibleColumns]);
 
-
     return {
         // Search
         searchQuery,
@@ -177,13 +186,13 @@ export function useDataTable<T extends { id: string }>(options: DataTableStateOp
         activeSearchQuery,
         setActiveSearchQuery,
         searchColumns,
-        activeSearchColumns: Object.keys(searchColumns).filter(k => searchColumns[k]),
+        activeSearchColumns, // Return the state variable
         isSearchFilterOpen,
         setIsSearchFilterOpen,
         handleSearchQueryChange,
         handleSearchSubmit,
         toggleSearchColumn,
-
+        
         // Sort
         sortConfig,
         setSortConfig,
@@ -212,6 +221,7 @@ export function useDataTable<T extends { id: string }>(options: DataTableStateOp
         stickyColumns,
         setStickyColumns,
         handleColumnResize,
-        resetColumns
+        resetColumns,
+        resetSort,
     };
 }

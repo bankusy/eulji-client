@@ -33,56 +33,6 @@ export default function GlobalToolbar() {
     return (
         <div className="flex justify-between items-center h-[52px] border border-(--border-surface) p-2 bg-(--background)">
             <SidebarToggle />
-            <div className="flex items-center">
-                {/* 프로필 정보 (아바타 + 이메일) */}
-                <IconWrapper onClick={() => setIsProfileModalOpen(true)}>
-                    <Settings width={16} height={16}/>
-                </IconWrapper>
-                <div className="relative">
-                    <div
-                        className="flex items-center gap-2 pl-2 border-l border-(--border-surface) cursor-pointer hover:opacity-80 transition-opacity"
-                        onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    >
-                        {user?.avatar_url ? (
-                            <div className="relative overflow-hidden w-[28px] h-[28px] rounded-full border border-(--border-surface)">
-                                <Image
-                                    className="object-cover"
-                                    src={user.avatar_url}
-                                    alt="Avatar"
-                                    fill={true}
-                                />
-                            </div>
-                        ) : (
-                            <div className="w-7 h-7 rounded-full bg-(--border-surface) flex items-center justify-center text-(--foreground-muted)">
-                                <UserIcon size={16} />
-                            </div>
-                        )}
-                        <span className="text-xs text-(--foreground) font-medium hidden sm:block">
-                            {user?.email || "User"}
-                        </span>
-                    </div>
-
-                    {/* 로그아웃 드롭다운 */}
-                    {isMenuOpen && (
-                        <>
-                            <div
-                                className="fixed inset-0 z-(--z-dropdown-backdrop)"
-                                onClick={() => setIsMenuOpen(false)}
-                            />
-                            <div className="absolute top-full right-0 mt-2 p-2  w-40 bg-(--background) border border-(--border-surface) z-(--z-dropdown) overflow-hidden">
-                                <button
-                                    onClick={handleLogout}
-                                    className="w-full text-left p-2 hover:bg-(--background-surface-hover) text-xs flex items-center gap-2 text-(--warning)"
-                                >
-                                    <LogOut size={14} />
-                                    <span>로그아웃</span>
-                                </button>
-                            </div>
-                        </>
-                    )}
-                </div>
-            </div>
-
             <ProfileEditModal
                 isOpen={isProfileModalOpen}
                 onClose={() => setIsProfileModalOpen(false)}

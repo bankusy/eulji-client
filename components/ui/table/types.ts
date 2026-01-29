@@ -4,6 +4,7 @@ export interface DataTableColumn {
     key: string;
     name: string | React.ReactNode;
     width: string;
+    left?: string;
     minWidth: string;
     maxWidth: string;
     sticky?: boolean;
@@ -11,7 +12,7 @@ export interface DataTableColumn {
     cellAlign: string;
     render?: (item: any) => React.ReactNode;
     type?: "text" | "select" | "date" | "phone" | "price" | "area" | "floor";
-    options?: { label: string; value: string | number }[];
+    options?: { label: string; value: string | number; color?: string }[];
     editable?: boolean;
     getEditValue?: (item: any) => any;
 }

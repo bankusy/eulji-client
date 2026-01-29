@@ -72,50 +72,50 @@ export default function Header() {
             ],
             basePath: "/pricing",
         },
-        {
-            id: 3,
-            name: "자료실",
-            subMenu: [
-                {
-                    id: 1,
-                    name: "블로그",
-                    path: "/resources/blog",
-                    onClick: () => router.push("/resources/blog"),
-                },
-                {
-                    id: 2,
-                    name: "가이드 & 튜토리얼",
-                    path: "/resources/guides",
-                    onClick: () => router.push("/resources/guides"),
-                },
-                {
-                    id: 3,
-                    name: "성공 사례",
-                    path: "/resources/case-studies",
-                    onClick: () => router.push("/resources/case-studies"),
-                },
-            ],
-            basePath: "/resources",
-        },
-        {
-            id: 4,
-            name: "회사 소개",
-            subMenu: [
-                {
-                    id: 1,
-                    name: "회사 소개",
-                    path: "/about",
-                    onClick: () => router.push("/about"),
-                },
-                {
-                    id: 2,
-                    name: "문의하기",
-                    path: "/contact",
-                    onClick: () => router.push("/contact"),
-                },
-            ],
-            basePath: "/about",
-        },
+        // {
+        //     id: 3,
+        //     name: "자료실",
+        //     subMenu: [
+        //         {
+        //             id: 1,
+        //             name: "블로그",
+        //             path: "/resources/blog",
+        //             onClick: () => router.push("/resources/blog"),
+        //         },
+        //         {
+        //             id: 2,
+        //             name: "가이드 & 튜토리얼",
+        //             path: "/resources/guides",
+        //             onClick: () => router.push("/resources/guides"),
+        //         },
+        //         {
+        //             id: 3,
+        //             name: "성공 사례",
+        //             path: "/resources/case-studies",
+        //             onClick: () => router.push("/resources/case-studies"),
+        //         },
+        //     ],
+        //     basePath: "/resources",
+        // },
+        // {
+        //     id: 4,
+        //     name: "회사 소개",
+        //     subMenu: [
+        //         {
+        //             id: 1,
+        //             name: "회사 소개",
+        //             path: "/about",
+        //             onClick: () => router.push("/about"),
+        //         },
+        //         {
+        //             id: 2,
+        //             name: "문의하기",
+        //             path: "/contact",
+        //             onClick: () => router.push("/contact"),
+        //         },
+        //     ],
+        //     basePath: "/about",
+        // },
     ];
 
     const menu2: Menu[] = [

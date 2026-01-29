@@ -4,7 +4,7 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     text-overflow: ellipsis;
     white-space: nowrap;
     height: 100%;
@@ -73,7 +73,7 @@
 .table-cell {
     display: flex;
     align-items: center;
-    padding: 0 8px;
+    padding: 4px;
     border-right: 1px solid var(--border-surface);
     box-sizing: border-box;
     flex-shrink: 0;

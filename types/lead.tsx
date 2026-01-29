@@ -2,6 +2,78 @@ import { Tooltip } from "@/components/ui/Tooltip";
 import { HelpCircle } from "lucide-react";
 import { PropertyType, TransactionType } from "@/types/listing";
 
+
+// create table public.leads (
+//   id uuid not null default gen_random_uuid (),
+//   agency_id uuid null,
+//   assigned_user_id uuid null,
+//   name character varying(100) null,
+//   phone character varying(50) null,
+//   email character varying(100) null,
+//   social_profiles jsonb null default '{}'::jsonb,
+//   stage public.lead_stage not null default 'NEW'::lead_stage,
+//   source public.lead_source null default 'ETC'::lead_source,
+//   preferences jsonb null default '{}'::jsonb,
+//   converted_customer_id uuid null,
+
+//   message text null,
+//   memo text null,
+//   budget jsonb null default '{}'::jsonb,
+//   preferred_type public.property_type null,
+//   preferred_budget jsonb not null default '{}'::jsonb,
+//   property_type public.property_type null,
+//   transaction_type public.transaction_type null,
+//   deposit_min numeric null,
+//   deposit_max numeric null,
+//   price_min numeric null,
+//   price_max numeric null,
+//   move_in_date text null,
+//   preferred_region text null,
+//   created_by uuid null,
+//   channel_meta jsonb not null default '{}'::jsonb,
+
+//   created_at timestamp with time zone null default now(),
+//   updated_at timestamp with time zone null default now(),
+//   constraint leads_pkey primary key (id),
+//   constraint leads_agency_id_fkey foreign KEY (agency_id) references agencies (id),
+//   constraint leads_assigned_user_id_fkey foreign KEY (assigned_user_id) references users (id),
+//   constraint leads_created_by_fkey foreign KEY (created_by) references users (id)
+// ) TABLESPACE pg_default;
+
+// create index IF not exists idx_leads_agency_id on public.leads using btree (agency_id) TABLESPACE pg_default;
+
+// create index IF not exists idx_leads_assigned_user_id on public.leads using btree (assigned_user_id) TABLESPACE pg_default;
+
+// create index IF not exists idx_leads_deposit_min on public.leads using btree (deposit_min) TABLESPACE pg_default;
+
+// create index IF not exists idx_leads_deposit_max on public.leads using btree (deposit_max) TABLESPACE pg_default;
+
+// create index IF not exists idx_leads_price_min on public.leads using btree (price_min) TABLESPACE pg_default;
+
+// create index IF not exists idx_leads_price_max on public.leads using btree (price_max) TABLESPACE pg_default;
+
+// create index IF not exists idx_leads_phone on public.leads using btree (phone) TABLESPACE pg_default
+// where
+//   (phone is not null);
+
+// create index IF not exists idx_leads_email on public.leads using btree (email) TABLESPACE pg_default
+// where
+//   (email is not null);
+
+// create index IF not exists idx_leads_budget on public.leads using gin (budget) TABLESPACE pg_default;
+
+// create index IF not exists idx_leads_property on public.leads using btree (property_type) TABLESPACE pg_default;
+
+// create index IF not exists idx_leads_transaction on public.leads using btree (transaction_type) TABLESPACE pg_default;
+
+// create index IF not exists idx_leads_preferences on public.leads using gin (preferences) TABLESPACE pg_default;
+
+// create index IF not exists idx_leads_agency_stage on public.leads using btree (agency_id, stage) TABLESPACE pg_default;
+
+// create trigger update_leads_updated_at BEFORE
+// update on leads for EACH row
+// execute FUNCTION update_updated_at_column ();
+
 // 리드 상태
 export type LeadStage = "NEW" | "IN_PROGRESS" | "RESERVED" | "CONTRACTED" | "CANCELED" | "FAILED";
 
@@ -37,37 +109,24 @@ export interface Lead {
     recommendations?: any[]; // Recommended Listings (Used in UI)
 }
 
-export interface TableColumn {
-    key: string;
-    type?: "text" | "select" | "date" | "phone" | "price" | "area" | "floor";
-    name: string | React.ReactNode;
-    sticky?: boolean;
-    left?: number | string;
-    width: string;
-    minWidth: string;
-    maxWidth: string;
-    headerAlign: string;
-    cellAlign: string;
-    editable?: boolean;
-    options?: { label: string; value: string }[];
-    render?: (lead: Lead) => React.ReactNode;
-    getEditValue?: (lead: Lead) => any;
-}
+import { DataTableColumn } from "@/components/ui/table/types";
 
-export const columnsConfiguration: TableColumn[] = [
+// ... (existing code top)
+
+export const leadColumns: DataTableColumn[] = [
     {
         key: "name",
         type: "text",
         name: "이름",
         sticky: true,
-        left: "48px", // 체크박스 width
+        // left: "48px", // 체크박스 너비
         width: "120px",
         minWidth: "50px",
         maxWidth: "300px",
         headerAlign: "start",
-        cellAlign: "start",
+        cellAlign: "center",
         editable: true,
-        render: (lead: Lead) => lead.name,
+        render: (lead: any) => <div className="font-semibold">{lead.name}</div>,
     },
     {
         key: "phone",
@@ -80,7 +139,7 @@ export const columnsConfiguration: TableColumn[] = [
         maxWidth: "300px",
 
         headerAlign: "start",
-        cellAlign: "start",
+        cellAlign: "center",
         editable: true,
         render: (lead: Lead) => {
             return lead.phone?.replace(
@@ -98,36 +157,25 @@ export const columnsConfiguration: TableColumn[] = [
         width: "120px",
         minWidth: "50px",
         maxWidth: "300px",
-
         headerAlign: "start",
-        cellAlign: "start",
+        cellAlign: "center",
         editable: true,
         options: [
-            { label: "신규", value: "NEW" },
-            { label: "진행 중", value: "IN_PROGRESS" },
-            { label: "예약", value: "RESERVED" },
-            { label: "계약 완료", value: "CONTRACTED" },
-            { label: "계약 취소", value: "CANCELED" },
-            { label: "계약 실패", value: "FAILED" },
+            { label: "신규", value: "NEW", color: "bg-[#5D8067] text-white" }, // Muted Green
+            { label: "진행 중", value: "IN_PROGRESS", color: "bg-[#5B7C99] text-white" }, // Muted Blue
+            { label: "예약", value: "RESERVED", color: "bg-[#C28C5D] text-white" }, // Muted Orange
+            { label: "계약 완료", value: "CONTRACTED", color: "bg-[#8C7B9F] text-white" }, // Muted Purple
+            { label: "계약 취소", value: "CANCELED", color: "bg-[#BF6B8E] text-white" }, // Muted Red (Rose)
+            { label: "계약 실패", value: "FAILED", color: "bg-[#888888] text-white" }, // Gray
         ],
 
         render: (lead: Lead) => {
-            switch (lead.stage) {
-                case "NEW":
-                    return "신규";
-                case "IN_PROGRESS":
-                    return "진행 중";
-                case "RESERVED":
-                    return "예약";
-                case "CONTRACTED":
-                    return "계약 완료";
-                case "CANCELED":
-                    return "계약 취소";
-                case "FAILED":
-                    return "계약 실패";
-                default:
-                    return lead.stage;
-            }
+            const option = leadColumns.find(c => c.key === "stage")?.options?.find(o => o.value === lead.stage);
+            return (
+                <div className={`w-full h-full flex items-center justify-center ${option?.color || "bg-secondary text-secondary-foreground"}`}>
+                    {option?.label || lead.stage}
+                </div>
+            );
         },
     },
     {
@@ -141,7 +189,7 @@ export const columnsConfiguration: TableColumn[] = [
         maxWidth: "300px",
 
         headerAlign: "start",
-        cellAlign: "start",
+        cellAlign: "center",
         editable: true,
         options: [
             { label: "월세", value: "WOLSE" },
@@ -149,16 +197,8 @@ export const columnsConfiguration: TableColumn[] = [
             { label: "매매", value: "SALE" },
         ],
         render: (lead: Lead) => {
-            switch (lead.transaction_type) {
-                case "WOLSE":
-                    return "월세";
-                case "JEONSE":
-                    return "전세";
-                case "SALE":
-                    return "매매";
-                default:
-                    return "";
-            }
+            const option = leadColumns.find(c => c.key === "transaction_type")?.options?.find(o => o.value === lead.transaction_type);
+            return option?.label || lead.transaction_type;
         },
     },
     {
@@ -170,7 +210,7 @@ export const columnsConfiguration: TableColumn[] = [
         maxWidth: "300px",
 
         headerAlign: "start",
-        cellAlign: "start",
+        cellAlign: "center",
         editable: true,
         options: [
             { label: "아파트", value: "APARTMENT" },
@@ -182,33 +222,19 @@ export const columnsConfiguration: TableColumn[] = [
         ],
 
         render: (lead: Lead) => {
-            switch (lead.property_type) {
-                case "APARTMENT":
-                    return "아파트";
-                case "VILLA":
-                    return "빌라";
-                case "OFFICETEL":
-                    return "오피스텔";
-                case "ONEROOM":
-                    return "원룸";
-                case "COMMERCIAL":
-                    return "상가";
-                case "LAND":
-                    return "토지";
-                default:
-                    return "";
-            }
+            const option = leadColumns.find(c => c.key === "property_type")?.options?.find(o => o.value === lead.property_type);
+            return option?.label || lead.property_type;
         },
     },
     {
         key: "preferred_region",
         type: "text",
-        name: "희망지역",
+        name: "희망 지역",
         width: "150px",
         minWidth: "50px",
         maxWidth: "300px",
         headerAlign: "start",
-        cellAlign: "start",
+        cellAlign: "center",
         editable: true,
         render: (lead: Lead) => lead.preferred_region || "",
     },
@@ -220,7 +246,7 @@ export const columnsConfiguration: TableColumn[] = [
         minWidth: "50px",
         maxWidth: "300px",
         headerAlign: "start",
-        cellAlign: "start",
+        cellAlign: "center",
         editable: true,
     },
     {
@@ -231,7 +257,7 @@ export const columnsConfiguration: TableColumn[] = [
         minWidth: "50px",
         maxWidth: "300px",
         headerAlign: "start",
-        cellAlign: "start",
+        cellAlign: "center",
         editable: true,
         options: [
             { label: "직방", value: "ZIGBANG" },
@@ -249,23 +275,8 @@ export const columnsConfiguration: TableColumn[] = [
             { label: "기타", value: "ETC" },
         ],
         render: (lead: Lead) => {
-            const map: Record<string, string> = {
-                ZIGBANG: "직방",
-                PETERPAN: "피터팬",
-                DABANG: "다방",
-                NAVER: "네이버",
-                BLOG: "블로그",
-                INSTAGRAM: "인스타그램",
-                WEB_FORM: "문의 폼",
-                YOUTUBE: "유튜브",
-                KAKAO: "카카오",
-                WALKIN: "워크인",
-                CAFE: "카페",
-                REFERRAL: "지인 추천",
-                ETC: "기타",
-            };
-            // cast source to string key to avoid strict enum checking if dirty data exists
-            return map[lead.source as string] || lead.source;
+            const option = leadColumns.find(c => c.key === "source")?.options?.find(o => o.value === lead.source);
+            return option?.label || lead.source;
         },
     },
     {
@@ -276,7 +287,7 @@ export const columnsConfiguration: TableColumn[] = [
         minWidth: "50px",
         maxWidth: "300px",
         headerAlign: "start",
-        cellAlign: "start",
+        cellAlign: "center",
         editable: true,
         getEditValue: (lead: Lead) => ({
             min: lead.deposit_min,
@@ -302,7 +313,7 @@ export const columnsConfiguration: TableColumn[] = [
         minWidth: "50px",
         maxWidth: "300px",
         headerAlign: "start",
-        cellAlign: "start",
+        cellAlign: "center",
         editable: true,
         getEditValue: (lead: Lead) => ({
             min: lead.price_min,
@@ -328,7 +339,7 @@ export const columnsConfiguration: TableColumn[] = [
         minWidth: "50px",
         maxWidth: "300px",
         headerAlign: "start",
-        cellAlign: "start",
+        cellAlign: "center",
         editable: true,
         render: (lead: Lead) => lead.assignee,
     },
@@ -339,7 +350,6 @@ export const columnsConfiguration: TableColumn[] = [
         width: "300px",
         minWidth: "250px",
         maxWidth: "500px",
-
         headerAlign: "start",
         cellAlign: "start",
         editable: true,
@@ -370,13 +380,13 @@ export const columnsConfiguration: TableColumn[] = [
         minWidth: "100px",
         maxWidth: "300px",
         headerAlign: "center",
-        cellAlign: "center",
+        cellAlign: "start",
         editable: false,
         render: (lead: Lead) => {
              if (lead.recommendations === undefined) return "-";
              if (lead.recommendations === null) return "검색 중...";
              if (lead.recommendations.length === 0) return "없음";
-             return <div className="text-center text-(--primary) font-medium cursor-pointer">{lead.recommendations.length}건 매칭</div>;
+             return <div className="text-(--primary) font-medium cursor-pointer">{lead.recommendations.length}건 매칭</div>;
         }
     },
     {
@@ -420,3 +430,5 @@ function formatDate(dateString: string): string {
         day: "2-digit",
     });
 }
+
+

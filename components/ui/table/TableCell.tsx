@@ -2,6 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import { DataTableColumn } from "./types";
 import TableCellEditor from "./TableCellEditor";
+import { Skeleton } from "../Skeleton";
 
 interface TableCellProps<T> {
     row: T & { id: string };
@@ -36,6 +37,7 @@ export function TableCell<T>({
         editingCell?.rowId === row.id && editingCell?.columnKey === column.key;
 
     return (
+        
         <div
             key={column.key}
             className={clsx(

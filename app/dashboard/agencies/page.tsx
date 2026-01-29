@@ -145,7 +145,7 @@ export default function AgencySelectPage() {
                 const data = await res.json();
                 alert("성공적으로 생성되었습니다.");
                 // Redirect to the new agency dashboard
-                router.push(`/dashboard/agencies/${data.agencyId}`);
+                router.push(`/dashboard/agencies/${data.agencyId}/overview`);
                 router.refresh();
             } else {
                 const data = await res.json();

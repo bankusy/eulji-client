@@ -5,13 +5,9 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useUserStore } from "@/hooks/useUserStore";
 import {
     ChevronDown,
-    ChevronLeft,
-    ChevronRight,
-    ChevronUp,
-    LayoutDashboard,
-    ListTodo,
-    UserRoundPlus,
-    Users,
+    LogOut,
+    Settings,
+    User as UserIcon,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
@@ -81,6 +77,8 @@ export default function Sidebar() {
                     theme={systemTheme}
                     isCollapsed={isCollapsed}
                 />
+                {/* Footer */}
+                <SidebarFooter isCollapsed={isCollapsed} />
             </div>
         </div>
     );
@@ -293,7 +291,6 @@ function SidebarBody({
     );
 }
 
-
 function GlobalSearch() {
     const handleGlobalSearch = () => {};
     return (
@@ -305,6 +302,93 @@ function GlobalSearch() {
             <span className="border border-(--border-surface) px-2 py-0.5 rounded-full">
                 cmd+k
             </span>
+        </div>
+    );
+}
+
+function SidebarFooter({ isCollapsed }: { isCollapsed: boolean }) {
+    const { user } = useUserStore();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const handleLogout = async () => {
+        localStorage.clear();
+        sessionStorage.clear();
+
+        const supabase = createSupabaseBrowserClient();
+        await supabase.auth.signOut();
+        window.location.href = "/auth/login";
+    };
+
+    return (
+        <div className="h-[56px] flex flex-col gap-2 relative hover:bg-(--background-hover)">
+            <div 
+                className={`group h-full border border-(--border-surface) rounded-md flex items-center p-2 bg-(--bg-surface) hover:opacity-80 cursor-pointer ${isCollapsed ? "justify-center" : "justify-between"}`}
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+                <div className="flex items-center gap-2">
+                    {user?.avatar_url ? (
+                        <div className="relative w-[28px] h-[28px] rounded-full overflow-hidden border border-(--border-surface)">
+                             <Image
+                                className="object-cover"
+                                src={user.avatar_url}
+                                alt="Avatar"
+                                fill
+                            />
+                        </div>
+                    ) : (
+                         <div className="w-[28px] h-[28px] rounded-full bg-(--border-surface) flex items-center justify-center text-(--foreground-muted)">
+                            <UserIcon size={16} />
+                        </div>
+                    )}
+                    {!isCollapsed && (
+                        <div className="flex flex-col overflow-hidden">
+                            <div className="text-xs truncate font-medium">{user?.email?.split('@')[0]}</div>
+                            <div className="text-xs text-(--foreground-muted) truncate max-w-[120px]">
+                                {user?.email}
+                            </div>
+                        </div>
+                    )}
+                </div>
+                {!isCollapsed && (
+                     <ChevronDown
+                        size={16}
+                        className={`transition-transform duration-200 ${isMenuOpen ? "rotate-180" : ""}`}
+                    />
+                )}
+            </div>
+             {/* 로그아웃 드롭다운 */}
+             {isMenuOpen && (
+                <>
+                    <div
+                        className="fixed inset-0 z-(--z-dropdown-backdrop)"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setIsMenuOpen(false);
+                        }}
+                    />
+                    <div className={`absolute bottom-full mb-2 p-1 w-full min-w-[160px] bg-(--background) border border-(--border-surface) z-(--z-dropdown) rounded-md shadow-lg ${isCollapsed ? "left-0" : "left-0"}`}>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                            }}
+                            className="w-full text-left p-2 hover:bg-(--background-surface-hover) text-xs flex items-center gap-2 text-(--warning) rounded-sm"
+                        >
+                            <Settings size={14} />
+                            <span>프로필 설정</span>
+                        </button>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleLogout();
+                            }}
+                            className="w-full text-left p-2 hover:bg-(--background-surface-hover) text-xs flex items-center gap-2 text-(--warning) rounded-sm"
+                        >
+                            <LogOut size={14} />
+                            <span>로그아웃</span>
+                        </button>
+                    </div>
+                </>
+            )}
         </div>
     );
 }

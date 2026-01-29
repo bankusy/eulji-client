@@ -7,7 +7,7 @@ import { Check, X } from "lucide-react";
 interface TableCellEditorProps {
     initialValue: any;
     type?: "text" | "select" | "date" | "phone" | "price" | "area" | "floor";
-    options?: { label: string; value: string | number }[];
+    options?: { label: string; value: string | number; color?: string }[];
     onSave: (value: any) => void;
     onCancel: () => void;
     className?: string;
@@ -21,7 +21,8 @@ export default function TableCellEditor({
     onCancel,
     className,
 }: TableCellEditorProps) {
-    // 전화번호 포맷팅 함수
+// ... (skipping unchanged parts)
+// 전화번호 포맷팅 함수
     const formatPhoneNumber = (phoneNumber: string) => {
         const numbers = phoneNumber.replace(/\D/g, "");
         if (numbers.length <= 3) return numbers;
@@ -88,16 +89,18 @@ export default function TableCellEditor({
 
     if (type === "select") {
         return (
-            <div ref={containerRef} className="relative w-full h-full">
+            <div ref={containerRef} className="relative w-full h-full p-1">
                 {/* Visual anchor (current value) */}
                 <div 
-                    className="w-full h-full px-2 py-1 flex items-center text-xs cursor-pointer hover:bg-(--bg-hover) rounded-none border border-transparent hover:border-(--border-surface)" 
+                    className={`w-full h-full px-2 py-1 flex items-center justify-center text-xs cursor-pointer hover:bg-(--bg-hover) rounded-none border border-transparent hover:border-(--border-surface) ${
+                        options?.find(o => String(o.value) === String(value))?.color || ""
+                    }`}
                     onClick={() => setIsOpen(!isOpen)}
                 >
                     {options?.find(o => String(o.value) === String(value))?.label || value || ""}
                 </div>
 
-                {/* Absolute Dropdown - Same as price/area/floor */}
+                {/* Absolute Dropdown */}
                 {isOpen && (
                     <div 
                         ref={dropdownRef}
@@ -106,16 +109,19 @@ export default function TableCellEditor({
                             const viewportHeight = window.innerHeight; 
                             const spaceBelow = viewportHeight - (rect?.bottom || 0); 
                             return spaceBelow < 300 && (rect?.top || 0) > spaceBelow ? 'bottom-full mb-1' : 'top-full mt-1'; 
-                        })()} w-[200px] bg-(--background) border border-(--border-surface) rounded-none z-(--z-dropdown) max-h-max overflow-y-auto flex flex-col p-1`}
+                        })()} w-[200px] bg-(--background-subtle) border border-(--border-subtle) rounded-none z-(--z-dropdown) max-h-max overflow-y-auto flex flex-col p-2`}
                     >
                          {options?.map((opt) => (
                             <button
                                 key={opt.value}
                                 className={`
-                                    cursor-pointer w-full text-left px-3 py-2 rounded-none text-sm transition-colors flex items-center justify-between
-                                    ${String(value) === String(opt.value) 
-                                        ? "bg-(--primary) text-(--background)" 
-                                        : "hover:bg-(--background-surface-hover) text-(--foreground)"}
+                                    cursor-pointer w-full text-left px-3 py-2 rounded-none text-sm transition-colors flex items-center justify-between mb-2 last:mb-0
+                                    ${opt.color 
+                                        ? `${opt.color} hover:opacity-90` 
+                                        : (String(value) === String(opt.value) 
+                                            ? "bg-(--primary) text-(--background)" 
+                                            : "hover:bg-(--background-surface-hover) text-(--foreground)")
+                                    }
                                 `}
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -125,7 +131,7 @@ export default function TableCellEditor({
                                 }}
                             >
                                 <span>{opt.label}</span>
-                                {String(value) === String(opt.value) && <Check size={14} />}
+                                {String(value) === String(opt.value) && <Check size={14} className={opt.color ? "text-white" : "text-current"} />}
                             </button>
                         ))}
                     </div>
@@ -144,7 +150,7 @@ export default function TableCellEditor({
              <div ref={containerRef} className="relative w-full h-full">
                 {/* Visual anchor */}
                 <div 
-                    className="w-full h-full px-2 py-1 flex items-center text-xs cursor-pointer hover:bg-(--bg-hover) rounded-none border border-transparent hover:border-(--border-surface)" 
+                    className="w-full h-full px-2 py-1 flex items-center text-xs cursor-pointer  hover:bg-(--background-hover) rounded-none border border-transparent hover:border-(--border-surface)" 
                     onClick={() => setIsOpen(!isOpen)}
                 >
                     {isLeadPrice && (

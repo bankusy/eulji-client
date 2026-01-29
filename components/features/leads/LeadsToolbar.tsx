@@ -1,6 +1,6 @@
 import React from "react";
 import IconWrapper from "@/components/ui/IconWrapper";
-import { Check } from "lucide-react";
+import { Check, RotateCcw } from "lucide-react";
 import ThemeHook from "@/hooks/ThemeHook";
 import clsx from "clsx";
 import Image from "next/image";
@@ -18,6 +18,7 @@ interface LeadsToolbarProps {
     onSearchQueryChange: (val: string) => void;
     onSearchSubmit: () => void;
     getSearchLabel: (key: string) => string;
+    onResetSort?: () => void;
 }
 
 export default function LeadsToolbar({
@@ -31,6 +32,7 @@ export default function LeadsToolbar({
     onSearchQueryChange,
     onSearchSubmit,
     getSearchLabel,
+    onResetSort,
 }: LeadsToolbarProps) {
     const { systemTheme } = ThemeHook();
 
@@ -46,7 +48,6 @@ export default function LeadsToolbar({
                         description="리드 추가"
                         onClick={onOpenAddPanel}
                     />
-                    <div className="relative">
                         <IconWrapper
                             className="border border-(--border-surface)"
                             src={`/icons/visible/${systemTheme}.svg`}
@@ -55,7 +56,6 @@ export default function LeadsToolbar({
                             description="컬럼 표시"
                             onClick={onToggleColumnPopup}
                         />
-                    </div>
                 </div>
             </div>
             

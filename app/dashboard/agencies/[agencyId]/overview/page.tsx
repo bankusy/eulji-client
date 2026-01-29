@@ -1,12 +1,12 @@
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/Badge";
 import { Users, UserPlus, Zap, CheckCircle2 } from "lucide-react";
 import { getDashboardStats } from "../actions";
 import WeeklyTrendChart from "@/components/features/dashboard/WeeklyTrendChart";
 import SourceDistributionChart from "@/components/features/dashboard/SourceDistributionChart";
-import { columnsConfiguration } from "@/types/lead";
+import { leadColumns } from "@/types/lead";
 
 // This is a Server Component
 export default async function DashboardPage({
@@ -18,8 +18,8 @@ export default async function DashboardPage({
     const stats = await getDashboardStats(agencyId);
 
     // Helpers for mapping
-    const stageConfig = columnsConfiguration.find((c) => c.key === "stage");
-    const sourceConfig = columnsConfiguration.find((c) => c.key === "source");
+    const stageConfig = leadColumns.find((c) => c.key === "stage");
+    const sourceConfig = leadColumns.find((c) => c.key === "source");
 
     const getStageLabel = (value: string) =>
         stageConfig?.options?.find((o) => o.value === value)?.label || value;

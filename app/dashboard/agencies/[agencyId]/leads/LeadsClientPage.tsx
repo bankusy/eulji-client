@@ -1,13 +1,10 @@
 "use client";
 
-import useLocalStorage from "@/hooks/useLocalStorage";
-import Image from "next/image";
 import ThemeHook from "@/hooks/ThemeHook";
-import { columnsConfiguration, Lead } from "@/types/lead";
-import clsx from "clsx";
+import { leadColumns, Lead } from "@/types/lead";
 import "@/styles/table.css";
 import "@/styles/dashboard.css";
-import { Dispatch, SetStateAction, useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { ColumnVisibilityPopup } from "@/components/ui/table/ColumnsFilter";
 import { DataTable } from "@/components/ui/table/DataTable";
 import IconWrapper from "@/components/ui/IconWrapper";
@@ -25,6 +22,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useUserStore } from "@/hooks/useUserStore";
 import GlobalLoader from "@/components/ui/GlobalLoader";
 import { DashboardTableLayout } from "@/components/ui/table/DashboardTableLayout";
+import { useLeadsColumns } from "./useLeadsColumns";
 
 interface LeadsClientPageProps {
     initialData: {
@@ -87,12 +85,13 @@ export default function LeadsClientPage({
         stickyColumns,
         setStickyColumns,
         handleColumnResize,
-        resetColumns
+        resetColumns,
+        resetSort
     } = useDataTable<Lead>({
         storageKeyPrefix: "leads",
         defaultVisibleColumns: useMemo(() => {
              const initial: Record<string, boolean> = {};
-             columnsConfiguration.forEach((col) => { initial[col.key] = true; });
+             leadColumns.forEach((column) => { initial[column.key] = true; });
              return initial;
         }, []),
         defaultSearchColumns: {
@@ -103,7 +102,7 @@ export default function LeadsClientPage({
             message: true,
         },
         defaultSort: { column: "created_at", direction: "desc" },
-        columnsConfiguration: columnsConfiguration.map(c => ({ key: c.key, sticky: c.sticky }))
+        columnsConfiguration: leadColumns.map((column) => ({ key: column.key, sticky: column.sticky }))
     });
     
     // Additional Page State (Not covered by useDataTable)
@@ -149,6 +148,9 @@ export default function LeadsClientPage({
         updateLead: updateLeadMutation,
     } = useLeadMutations(agencyId);
 
+    // Debug filters
+    console.log("LeadsClientPage: Current filters:", filters);
+
     const {
         data: leadsData,
         isLoading,
@@ -162,17 +164,38 @@ export default function LeadsClientPage({
         sortColumn: sortConfig?.column || "created_at",
         sortDirection: sortConfig?.direction || "desc",
         filters,
-        initialData, // Pass initialData to hook
+        // Only use initialData when in default state (no search, no filters)
+        // Otherwise, React Query will mistakenly use the unfiltered initialData for filtered keys
+        // and suppress fetching due to staleTime.
+        initialData: 
+            (!activeSearchQuery && 
+             (!filters || Object.keys(filters).length === 0) &&
+             (!sortConfig || (sortConfig.column === "created_at" && sortConfig.direction === "desc"))
+            )
+            ? initialData 
+            : undefined,
     });
 
     const leads = useMemo(() => {
-        const data = leadsData?.pages.flatMap((page) => page.data) || [];
+        const allData = leadsData?.pages.flatMap((page) => page.data) || [];
+        
+        // Deduplicate by ID
+        const uniqueDataMap = new Map();
+        allData.forEach((item) => {
+            if (!uniqueDataMap.has(item.id)) {
+                uniqueDataMap.set(item.id, item);
+            }
+        });
+        
+        const uniqueList = Array.from(uniqueDataMap.values());
+
         if (tempLead) {
-            const exists = data.some((item) => item.id === tempLead.id);
-            if (exists) return data;
-            return [tempLead, ...data];
+            const exists = uniqueDataMap.has(tempLead.id);
+            if (!exists) {
+                return [tempLead, ...uniqueList];
+            }
         }
-        return data;
+        return uniqueList;
     }, [leadsData, tempLead]);
 
     const handleCreateEmptyRow = async () => {
@@ -326,86 +349,21 @@ export default function LeadsClientPage({
     // Sync changes from hook if needed or side effects. The hook handles syncing.
 
 
-    const visibleColumnConfig = useMemo(() => {
-        const colMap = new Map(columnsConfiguration.map((c) => [c.key, c]));
+    // --- Column Configuration Refactoring ---
+    const visibleColumnConfig = useLeadsColumns(
+        columnOrder,
+        visibleColumns,
+        stickyColumns,
+        members,
+        isOwner,
+        // 추천 매물 클릭 핸들러
+        (lead: Lead) => setSelectedLeadForReco(lead)
+    );
 
-        // Helper to merge sticky state
-        const mergeSticky = (c: (typeof columnsConfiguration)[0]) => ({
-            ...c,
-            sticky: stickyColumns[c.key] ?? c.sticky ?? false,
-        });
-
-        const enrichColumn = (c: (typeof columnsConfiguration)[0]) => {
-            const merged = mergeSticky(c);
-            if (merged.key === "assignee") {
-                return {
-                    ...merged,
-                    type: "select" as const,
-                    editable: isOwner,
-                    getEditValue: (lead: Lead) => lead.assigned_user_id,
-                    options: [
-                        { label: "미지정", value: "" },
-                        ...members.map((m: any) => ({
-                            label: m.name,
-                            value: m.id,
-                        })),
-                    ],
-                };
-            }
-            if (merged.key === "recommendations") {
-                return {
-                    ...merged,
-                    render: (row: Lead) => {
-                        const recs = row.recommendations;
-                        return (
-                            <div
-                                className="w-full cursor-pointer hover:bg-(--background-surface) rounded px-2 py-1 transition-colors"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (recs && recs.length > 0) {
-                                        setSelectedLeadForReco(row);
-                                    }
-                                }}
-                            >
-                                {Array.isArray(recs) && recs.length > 0 ? (
-                                    <span className="text-(--primary) font-semibold">
-                                        {recs.length}건 매칭
-                                    </span>
-                                ) : (
-                                    <span className="text-(--foreground-muted) text-xs">
-                                        0건
-                                    </span>
-                                )}
-                            </div>
-                        );
-                    },
-                };
-            }
-            return merged;
-        };
-
-        const ordered = columnOrder
-            .map((key) => colMap.get(key))
-            .filter((c) => c && visibleColumns[c.key])
-            .map((c) => enrichColumn(c!));
-
-        // Debug column visibility
-        // console.log("Visible Columns:", Object.keys(visibleColumns).filter(k => visibleColumns[k]));
-        // console.log("Has Recs Col:", visibleColumns["recommendations"]);
-
-        const missing = columnsConfiguration
-            .filter(
-                (c) => !columnOrder.includes(c.key) && visibleColumns[c.key],
-            )
-            .map((c) => enrichColumn(c));
-
-        return [...ordered, ...missing] as typeof columnsConfiguration;
-    }, [columnOrder, visibleColumns, stickyColumns, members, isOwner]);
-
-    const columnLabels = columnsConfiguration.reduce(
-        (acc, col) => {
-            acc[col.key] = col.name;
-            return acc;
+    const columnLabels = leadColumns.reduce(
+        (accumulator, column) => {
+            accumulator[column.key] = column.name;
+            return accumulator;
         },
         {} as Record<string, string | React.ReactNode>,
     );
@@ -446,7 +404,7 @@ export default function LeadsClientPage({
 
     return (
         <div className="h-full w-full relative">
-            {isLoading && <GlobalLoader />}
+            {/* {isLoading && <GlobalLoader />} */}
             <DashboardTableLayout
                 toolbar={
                     <LeadsToolbar
@@ -475,13 +433,13 @@ export default function LeadsClientPage({
                         setVisibleColumns={setVisibleColumns}
                         stickyColumns={stickyColumns}
                         setStickyColumns={setStickyColumns}
-                        defaultColumns={columnsConfiguration.map((c) => c.key)}
+                        defaultColumns={leadColumns.map((column) => column.key)}
                         onReset={() => {
                             const initialVisible: Record<string, boolean> = {};
                             const initialSticky: Record<string, boolean> = {};
-                            columnsConfiguration.forEach((col) => {
-                                initialVisible[col.key] = true;
-                                if (col.sticky) initialSticky[col.key] = true;
+                            leadColumns.forEach((column) => {
+                                initialVisible[column.key] = true;
+                                if (column.sticky) initialSticky[column.key] = true;
                             });
                             setVisibleColumns(initialVisible);
                             setStickyColumns(initialSticky);

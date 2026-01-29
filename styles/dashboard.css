@@ -42,10 +42,10 @@ body {
     --outline: #444444;
 
     /* 메인 배경 */
-    --background: #ffffff;
+    --background: #f8f8f8;
 
     /* 서브 배경(주 컴포넌트) */
-    --background-surface: #fafafa;
+    --background-surface: #f1f1f1;
     --background-surface-hover: #f3f3f3;
 
     /* 기타 배경(애매한 컴포넌트) */

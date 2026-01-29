@@ -101,7 +101,7 @@ export const listingColumns: ListingColumn[] = [
         minWidth: "80px",
         maxWidth: "150px",
         headerAlign: "left",
-        cellAlign: "left",
+        cellAlign: "center",
         type: "select",
         editable: true,
         options: [
@@ -125,7 +125,7 @@ export const listingColumns: ListingColumn[] = [
         minWidth: "60px",
         maxWidth: "100px",
         headerAlign: "left",
-        cellAlign: "left",
+        cellAlign: "center",
         type: "select",
         editable: true,
         options: [
@@ -149,7 +149,7 @@ export const listingColumns: ListingColumn[] = [
         minWidth: "120px",
         maxWidth: "200px",
         headerAlign: "end",
-        cellAlign: "end",
+        cellAlign: "center",
         type: "price",
         editable: true,
         getEditValue: (item: Listing) => {
@@ -172,7 +172,7 @@ export const listingColumns: ListingColumn[] = [
         minWidth: "80px",
         maxWidth: "150px",
         headerAlign: "left",
-        cellAlign: "left",
+        cellAlign: "center",
         type: "select",
         editable: true,
         options: [
@@ -202,7 +202,7 @@ export const listingColumns: ListingColumn[] = [
         minWidth: "100px",
         maxWidth: "150px",
         headerAlign: "end",
-        cellAlign: "end",
+        cellAlign: "center",
         type: "area",
         editable: true,
         getEditValue: (item: Listing) => ({ supply: item.area_supply_m2, private: item.area_private_m2 }),
@@ -220,7 +220,7 @@ export const listingColumns: ListingColumn[] = [
         minWidth: "60px",
         maxWidth: "100px",
         headerAlign: "left",
-        cellAlign: "left",
+        cellAlign: "center",
         type: "floor",
         editable: true,
         getEditValue: (item: Listing) => ({ floor: item.floor, total: item.total_floors }),
@@ -236,7 +236,7 @@ export const listingColumns: ListingColumn[] = [
         minWidth: "120px",
         maxWidth: "200px",
         headerAlign: "start",
-        cellAlign: "start",
+        cellAlign: "center",
         type: "phone",
         editable: true,
         render: (item: Listing) => {

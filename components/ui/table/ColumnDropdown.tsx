@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { DataTableColumn } from "./types";
+import { Check } from "lucide-react";
 
 interface ColumnDropdownProps {
     column: DataTableColumn;
@@ -40,10 +41,10 @@ export function ColumnDropdown({
             }}
             className={`min-h-max min-w-max flex flex-col gap-1 absolute left-0 ${
                 shouldOpenUp ? "bottom-full mb-2" : "top-full mt-2"
-            } z-(--z-dropdown) table-cell-dropdown bg-(--background) border border-(--border-surface) p-1`}
+            } z-(--z-dropdown) table-cell-dropdown bg-(--background-subtle) border border-(--border-subtle) p-1`}
         >
             <div
-                className="px-2 py-1 hover:opacity-80 hover:bg-(--background) cursor-pointer"
+                className="px-2 py-1 hover:opacity-80 hover:bg-(--background) cursor-pointer flex items-center gap-2"
                 onClick={(e) => {
                     e.stopPropagation();
                     // 현재 오름차순이 선택되어 있으면 해제, 아니면 오름차순 설정
@@ -52,10 +53,13 @@ export function ColumnDropdown({
                     onClose();
                 }}
             >
-                오름차순 정렬
+                <span>오름차순 정렬</span>
+                {sortConfig?.key === column.key && sortConfig?.direction === "asc" && (
+                    <Check size={14} className="text-(--primary)" />
+                )}
             </div>
             <div
-                className="px-2 py-1 hover:opacity-80 hover:bg-(--background) cursor-pointer"
+                className="px-2 py-1 hover:opacity-80 hover:bg-(--background) cursor-pointer flex items-center gap-2"
                 onClick={(e) => {
                     e.stopPropagation();
                     // 현재 내림차순이 선택되어 있으면 해제, 아니면 내림차순 설정
@@ -64,7 +68,10 @@ export function ColumnDropdown({
                     onClose();
                 }}
             >
-                내림차순 정렬
+                <span>내림차순 정렬</span>
+                {sortConfig?.key === column.key && sortConfig?.direction === "desc" && (
+                    <Check size={14} className="text-(--primary)" />
+                )}
             </div>
 
             {/* Filter Options */}

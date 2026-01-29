@@ -31,7 +31,7 @@ function mapLeadToDb(lead: Partial<Lead>) {
     return {
         ...rest,
         // 필드명은 이미 snake_case이므로 그대로 사용
-        property_type,
+        preferred_type: property_type, // Map TS 'property_type' to DB 'preferred_type'
         transaction_type,
         deposit_min,
         deposit_max,
@@ -212,13 +212,45 @@ export async function getLeads(
 
     if (filters) {
         Object.entries(filters).forEach(([key, values]) => {
-            if (values.length > 0) {
+            if (values && values.length > 0) {
                 let dbKey = key;
-                if (key === "property_type") dbKey = "property_type";
-                if (key === "transaction_type") dbKey = "transaction_type";
-                if (key === "message") dbKey = "message";
+                // Field Mapping
+                if (key === "property_type") dbKey = "preferred_type";
+                if (key === "assignee") dbKey = "assigned_user_id";
+                
+                // Allow-list for safety
+                const allowedFilters = [
+                    "stage", 
+                    "source", 
+                    "transaction_type", 
+                    "preferred_type", 
+                    "assigned_user_id",
+                    "message"
+                ];
 
-                queryBuilder = queryBuilder.in(dbKey, values);
+                if (allowedFilters.includes(dbKey)) {
+                    // Special handling for "Unassigned" (empty string) or NULL checks
+                    const hasEmpty = values.includes("");
+                    const validValues = values.filter(v => v !== "");
+
+                    if (dbKey === "assigned_user_id") {
+                         if (hasEmpty && validValues.length > 0) {
+                             // (assigned_user_id IN (...) OR assigned_user_id IS NULL)
+                             // Supabase .or() syntax: "col.in.(val1,val2),col.is.null"
+                             const cond = `${dbKey}.in.(${validValues.join(",")}),${dbKey}.is.null`;
+                             queryBuilder = queryBuilder.or(cond);
+                         } else if (hasEmpty) {
+                             queryBuilder = queryBuilder.is(dbKey, null);
+                         } else if (validValues.length > 0) {
+                             queryBuilder = queryBuilder.in(dbKey, validValues);
+                         }
+                    } else {
+                        // Standard handling for other columns
+                         if (validValues.length > 0) {
+                            queryBuilder = queryBuilder.in(dbKey, validValues);
+                        }
+                    }
+                }
             }
         });
     }
