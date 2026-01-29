@@ -4,15 +4,10 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { verifyAgencyAccess } from "@/lib/auth/agency"; // Import added
 
 // 사용하는 쿼리들 정리해놓은 곳
-export async function getDashboardStats(agencyId: string) {
+export async function getDashboardCounts(agencyId: string) {
     const supabase = await createSupabaseServerClient();
-
     const today = new Date().toISOString().split("T")[0];
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const sevenDaysAgoStr = sevenDaysAgo.toISOString();
 
-    // 1. Prepare Promises for Parallel Execution
     const totalLeadsPromise = supabase
         .from("leads")
         .select("*", { count: "exact", head: true })
@@ -41,6 +36,27 @@ export async function getDashboardStats(agencyId: string) {
         .eq("agency_id", agencyId)
         .eq("stage", "SUCCESS");
 
+    const [totalRes, newTodayRes, activeRes, successRes] = await Promise.all([
+        totalLeadsPromise,
+        newLeadsTodayPromise,
+        activeLeadsPromise,
+        successLeadsPromise,
+    ]);
+
+    return {
+        total: totalRes.count || 0,
+        newToday: newTodayRes.count || 0,
+        active: activeRes.count || 0,
+        success: successRes.count || 0,
+    };
+}
+
+export async function getDashboardChartsData(agencyId: string) {
+    const supabase = await createSupabaseServerClient();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const sevenDaysAgoStr = sevenDaysAgo.toISOString();
+
     const sourceDataPromise = supabase
         .from("leads")
         .select("source")
@@ -51,43 +67,28 @@ export async function getDashboardStats(agencyId: string) {
         .select("created_at")
         .eq("agency_id", agencyId)
         .gte("created_at", sevenDaysAgoStr);
-
-    const recentLeadsPromise = supabase
-        .from("leads")
-        .select("id, name, stage, created_at, phone")
-        .eq("agency_id", agencyId)
-        .order("created_at", { ascending: false })
-        .limit(5);
-
-    const [
-        totalRes,
-        newTodayRes,
-        activeRes,
-        successRes,
-        sourceRes,
-        trendRes,
-        recentRes,
-    ] = await Promise.all([
-        totalLeadsPromise,
-        newLeadsTodayPromise,
-        activeLeadsPromise,
-        successLeadsPromise,
+    
+    // We also need total count for the source chart percentage calculation if needed, 
+    // but the component might just need the distribution. 
+    // Let's fetch total count again or just pass it if we want to be pure.
+    // However, for independence, let's just fetch the raw data and let client calc/or count here.
+    // Actually sourceDistributionChart takes `totalCount` as prop in the original code.
+    // We can either return it here or pass from the counts query if we nest props.
+    // To keep sections independent, let's just count total from sourceDataPromise (it has all sources)
+    // Wait, sourceDataPromise selects all rows? If so, its length is total leads.
+    
+    const [sourceRes, trendRes] = await Promise.all([
         sourceDataPromise,
         trendDataPromise,
-        recentLeadsPromise,
     ]);
 
-    // 3. Process Results
-    const totalLeads = totalRes.count;
-    const newLeadsToday = newTodayRes.count;
-    const activeLeads = activeRes.count;
-    const successLeads = successRes.count;
-
-    // Source Distribution
+    // Process Source Distribution
     const sourceMap: Record<string, number> = {};
+    let totalCount = 0;
     sourceRes.data?.forEach((item) => {
         const source = item.source || "UNKNOWN";
         sourceMap[source] = (sourceMap[source] || 0) + 1;
+        totalCount++;
     });
 
     const sourceDistribution = Object.entries(sourceMap)
@@ -97,7 +98,7 @@ export async function getDashboardStats(agencyId: string) {
         }))
         .sort((a, b) => b.value - a.value);
 
-    // Weekly Trend
+    // Process Weekly Trend
     const trendMap: Record<string, number> = {};
     for (let i = 6; i >= 0; i--) {
         const d = new Date();
@@ -119,16 +120,22 @@ export async function getDashboardStats(agencyId: string) {
     }));
 
     return {
-        counts: {
-            total: totalLeads || 0,
-            newToday: newLeadsToday || 0,
-            active: activeLeads || 0,
-            success: successLeads || 0,
-        },
         sourceDistribution,
         weeklyTrend,
-        recentLeads: recentRes.data || [],
+        totalCount, // Returning this for the chart
     };
+}
+
+export async function getRecentLeads(agencyId: string) {
+    const supabase = await createSupabaseServerClient();
+    const { data } = await supabase
+        .from("leads")
+        .select("id, name, stage, created_at, phone")
+        .eq("agency_id", agencyId)
+        .order("created_at", { ascending: false })
+        .limit(5);
+    
+    return data || [];
 }
 
 export async function getAgencyMembers(agencyId: string) {

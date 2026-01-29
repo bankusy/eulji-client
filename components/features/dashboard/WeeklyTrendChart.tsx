@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/v1/Chart";
 
-interface WeeklyTrendChartProps {
+export interface WeeklyTrendChartProps {
     data: { date: string; count: number }[];
 }
 

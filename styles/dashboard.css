@@ -37,7 +37,7 @@ body {
     --foreground-muted: #939390;
     --foreground-hover: #494949;
 
-    --primary: #3ce8ae;
+    --primary: #5259F5;
     --ring: #2c2c2c;
     --outline: #444444;
 
@@ -121,7 +121,7 @@ body {
         --foreground-muted: #a1a1a1;
         --foreground-hover: #8b8b8b;
 
-        --primary: #209c72;
+        --primary: #5259F5;
         --ring: #e6e6e6;
         --outline: #ededed;
 

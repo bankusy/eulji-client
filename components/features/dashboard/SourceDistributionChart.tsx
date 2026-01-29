@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/v1/Chart";
 import { Pie, PieChart, Label } from "recharts";
 
-interface SourceDistributionChartProps {
+export interface SourceDistributionChartProps {
     data: { name: string; value: number }[];
     totalCount: number;
 }

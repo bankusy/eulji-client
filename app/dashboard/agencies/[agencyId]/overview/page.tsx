@@ -1,12 +1,11 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/v1/Card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/v1/Badge";
 import { Users, UserPlus, Zap, CheckCircle2 } from "lucide-react";
-import { getDashboardStats } from "../actions";
-import WeeklyTrendChart from "@/components/features/dashboard/WeeklyTrendChart";
-import SourceDistributionChart from "@/components/features/dashboard/SourceDistributionChart";
-import { leadColumns } from "@/types/lead";
+import { getDashboardCounts } from "../actions"; // IMPORT CHANGED
+// Removed direct imports of charts and leads component
+import DashboardChartsSection from "@/components/features/dashboard/overview/DashboardChartsSection";
+import RecentLeadsSection from "@/components/features/dashboard/overview/RecentLeadsSection";
+import { Skeleton } from "@/components/ui/v1/Skeleton";
 
 // This is a Server Component
 export default async function DashboardPage({
@@ -15,23 +14,8 @@ export default async function DashboardPage({
     params: Promise<{ agencyId: string }>;
 }) {
     const { agencyId } = await params;
-    const stats = await getDashboardStats(agencyId);
-
-    // Helpers for mapping
-    const stageConfig = leadColumns.find((c) => c.key === "stage");
-    const sourceConfig = leadColumns.find((c) => c.key === "source");
-
-    const getStageLabel = (value: string) =>
-        stageConfig?.options?.find((o) => o.value === value)?.label || value;
-
-    const getSourceLabel = (value: string) =>
-        sourceConfig?.options?.find((o) => o.value === value)?.label || value;
-
-    // Map source distribution data to Korean labels
-    const mappedSourceDistribution = stats.sourceDistribution.map((item: { name: string; value: number }) => ({
-        ...item,
-        name: getSourceLabel(item.name),
-    }));
+    // CRITICAL: Only blocking call is for counts
+    const stats = await getDashboardCounts(agencyId);
 
     return (
         <div className="flex flex-col h-full w-full overflow-hidden">
@@ -46,7 +30,7 @@ export default async function DashboardPage({
                             <Users className="h-4 w-4 text-(--foreground-muted)" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-(--foreground)">{stats.counts.total.toLocaleString()}</div>
+                            <div className="text-2xl font-bold text-(--foreground)">{stats.total.toLocaleString()}</div>
                             <p className="text-xs text-(--foreground-muted)">누적 등록된 총 리드 수</p>
                         </CardContent>
                     </Card>
@@ -56,10 +40,10 @@ export default async function DashboardPage({
                             <UserPlus className="h-4 w-4 text-(--foreground-muted)" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-(--foreground)">{stats.counts.newToday.toLocaleString()}</div>
+                            <div className="text-2xl font-bold text-(--foreground)">{stats.newToday.toLocaleString()}</div>
                             <p className="text-xs text-(--foreground-muted)">
-                                {stats.counts.newToday > 0 ? (
-                                    <span className="text-green-500 font-medium">+{stats.counts.newToday}명 추가됨</span>
+                                {stats.newToday > 0 ? (
+                                    <span className="text-green-500 font-medium">+{stats.newToday}명 추가됨</span>
                                 ) : (
                                     "오늘 추가된 리드가 없습니다"
                                 )}
@@ -72,7 +56,7 @@ export default async function DashboardPage({
                             <Zap className="h-4 w-4 text-(--foreground-muted)" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-(--foreground)">{stats.counts.active.toLocaleString()}</div>
+                            <div className="text-2xl font-bold text-(--foreground)">{stats.active.toLocaleString()}</div>
                             <p className="text-xs text-(--foreground-muted)">상담 및 계약 진행 중</p>
                         </CardContent>
                     </Card>
@@ -82,63 +66,38 @@ export default async function DashboardPage({
                             <CheckCircle2 className="h-4 w-4 text-(--foreground-muted)" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-(--foreground)">{stats.counts.success.toLocaleString()}</div>
+                            <div className="text-2xl font-bold text-(--foreground)">{stats.success.toLocaleString()}</div>
                             <p className="text-xs text-(--foreground-muted)">계약 성공 건수</p>
                         </CardContent>
                     </Card>
                 </div>
 
                 {/* 3. Charts & Recent Activity */}
-                {/* 3. Charts & Recent Activity */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-2">
-                    {/* Weekly Trend Chart (4 cols) */}
-                    <WeeklyTrendChart data={stats.weeklyTrend} />
+                {/* 3. Charts & Recent Activity - Wrapped in Suspense */}
+                <Suspense fallback={<ChartsSkeleton />}>
+                    <DashboardChartsSection agencyId={agencyId} />
+                </Suspense>
 
-                    {/* Source Distribution Pie Chart (3 cols) */}
-                    <SourceDistributionChart
-                        data={mappedSourceDistribution}
-                        totalCount={stats.counts.total}
-                    />
-                </div>
-
-                {/* 4. Recent Leads */}
-                <Card className="bg-(--background-surface) border-(--border-surface)">
-                    <CardHeader>
-                        <CardTitle className="text-(--foreground)">최근 등록된 리드</CardTitle>
-                        <CardDescription className="text-(--foreground-muted)">가장 최근에 등록된 5명의 리드입니다.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-2">
-                            {stats.recentLeads.map((lead) => (
-                                <div key={lead.id} className="flex items-center">
-                                    <Avatar className="h-9 w-9">
-                                        <AvatarImage src={`https://avatar.vercel.sh/${lead.name}.png`} alt={lead.name} />
-                                        <AvatarFallback className="bg-(--background-subtle) text-(--foreground)">{lead.name.slice(0, 2)}</AvatarFallback>
-                                    </Avatar>
-                                    <div className="ml-4 space-y-1">
-                                        <p className="text-sm font-medium leading-none text-(--foreground)">{lead.name}</p>
-                                        <p className="text-sm text-(--foreground-muted)">{lead.phone || "연락처 없음"}</p>
-                                    </div>
-                                    <div className="ml-auto font-medium">
-                                        <Badge variant={
-                                            // lead.stage === 'SUCCESS' ? "default" :
-                                                // lead.stage === 'NEW' ? "secondary" : "outline"
-                                                "default"
-                                        }>
-                                            {getStageLabel(lead.stage)}
-                                        </Badge>
-                                    </div>
-                                </div>
-                            ))}
-                            {stats.recentLeads.length === 0 && (
-                                <div className="text-center text-(--foreground-muted) py-4">
-                                    등록된 리드가 없습니다.
-                                </div>
-                            )}
-                        </div>
-                    </CardContent>
-                </Card>
+                {/* 4. Recent Leads - Wrapped in Suspense */}
+                <Suspense fallback={<RecentLeadsSkeleton />}>
+                    <RecentLeadsSection agencyId={agencyId} />
+                </Suspense>
             </div>
         </div>
     );
+}
+
+function ChartsSkeleton() {
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-2">
+            <div className="col-span-1 md:col-span-1 lg:col-span-4 h-[300px] w-full bg-(--background-surface) border border-(--border-surface) rounded-xl animate-pulse" />
+            <div className="col-span-1 md:col-span-1 lg:col-span-3 h-[300px] w-full bg-(--background-surface) border border-(--border-surface) rounded-xl animate-pulse" />
+        </div>
+    )
+}
+
+function RecentLeadsSkeleton() {
+    return (
+        <div className="h-[400px] w-full bg-(--background-surface) border border-(--border-surface) rounded-xl animate-pulse" />
+    )
 }
