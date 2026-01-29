@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/v1/Card";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/Chart";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/v1/Chart";
 
 interface WeeklyTrendChartProps {
     data: { date: string; count: number }[];
